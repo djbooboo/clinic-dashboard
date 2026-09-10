@@ -1,333 +1,249 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>다정부부한의원 업무 대시보드</title>
-    <!-- Google API & GIS Client -->
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { background-color: #121212; color: #E5E7EB; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        .card { background-color: #1E1E1E; border: 1px solid #333333; border-radius: 8px; }
-        .locked { opacity: 0.25; pointer-events: none; filter: grayscale(100%); }
-    </style>
+ <meta charset="UTF-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ <title>다정부부한의원 업무 대시보드</title>
+ <script src="https://accounts.google.com/gsi/client" async defer></script>
+ <style>
+ * { box-sizing: border-box; margin: 0; padding: 0; }
+
+ /* 2번 스타일: 부드럽고 청량한 스카이 민트 (Soft Sky Mint) 테마 */
+ body { background-color: #F0F4F4; color: #2D373A; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px 20px; font-size: 13px; }
+
+ .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
+ .brand-group { display: flex; align-items: flex-end; gap: 16px; }
+ .header-logo { height: 90px; width: auto; display: block; }
+ .title { font-size: 34px; font-weight: 700; color: #1E292B; letter-spacing: -0.5px; line-height: 1; margin-bottom: 4px; }
+
+ .auth-btn-group { display: flex; gap: 10px; align-items: center; }
+ .role-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #E2EFEF; border: 1px solid #CBDCE0; color: #3A4E54; }
+ .btn-login { padding: 6px 14px; background: #0284C7; color: #FFF; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12.5px; }
+ .btn-login:hover { background: #0369A1; }
+ .btn-logout { padding: 6px 14px; background: #E2EFEF; color: #3A4E54; border: 1px solid #CBDCE0; border-radius: 5px; cursor: pointer; display: none; font-size: 12.5px; }
+ .btn-logout:hover { background: #D3E5E8; }
+
+ /* 상단 통합 그리드: 세 영역 한 줄 배치 */
+ .top-layout-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 14px; margin-bottom: 16px; align-items: stretch; }
+
+ /* 1, 2. 임시공지 칸 스타일 */
+ .notice-board-section { background-color: #FFFFFF; border: 1px solid #D4E2E5; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(45,55,58,0.04); display: flex; flex-direction: column; gap: 8px; }
+ .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+ .section-title-group { display: flex; align-items: baseline; gap: 6px; }
+ .notice-label { font-size: 13.5px; font-weight: bold; color: #0284C7; }
+ .section-desc { font-size: 11px; color: #64747B; }
+
+ .notice-row { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
+ .notice-input { flex-grow: 1; border: 1px solid #CBDCE0; border-radius: 4px; padding: 5px 8px; font-size: 12.5px; color: #1E292B; background-color: #F7FAFA; outline: none; }
+ .notice-input:focus { background-color: #FFFFFF; border-color: #0284C7; box-shadow: 0 0 0 2px rgba(2,132,199,0.1); }
+ .notice-btn { padding: 4px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; white-space: nowrap; }
+ .btn-save-row { background-color: #0284C7; color: #FFF; }
+ .btn-save-row:hover { background-color: #0369A1; }
+ .btn-clear-row { background-color: #E2EFEF; color: #4A5D63; border: 1px solid #CBDCE0; }
+ .btn-clear-row:hover { background-color: #D3E5E8; color: #2D373A; }
+
+ /* 3. 최근 업데이트된 문서 칸 */
+ .recent-pane { background-color: #FFFFFF; border: 1px solid #D4E2E5; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(45,55,58,0.04); display: flex; flex-direction: column; }
+ .recent-results { max-height: 115px; overflow-y: auto; }
+ .recent-results-list { list-style: none; }
+ .recent-results-list li { padding: 5px 6px; border-bottom: 1px solid #EAF1F2; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #3A4E54; }
+ .recent-results-list a { color: #0284C7; text-decoration: none; font-weight: 500; }
+ .recent-results-list a:hover { text-decoration: underline; }
+ .file-date { font-size: 11px; color: #64747B; margin-left: 6px; }
+
+ /* 출퇴근 기록 칸 */
+ .attendance-pane { background-color: #FFFFFF; border: 1px solid #D4E2E5; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(45,55,58,0.04); display: flex; flex-direction: column; }
+ .attendance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; flex-grow: 1; align-content: center; }
+ .member-card { background-color: #F7FAFA; border: 1px solid #D4E2E5; border-radius: 6px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; }
+
+ .member-name { font-size: 12.5px; font-weight: bold; color: #1E292B; white-space: nowrap; }
+ .btn-toggle-att { padding: 3px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; white-space: nowrap; }
+ .state-in { background-color: #E6F4EA; color: #137333; border: 1px solid #CEEAD6; }
+ .state-out { background-color: #FCE8E6; color: #C5221F; border: 1px solid #FAD2CF; }
+
+ .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.3); display: flex; justify-content: center; align-items: center; z-index: 1000; display: none; }
+ .modal-box { background-color: #FFFFFF; border: 1px solid #D4E2E5; border-radius: 8px; padding: 20px 24px; width: 320px; text-align: center; box-shadow: 0 4px 12px rgba(45,55,58,0.1); }
+ .modal-msg { font-size: 14px; color: #1E292B; margin-bottom: 16px; line-height: 1.4; }
+ .modal-btn-group { display: flex; gap: 8px; justify-content: center; }
+ .modal-btn { padding: 6px 16px; font-size: 13px; font-weight: bold; border-radius: 5px; border: none; cursor: pointer; }
+ .modal-btn-confirm { background-color: #0284C7; color: #FFF; }
+ .modal-btn-cancel { background-color: #E2EFEF; color: #3A4E54; }
+
+ .toast-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.15); display: flex; justify-content: center; align-items: center; z-index: 1100; display: none; }
+ .toast-box { background-color: #FFFFFF; border: 1px solid #D4E2E5; border-radius: 8px; padding: 16px 24px; text-align: center; font-size: 14px; color: #1E292B; font-weight: bold; box-shadow: 0 4px 12px rgba(45,55,58,0.1); }
+
+ .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+ .column { background-color: #FFFFFF; border-radius: 8px; padding: 12px; border: 1px solid #D4E2E5; box-shadow: 0 1px 3px rgba(45,55,58,0.04); }
+ .column-header { padding: 5px 10px; border-radius: 4px; font-size: 14px; font-weight: 700; margin-bottom: 10px; display: inline-block; width: 100%; }
+ .column-header a { color: inherit; text-decoration: none; display: flex; justify-content: space-between; align-items: center; }
+ .column-subtext { font-size: 10.5px; font-weight: normal; opacity: 0.8; margin-top: 2px; display: block; }
+
+ /* 스카이 민트 테마에 맞춘 파스텔 톤 메뉴별 컬러 */
+ .bg-blue { background-color: #E0F2FE; color: #0369A1; }
+ .bg-green { background-color: #E8F8F0; color: #15803D; }
+ .bg-teal { background-color: #CCFBF1; color: #0F766E; }
+ .bg-purple { background-color: #F3E8FF; color: #7E22CE; }
+ .bg-yellow { background-color: #FEF9C3; color: #A16207; }
+
+ .link-list { list-style: none; }
+ .link-item { margin-bottom: 3px; }
+ .link-item a { display: flex; align-items: center; gap: 6px; padding: 5px 6px; color: #3A4E54; text-decoration: none; font-size: 12px; border-radius: 4px; }
+ .link-item a:hover { background-color: #EAF1F2; color: #1E292B; }
+ .locked { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
+
+ @media (max-width: 1200px) {
+ .top-layout-grid { grid-template-columns: 1fr; }
+ .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+ }
+ </style>
 </head>
-<body class="p-6">
+<body>
 
-    <!-- 상단 헤더 -->
-    <header class="flex justify-between items-center mb-6 pb-4 border-b border-gray-800">
-        <div class="flex items-center space-x-3">
-            <h1 class="text-2xl font-bold text-white">언제나 정성을 다하는 <br><span class="text-3xl">다정부부한의원 업무 대시보드</span></h1>
-        </div>
-        <div class="flex items-center space-x-3">
-            <span id="userStatus" class="px-3 py-1 bg-gray-800 border border-gray-700 rounded-full text-sm font-medium">🔒 01 전직원 접근 가능</span>
-            <button id="btnLogin" onclick="handleAuthClick()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-semibold transition">Google 로그인</button>
-            <button id="btnLogout" onclick="handleSignoutClick()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-md text-sm font-semibold transition hidden">로그아웃</button>
-        </div>
-    </header>
+ <div id="customModal" class="modal-overlay">
+ <div class="modal-box">
+ <div id="modalMsg" class="modal-msg">메시지 내용</div>
+ <div class="modal-btn-group">
+ <button id="modalConfirmBtn" class="modal-btn modal-btn-confirm">확인</button>
+ <button id="modalCancelBtn" class="modal-btn modal-btn-cancel">취소</button>
+ </div>
+ </div>
+ </div>
 
-    <!-- 메인 대시보드 그리드 -->
-    <main class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-        <!-- 📌 임시공지 카드 -->
-        <section class="card p-4">
-            <div class="flex justify-between items-center mb-3">
-                <h2 class="font-bold text-yellow-400">📌 임시공지 <span class="text-xs text-gray-400 font-normal">원내 실시간 메모 공간</span></h2>
-            </div>
-            <div id="noticeList" class="space-y-2 mb-3 min-h-[100px] max-h-[150px] overflow-y-auto">
-                <!-- 동적 공지 항목 생성 -->
-            </div>
-            <div class="flex space-x-2">
-                <input type="text" id="noticeInput" placeholder="새로운 임시공지 입력..." class="flex-1 bg-gray-900 border border-gray-700 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 text-white">
-                <button onclick="addNotice()" class="bg-blue-600 hover:bg-blue-700 px-4 py-1.5 rounded text-sm font-semibold text-white">저장</button>
-            </div>
-        </section>
+ <div id="toastModal" class="toast-overlay">
+ <div id="toastMsg" class="toast-box">완료 메시지</div>
+ </div>
 
-        <!-- 📢 최근 업데이트된 문서 카드 -->
-        <section class="card p-4">
-            <h2 class="font-bold text-pink-400 mb-3">📢 최근 업데이트된 문서 <span class="text-xs text-gray-400 font-normal">최근 5일간 수정된 파일</span></h2>
-            <ul id="recentFileList" class="space-y-2 text-sm max-h-[180px] overflow-y-auto">
-                <li class="text-gray-500 italic">문서를 불러오는 중...</li>
-            </ul>
-        </section>
+ <div class="header">
+ <div class="brand-group">
+ <img src="logo.png" alt="다정부부한의원" class="header-logo">
+ <h1 class="title">업무 대시보드</h1>
+ </div>
+ <div class="auth-btn-group">
+ <span id="userStatus" class="role-badge">🔒 01 전직원 접근 가능</span>
+ <button id="btnLogin" class="btn-login" onclick="handleAuthClick()">구글 로그인</button>
+ <button id="btnLogout" class="btn-logout" onclick="handleSignoutClick()">로그아웃</button>
+ </div>
+ </div>
 
-        <!-- ⏰ 출퇴근 기록 카드 -->
-        <section class="card p-4">
-            <h2 class="font-bold text-blue-400 mb-3">⏰ 출퇴근 기록 <span class="text-xs text-gray-400 font-normal">터치 시 출/퇴근 교대 기록</span></h2>
-            <div id="staffGrid" class="grid grid-cols-2 gap-2 text-sm">
-                <!-- 직원별 출퇴근 버튼 동적 생성 -->
-            </div>
-        </section>
-    </main>
+ <!-- 상단 가로 3열 레이아웃 -->
+ <div class="top-layout-grid">
 
-    <!-- 폴더 메뉴 그리드 -->
-    <section class="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <!-- 01 전직원 (접수/치료) -->
-        <div id="colStaff" class="card p-4 border-l-4 border-blue-500">
-            <h3 class="font-bold text-lg text-blue-400 mb-1">🏥 접수 / 치료</h3>
-            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            <ul id="folderListStaff" class="space-y-2 text-sm"></ul>
-        </div>
+ <!-- 1, 2. 임시공지 칸 (줄별 개별 저장/삭제) -->
+ <div class="notice-board-section">
+ <div class="section-header-row">
+ <div class="section-title-group">
+ <span class="notice-label">📌 임시공지</span>
+ <span class="section-desc">원내 실시간 메모 공간</span>
+ </div>
+ </div>
+ <!-- 줄 1 -->
+ <div class="notice-row">
+ <input type="text" id="noticeInput0" class="notice-input" placeholder="1번 공지사항 입력...">
+ <button class="notice-btn btn-save-row" onclick="saveRow(0)">저장</button>
+ <button class="notice-btn btn-clear-row" onclick="clearRow(0)">삭제</button>
+ </div>
+ <!-- 줄 2 -->
+ <div class="notice-row">
+ <input type="text" id="noticeInput1" class="notice-input" placeholder="2번 공지사항 입력...">
+ <button class="notice-btn btn-save-row" onclick="saveRow(1)">저장</button>
+ <button class="notice-btn btn-clear-row" onclick="clearRow(1)">삭제</button>
+ </div>
+ <!-- 줄 3 -->
+ <div class="notice-row">
+ <input type="text" id="noticeInput2" class="notice-input" placeholder="3번 공지사항 입력...">
+ <button class="notice-btn btn-save-row" onclick="saveRow(2)">저장</button>
+ <button class="notice-btn btn-clear-row" onclick="clearRow(2)">삭제</button>
+ </div>
+ </div>
 
-        <!-- 01 전직원 (매뉴얼) -->
-        <div id="colManual" class="card p-4 border-l-4 border-green-500">
-            <h3 class="font-bold text-lg text-green-400 mb-1">📜 매뉴얼</h3>
-            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            <ul id="folderListManual" class="space-y-2 text-sm"></ul>
-        </div>
+ <!-- 3. 최근 업데이트된 문서 칸 -->
+ <div class="recent-pane">
+ <div class="section-header-row" style="margin-bottom: 8px;">
+ <div class="section-title-group">
+ <span style="font-size: 13.5px; font-weight: bold; color: #0284C7;">📢 최근 업데이트된 문서</span>
+ <span class="section-desc">최근 5일간 수정된 파일</span>
+ </div>
+ </div>
+ <div id="resultsContent" class="recent-results">
+ <p style="color:#64747B; padding:4px 0; font-size:12px;">최근 업데이트 문서를 불러오는 중입니다...</p>
+ </div>
+ </div>
 
-        <!-- 02 탕전실 -->
-        <div id="colDecoction" class="card p-4 border-l-4 border-amber-500 locked">
-            <h3 class="font-bold text-lg text-amber-400 mb-1">🍶 탕전실</h3>
-            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            <ul id="folderListDecoction" class="space-y-2 text-sm"></ul>
-        </div>
+ <!-- 출퇴근 기록 칸 -->
+ <div class="attendance-pane">
+ <div class="section-header-row" style="margin-bottom: 8px;">
+ <div class="section-title-group">
+ <span style="font-size: 13.5px; font-weight: bold; color: #0284C7;">⏰ 출퇴근 기록</span>
+ <span class="section-desc">터치 시 출/퇴근 교대 기록</span>
+ </div>
+ </div>
+ <div class="attendance-grid" id="attendanceGrid"></div>
+ </div>
 
-        <!-- 03 진료 -->
-        <div id="colDoctor" class="card p-4 border-l-4 border-purple-500 locked">
-            <h3 class="font-bold text-lg text-purple-400 mb-1">🩺 진료</h3>
-            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            <ul id="folderListDoctor" class="space-y-2 text-sm"></ul>
-        </div>
+ </div>
 
-        <!-- 04 경영 -->
-        <div id="colAdmin" class="card p-4 border-l-4 border-red-500 locked">
-            <h3 class="font-bold text-lg text-red-400 mb-1">💰 경영</h3>
-            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            <ul id="folderListAdmin" class="space-y-2 text-sm"></ul>
-        </div>
-    </section>
+ <!-- 하단 5개 폴더 메뉴 -->
+ <div class="dashboard-grid">
+ <div class="column" id="colReception">
+ <div class="column-header bg-blue">
+ <a href="https://drive.google.com/drive/folders/1w2C4X7dtGdOdLnBkkGLqWW18C3z5HSQG" target="_blank">
+ <span>🏥 접수 / 치료</span>
+ <span style="font-size: 11px;">↗</span>
+ </a>
+ <span class="column-subtext">원내 공지 및 접수 관련 자료</span>
+ </div>
+ <ul class="link-list">
+ <li class="link-item"><a href="https://docs.google.com/document/d/1_JetPI2A6iw_0WccOxRhg7_Pv3ve54WfOZLOu5osWvw/edit?usp=sharing" target="_blank">📢 전체 공지 사항</a></li>
 
-    <!-- 알림 토스트 -->
-    <div id="toast" class="fixed bottom-5 right-5 bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded shadow-lg hidden"></div>
+[... middle omitted — see footer ...]
 
-    <script>
-        const CONFIG = {
-            CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
-            GAS_URL: 'https://script.google.com/macros/s/AKfycbyvLSeRmv-dExUjuiDrFGoFQQeEnZIWCRvL_nRITravpe_QTM3KV1hPitC7L2sxEuYw/exec',
-            ACCOUNTS: {
-                ADMIN: ['amercury74@gmail.com'],
-                DOCTOR: ['doctor1@gmail.com'],
-                DECOCTION: ['decoct@gmail.com']
-            },
-            FOLDERS: {
-                STAFF: '1-StaffFolderIDSample',
-                DECOCTION: '1-DecoctionFolderIDSample',
-                DOCTOR: '1-DoctorFolderIDSample',
-                ADMIN: '1-AdminFolderIDSample'
-            }
-        };
+ .btn-login { padding: 6px 14px; background: #0EA5E9; color: #FFF; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12.5px; }
+ .btn-login:hover { background: #0284C7; }
+ .btn-logout { padding: 6px 14px; background: #2A383D; color: #A4B5BC; border: 1px solid #3B4D53; border-radius: 5px; cursor: pointer; display: none; font-size: 12.5px; }
+ .btn-logout:hover { background: #35464C; }
 
-        const STAFF_MEMBERS = ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'];
-        let tokenClient;
-        let accessToken = null;
-        let accessibleFolders = [CONFIG.FOLDERS.STAFF];
+ /* 상단 통합 그리드: 세 영역 한 줄 배치 */
+ .top-layout-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 14px; margin-bottom: 16px; align-items: stretch; }
 
-        window.onload = function() {
-            initGis();
-            renderStaffButtons();
-            loadNotices();
-        };
+ /* 1, 2. 임시공지 칸 스타일 */
+ .notice-board-section { background-color: #253338; border: 1px solid #35464C; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 8px; }
+ .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
+ .section-title-group { display: flex; align-items: baseline; gap: 6px; }
+ .notice-label { font-size: 13.5px; font-weight: bold; color: #38BDF8; }
+ .section-desc { font-size: 11px; color: #8CA0A8; }
 
-        function initGis() {
-            tokenClient = google.accounts.oauth2.initTokenClient({
-                client_id: CONFIG.CLIENT_ID,
-                scope: 'https://www.googleapis.com/auth/drive.readonly',
-                callback: (tokenResponse) => {
-                    if (tokenResponse && tokenResponse.access_token) {
-                        accessToken = tokenResponse.access_token;
-                        document.getElementById('btnLogin').style.display = 'none';
-                        document.getElementById('btnLogout').style.display = 'inline-block';
-                        
-                        // 구글 사용자 정보 가져오기
-                        fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                            headers: { Authorization: `Bearer ${accessToken}` }
-                        })
-                        .then(res => res.json())
-                        .then(data => {
-                            applyRoleByEmail(data.email);
-                        });
-                    }
-                }
-            });
-        }
+ .notice-row { display: flex; gap: 6px; align-items: center; margin-bottom: 4px; }
+ .notice-input { flex-grow: 1; border: 1px solid #435860; border-radius: 4px; padding: 5px 8px; font-size: 12.5px; color: #F0F4F5; background-color: #1E292D; outline: none; }
+ .notice-input:focus { background-color: #253338; border-color: #38BDF8; box-shadow: 0 0 0 2px rgba(56,189,248,0.15); }
+ .notice-btn { padding: 4px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; white-space: nowrap; }
+ .btn-save-row { background-color: #0EA5E9; color: #FFF; }
+ .btn-save-row:hover { background-color: #0284C7; }
+ .btn-clear-row { background-color: #2F3E44; color: #A4B5BC; border: 1px solid #435860; }
+ .btn-clear-row:hover { background-color: #3C4F56; color: #D1D8DC; }
 
-        function handleAuthClick() {
-            if (accessToken === null) {
-                tokenClient.requestAccessToken({ prompt: 'consent' });
-            }
-        }
+ /* 3. 최근 업데이트된 문서 칸 */
+ .recent-pane { background-color: #253338; border: 1px solid #35464C; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+ .recent-results { max-height: 115px; overflow-y: auto; }
+ .recent-results-list { list-style: none; }
+ .recent-results-list li { padding: 5px 6px; border-bottom: 1px solid #2F3E44; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #C2CDD2; }
+ .recent-results-list a { color: #38BDF8; text-decoration: none; font-weight: 500; }
+ .recent-results-list a:hover { text-decoration: underline; }
+ .file-date { font-size: 11px; color: #8CA0A8; margin-left: 6px; }
 
-        function handleSignoutClick() {
-            if (accessToken) {
-                google.accounts.oauth2.revoke(accessToken, () => {
-                    accessToken = null;
-                    accessibleFolders = [CONFIG.FOLDERS.STAFF];
-                    document.getElementById('userStatus').innerText = '🔒 01 전직원 접근 가능';
-                    document.getElementById('btnLogin').style.display = 'inline-block';
-                    document.getElementById('btnLogout').style.display = 'none';
-                    
-                    // 로그아웃 시 컬럼 다시 잠금 처리
-                    document.getElementById('colDecoction').classList.add('locked');
-                    document.getElementById('colDoctor').classList.add('locked');
-                    document.getElementById('colAdmin').classList.add('locked');
-                    
-                    loadRecentFiles();
-                    showToast('로그아웃 되었습니다.');
-                });
-            }
-        }
+ /* 출퇴근 기록 칸 */
+ .attendance-pane { background-color: #253338; border: 1px solid #35464C; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+ .attendance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; flex-grow: 1; align-content: center; }
+ .member-card { background-color: #1E292D; border: 1px solid #35464C; border-radius: 6px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; }
 
-        function applyRoleByEmail(email) {
-            const statusEl = document.getElementById('userStatus');
-            accessibleFolders = [CONFIG.FOLDERS.STAFF];
-            
-            // 모든 컬럼 잠금 상태로 초기화
-            document.getElementById('colDecoction').classList.add('locked');
-            document.getElementById('colDoctor').classList.add('locked');
-            document.getElementById('colAdmin').classList.add('locked');
+ .member-name { font-size: 12.5px; font-weight: bold; color: #F0F4F5; white-space: nowrap; }
+ .btn-toggle-att { padding: 3px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; white-space: nowrap; }
+ .state-in { background-color: #143828; color: #4ADE80; border: 1px solid #1E5C3E; }
+ .state-out { background-color: #4A2020; color: #F87171; border: 1px solid #6B
 
-            const isAdmin = CONFIG.ACCOUNTS.ADMIN.map(e => e.toLowerCase()).includes(email.toLowerCase());
-            const isDoctor = CONFIG.ACCOUNTS.DOCTOR.map(e => e.toLowerCase()).includes(email.toLowerCase());
-            const isDecoction = CONFIG.ACCOUNTS.DECOCTION.map(e => e.toLowerCase()).includes(email.toLowerCase());
+...This content has been truncated to stay below 50000 characters...
 
-            if (isAdmin) {
-                accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR, CONFIG.FOLDERS.ADMIN);
-                statusEl.innerText = `🔴 관리자`;
-                
-                // 관리자: 모든 컬럼 잠금 해제
-                document.getElementById('colDecoction').classList.remove('locked');
-                document.getElementById('colDoctor').classList.remove('locked');
-                document.getElementById('colAdmin').classList.remove('locked');
-            } else if (isDoctor) {
-                accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR);
-                statusEl.innerText = `🔵 진료원장`;
-                
-                // 진료원장: 탕전실, 진료 컬럼 잠금 해제
-                document.getElementById('colDecoction').classList.remove('locked');
-                document.getElementById('colDoctor').classList.remove('locked');
-            } else if (isDecoction) {
-                accessibleFolders.push(CONFIG.FOLDERS.DECOCTION);
-                statusEl.innerText = `🟡 탕전실`;
-                
-                // 탕전실: 탕전실 컬럼 잠금 해제
-                document.getElementById('colDecoction').classList.remove('locked');
-            }
-            
-            loadRecentFiles();
-        }
-
-        // --- 최근 업데이트 파일 불러오기 (Drive API) ---
-        function loadRecentFiles() {
-            if (!accessToken) return;
-            const recentListEl = document.getElementById('recentFileList');
-            
-            // 접근 가능한 폴더 내 파일만 쿼리
-            const folderQueries = accessibleFolders.map(id => `'${id}' in parents`).join(' or ');
-            const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
-            const q = `(${folderQueries}) and modifiedTime > '${fiveDaysAgo}' and trashed = false`;
-
-            fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&orderBy=modifiedTime desc&pageSize=5&fields=files(id,name,webViewLink,modifiedTime)`, {
-                headers: { Authorization: `Bearer ${accessToken}` }
-            })
-            .then(res => res.json())
-            .then(data => {
-                recentListEl.innerHTML = '';
-                if (!data.files || data.files.length === 0) {
-                    recentListEl.innerHTML = '<li class="text-gray-500 italic">최근 5일간 수정된 문서가 없습니다.</li>';
-                    return;
-                }
-                data.files.forEach(file => {
-                    const dateStr = new Date(file.modifiedTime).toLocaleDateString();
-                    const li = document.createElement('li');
-                    li.className = 'flex justify-between items-center bg-gray-900 p-2 rounded border border-gray-800';
-                    li.innerHTML = `
-                        <span class="truncate max-w-[200px]">📄 ${file.name} <span class="text-xs text-gray-500">(${dateStr})</span></span>
-                        <a href="${file.webViewLink}" target="_blank" class="text-blue-400 hover:text-blue-300 text-xs">열기 ↗</a>
-                    `;
-                    recentListEl.appendChild(li);
-                });
-            });
-        }
-
-        // --- 임시 공지 연동 (GAS 백엔드) ---
-        function loadNotices() {
-            fetch(`${CONFIG.GAS_URL}?action=getNotices`)
-            .then(res => res.json())
-            .then(data => {
-                const listEl = document.getElementById('noticeList');
-                listEl.innerHTML = '';
-                data.forEach((notice, index) => {
-                    const item = document.createElement('div');
-                    item.className = 'flex justify-between items-center bg-gray-900 px-3 py-1.5 rounded border border-gray-800 text-sm';
-                    item.innerHTML = `
-                        <span><span class="bg-red-500/20 text-red-400 text-xs px-1.5 py-0.5 rounded mr-2 font-bold">NEW</span>${notice}</span>
-                        <button onclick="deleteNotice(${index})" class="text-xs text-gray-500 hover:text-red-400">삭제</button>
-                    `;
-                    listEl.appendChild(item);
-                });
-            });
-        }
-
-        function addNotice() {
-            const input = document.getElementById('noticeInput');
-            if (!input.value.trim()) return;
-            fetch(`${CONFIG.GAS_URL}?action=addNotice&text=${encodeURIComponent(input.value.trim())}`)
-            .then(() => {
-                input.value = '';
-                loadNotices();
-                showToast('공지가 추가되었습니다.');
-            });
-        }
-
-        function deleteNotice(index) {
-            fetch(`${CONFIG.GAS_URL}?action=deleteNotice&index=${index}`)
-            .then(() => {
-                loadNotices();
-                showToast('공지가 삭제되었습니다.');
-            });
-        }
-
-        // --- 출퇴근 UI 연동 ---
-        function renderStaffButtons() {
-            const grid = document.getElementById('staffGrid');
-            grid.innerHTML = '';
-            STAFF_MEMBERS.forEach(name => {
-                const btnBox = document.createElement('div');
-                btnBox.className = 'flex justify-between items-center bg-gray-900 p-2 rounded border border-gray-800';
-                btnBox.innerHTML = `
-                    <span class="font-semibold">${name}</span>
-                    <button onclick="toggleWorkStatus('${name}', this)" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition">출근</button>
-                `;
-                grid.appendChild(btnBox);
-            });
-        }
-
-        function toggleWorkStatus(name, btnEl) {
-            const isWorking = btnEl.innerText === '출근';
-            const action = isWorking ? 'WORK_IN' : 'WORK_OUT';
-            
-            fetch(`${CONFIG.GAS_URL}?action=toggleWork&name=${encodeURIComponent(name)}&type=${action}`)
-            .then(res => res.json())
-            .then(data => {
-                if(data.success) {
-                    btnEl.innerText = isWorking ? '퇴근' : '출근';
-                    btnEl.className = isWorking 
-                        ? 'px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-bold transition'
-                        : 'px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition';
-                    showToast(`${name}님 ${isWorking ? '출근' : '퇴근'} 처리되었습니다.`);
-                }
-            });
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg;
-            t.classList.remove('hidden');
-            setTimeout(() => t.classList.add('hidden'), 3000);
-        }
-    </script>
-</body>
-</html>
+──────── [TRUNCATED] ────────
+Showing 11,109 chars (head) + 3,616 chars (tail) of 50,027 total clean characters.
+Full text saved to: C:\Users\AMERCURY\AppData\Local\hermes\cache\web\docs.google.com-e9d4950032.md
+To read the omitted middle: read_file path="C:\Users\AMERCURY\AppData\Local\hermes\cache\web\docs.google.com-e9d4950032.md" offset=207 limit=200  (the file is the complete page; raise/lower offset to page through it).
+─────────────────────────────
