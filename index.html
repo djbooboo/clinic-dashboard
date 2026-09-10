@@ -275,7 +275,7 @@
 
   <script>
     const CONFIG = {
-      API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
+      API_KEY: '새로_발급받으신_API_키를_여기에_붙여넣으세요',
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
       ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyvLSeRmv-dExUjuiDrFGoFQQeEnZIWCRvL_nRITravpe_QTM3KV1hPitC7L2sxEuYw/exec',
       MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
@@ -653,9 +653,11 @@
       
       let query = "";
       if (accessToken) {
+        // OAuth 로그인 시: 현재 역할에 부여된 접근 가능 폴더 내부 파일 탐색
         const folderConditions = accessibleFolders.map(id => `'${id}' in parents`).join(' or ');
         query = `(${folderConditions}) and mimeType != 'application/vnd.google-apps.folder' and modifiedTime > '${threeDaysAgo}' and trashed = false`;
       } else {
+        // 비로그인 시: 최근 3일 내 수정된 전체 파일 중 '폴더' 타입 제외
         query = `mimeType != 'application/vnd.google-apps.folder' and modifiedTime > '${threeDaysAgo}' and trashed = false`;
       }
 
@@ -671,13 +673,18 @@
       fetch(url, { headers })
         .then(res => res.json())
         .then(data => {
+          if (data.error) {
+            console.error("Google Drive API 오류:", data.error);
+            contentEl.innerHTML = `<p style="color:#F87171; padding:4px 0; font-size:11.5px;">API 오류: ${data.error.message}</p>`;
+            return;
+          }
+
           if (data.files && data.files.length > 0) {
             let html = '<ul class="recent-results-list">';
             data.files.forEach(file => {
               const dateObj = new Date(file.modifiedTime);
               const dateStr = `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
               
-              // 문서 종류별 직접 연결 링크 생성
               let openUrl = file.webViewLink;
               if (file.mimeType === 'application/vnd.google-apps.document') {
                 openUrl = `https://docs.google.com/document/d/${file.id}/edit`;
