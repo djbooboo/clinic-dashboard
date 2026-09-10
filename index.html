@@ -1,547 +1,333 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>다정부부한의원 업무 대시보드</title>
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body { background-color: #121212; color: #F3F4F6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px 20px; font-size: 13px; }
-    
-    .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
-    .brand-group { display: flex; align-items: flex-end; gap: 16px; }
-    .header-logo { height: 90px; width: auto; display: block; filter: invert(1) grayscale(100%) brightness(200%); }
-    .title { font-size: 34px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px; line-height: 1; margin-bottom: 4px; }
-    
-    .auth-btn-group { display: flex; gap: 10px; align-items: center; }
-    .role-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #2A2A2A; border: 1px solid #4B5563; color: #E5E7EB; }
-    .btn-login { padding: 6px 14px; background: #2563EB; color: #FFF; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12.5px; }
-    .btn-login:hover { background: #1D4ED8; }
-    .btn-logout { padding: 6px 14px; background: #2A2A2A; color: #E5E7EB; border: 1px solid #4B5563; border-radius: 5px; cursor: pointer; display: none; font-size: 12.5px; }
-    .btn-logout:hover { background: #374151; }
-    
-    .top-layout-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 14px; margin-bottom: 16px; align-items: stretch; }
-    
-    .notice-board-section { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; }
-    .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .section-title-group { display: flex; align-items: baseline; gap: 6px; }
-    .notice-label { font-size: 13.5px; font-weight: bold; color: #FBBF24; }
-    .section-desc { font-size: 11px; color: #D1D5DB; }
-    
-    .notice-list-container { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; max-height: 105px; overflow-y: auto; }
-    .notice-item-row { display: flex; justify-content: space-between; align-items: center; background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
-    .notice-content-wrap { display: flex; align-items: center; gap: 6px; overflow: hidden; }
-    .new-badge { background-color: #EF4444; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
-    .notice-text { color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
-    
-    .notice-empty { color: #9CA3AF; font-size: 11.5px; text-align: center; padding: 10px 0; }
-    
-    .notice-input-area { display: flex; gap: 6px; align-items: center; border-top: 1px solid #374151; padding-top: 8px; }
-    .notice-input { flex-grow: 1; border: 1px solid #4B5563; border-radius: 4px; padding: 5px 8px; font-size: 12.5px; color: #FFFFFF; background-color: #121212; outline: none; }
-    .notice-input::placeholder { color: #9CA3AF; }
-    .notice-input:focus { background-color: #1E1E1E; border-color: #3B82F6; box-shadow: 0 0 0 2px rgba(59,130,246,0.3); }
-    .notice-btn { padding: 5px 10px; font-size: 11.5px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; white-space: nowrap; }
-    .btn-save-row { background-color: #2563EB; color: #FFF; }
-    .btn-save-row:hover { background-color: #1D4ED8; }
-    .btn-del-row { background-color: #2A2A2A; color: #F87171; border: 1px solid #4B5563; font-size: 10.5px; padding: 3px 6px; }
-    .btn-del-row:hover { background-color: #451A03; }
-
-    .recent-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
-    .recent-results { max-height: 130px; overflow-y: auto; }
-    .recent-results-list { list-style: none; }
-    .recent-results-list li { padding: 5px 6px; border-bottom: 1px solid #374151; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #E5E7EB; }
-    .recent-results-list a { color: #60A5FA; text-decoration: none; font-weight: 500; }
-    .recent-results-list a:hover { text-decoration: underline; }
-    .file-date { font-size: 11px; color: #9CA3AF; margin-left: 6px; }
-    
-    .attendance-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
-    .attendance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; flex-grow: 1; align-content: center; }
-    .member-card { background-color: #121212; border: 1px solid #374151; border-radius: 6px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; }
-    
-    .member-name { font-size: 12.5px; font-weight: bold; color: #FFFFFF; white-space: nowrap; }
-    .btn-toggle-att { padding: 3px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; white-space: nowrap; }
-    .state-in { background-color: #064E3B; color: #34D399; border: 1px solid #059669; }
-    .state-out { background-color: #7F1D1D; color: #FCA5A5; border: 1px solid #DC2626; }
-    
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; display: none; }
-    .modal-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 20px 24px; width: 320px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-    .modal-msg { font-size: 14px; color: #FFFFFF; margin-bottom: 16px; line-height: 1.4; }
-    .modal-btn-group { display: flex; gap: 8px; justify-content: center; }
-    .modal-btn { padding: 6px 16px; font-size: 13px; font-weight: bold; border-radius: 5px; border: none; cursor: pointer; }
-    .modal-btn-confirm { background-color: #2563EB; color: #FFF; }
-    .modal-btn-cancel { background-color: #374151; color: #E5E7EB; }
-    
-    .toast-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1100; display: none; }
-    .toast-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 16px 24px; text-align: center; font-size: 14px; color: #FFFFFF; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-    
-    .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
-    .column { background-color: #1E1E1E; border-radius: 8px; padding: 12px; border: 1px solid #374151; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-    .column-header { padding: 5px 10px; border-radius: 4px; font-size: 14px; font-weight: 700; margin-bottom: 10px; display: inline-block; width: 100%; }
-    .column-header a { color: inherit; text-decoration: none; display: flex; justify-content: space-between; align-items: center; }
-    .column-subtext { font-size: 10.5px; font-weight: normal; color: #D1D5DB; margin-top: 2px; display: block; }
-    
-    .bg-blue { background-color: #1E3A8A; color: #93C5FD; }
-    .bg-green { background-color: #064E3B; color: #6EE7B7; }
-    .bg-teal { background-color: #134E4A; color: #5EEAD4; }
-    .bg-purple { background-color: #581C87; color: #D8B4FE; }
-    .bg-yellow { background-color: #78350F; color: #FDE047; }
-    
-    .link-list { list-style: none; }
-    .link-item { margin-bottom: 3px; }
-    .link-item a { display: flex; align-items: center; gap: 6px; padding: 5px 6px; color: #E5E7EB; text-decoration: none; font-size: 12px; border-radius: 4px; }
-    .link-item a:hover { background-color: #374151; color: #FFFFFF; }
-    .locked { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
-
-    @media (max-width: 1200px) {
-      .top-layout-grid { grid-template-columns: 1fr; }
-      .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>다정부부한의원 업무 대시보드</title>
+    <!-- Google API & GIS Client -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #121212; color: #E5E7EB; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        .card { background-color: #1E1E1E; border: 1px solid #333333; border-radius: 8px; }
+        .locked { opacity: 0.25; pointer-events: none; filter: grayscale(100%); }
+    </style>
 </head>
-<body>
+<body class="p-6">
 
-  <div id="customModal" class="modal-overlay">
-    <div class="modal-box">
-      <div id="modalMsg" class="modal-msg">메시지 내용</div>
-      <div class="modal-btn-group">
-        <button id="modalConfirmBtn" class="modal-btn modal-btn-confirm">확인</button>
-        <button id="modalCancelBtn" class="modal-btn modal-btn-cancel">취소</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="toastModal" class="toast-overlay">
-    <div id="toastMsg" class="toast-box">완료 메시지</div>
-  </div>
-
-  <div class="header">
-    <div class="brand-group">
-      <img src="logo.png" alt="다정부부한의원" class="header-logo">
-      <h1 class="title">업무 대시보드</h1>
-    </div>
-    <div class="auth-btn-group">
-      <span id="userStatus" class="role-badge">🔒 01 전직원 접근 가능</span>
-      <button id="btnLogin" class="btn-login" onclick="handleAuthClick()">구글 로그인</button>
-      <button id="btnLogout" class="btn-logout" onclick="handleSignoutClick()">로그아웃</button>
-    </div>
-  </div>
-
-  <div class="top-layout-grid">
-    
-    <div class="notice-board-section">
-      <div>
-        <div class="section-header-row">
-          <div class="section-title-group">
-            <span class="notice-label">📌 임시공지</span>
-            <span class="section-desc">원내 실시간 메모 공간</span>
-          </div>
+    <!-- 상단 헤더 -->
+    <header class="flex justify-between items-center mb-6 pb-4 border-b border-gray-800">
+        <div class="flex items-center space-x-3">
+            <h1 class="text-2xl font-bold text-white">언제나 정성을 다하는 <br><span class="text-3xl">다정부부한의원 업무 대시보드</span></h1>
         </div>
-        <div id="noticeListContainer" class="notice-list-container"></div>
-      </div>
-      <div class="notice-input-area">
-        <input type="text" id="newNoticeInput" class="notice-input" placeholder="새로운 임시공지 입력...">
-        <button class="notice-btn btn-save-row" onclick="addNewNotice()">저장</button>
-      </div>
-    </div>
-
-    <div class="recent-pane">
-      <div class="section-header-row" style="margin-bottom: 8px;">
-        <div class="section-title-group">
-          <span style="font-size: 13.5px; font-weight: bold; color: #60A5FA;">📢 최근 업데이트된 문서</span>
-          <span class="section-desc">최근 5일간 수정된 파일</span>
+        <div class="flex items-center space-x-3">
+            <span id="userStatus" class="px-3 py-1 bg-gray-800 border border-gray-700 rounded-full text-sm font-medium">🔒 01 전직원 접근 가능</span>
+            <button id="btnLogin" onclick="handleAuthClick()" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-semibold transition">Google 로그인</button>
+            <button id="btnLogout" onclick="handleSignoutClick()" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-md text-sm font-semibold transition hidden">로그아웃</button>
         </div>
-      </div>
-      <div id="resultsContent" class="recent-results">
-        <p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 업데이트 문서를 불러오는 중입니다...</p>
-      </div>
-    </div>
+    </header>
 
-    <div class="attendance-pane">
-      <div class="section-header-row" style="margin-bottom: 8px;">
-        <div class="section-title-group">
-          <span style="font-size: 13.5px; font-weight: bold; color: #60A5FA;">⏰ 출퇴근 기록</span>
-          <span class="section-desc">터치 시 출/퇴근 교대 기록</span>
-        </div>
-      </div>
-      <div class="attendance-grid" id="attendanceGrid"></div>
-    </div>
-
-  </div>
-
-  <div class="dashboard-grid">
-    <div class="column" id="colReception">
-      <div class="column-header bg-blue">
-        <a href="https://drive.google.com/drive/folders/1w2C4X7dtGdOdLnBkkGLqWW18C3z5HSQG" target="_blank">
-          <span>🏥 접수 / 치료</span>
-          <span style="font-size: 11px;">↗</span>
-        </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
-      </div>
-      <ul class="link-list">
-        <li class="link-item"><a href="https://docs.google.com/document/d/1_JetPI2A6iw_0WccOxRhg7_Pv3ve54WfOZLOu5osWvw/edit?usp=sharing" target="_blank">📢 전체 공지 사항</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1ccJVPXRdGn2dCb3uieWWpUwgVoUatSsgwCR4NppI_sM/edit?usp=sharing" target="_blank">💰 급여 관련 공지 사항</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1nbiAqkSsLphKycZR5egqJnOf1ChHjw_q5Sr1ggBLDpg/edit?usp=sharing" target="_blank">👶 난임사업 프로세스</a></li>
-        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1Tvi_kzA3XKsFE2jmrHOSmCLWEJEwHaLBmElL56MsIRg/edit?usp=sharing" target="_blank">🎓 법정의무교육</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1Tb7IIrIo9Di2ydio2AOcadQ2EIMyYbwrAxVDVCWXzRY/edit?usp=sharing" target="_blank">💻 한의맥 관련</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1qfvsEQM2JoY2Twkz09ni8yUtr_FLR39bsgKbgbDVPcE/edit?usp=sharing" target="_blank">🚗 자보 관련 자료</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1yP79XXA35h0dR-lHKH5WBsDxpq4zKTuuuAEScBRcinw/edit?usp=sharing" target="_blank">📋 근로능력평가 진단서 발급 방법</a></li>
-      </ul>
-    </div>
-
-    <div class="column" id="colManual">
-      <div class="column-header bg-green">
-        <a href="https://drive.google.com/drive/folders/1w2C4X7dtGdOdLnBkkGLqWW18C3z5HSQG" target="_blank">
-          <span>📜 매뉴얼</span>
-          <span style="font-size: 11px;">↗</span>
-        </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
-      </div>
-      <ul class="link-list">
-        <li class="link-item"><a href="https://drive.google.com/drive/folders/1w2C4X7dtGdOdLnBkkGLqWW18C3z5HSQG" target="_blank">원내 처방집 및 약재 용량표</a></li>
-      </ul>
-    </div>
-
-    <div class="column locked" id="colDecoction">
-      <div class="column-header bg-teal">
-        <a href="https://drive.google.com/drive/folders/1sYdNudJ3Y1wWMhrvIM39M4hmKLryo9NY" target="_blank">
-          <span>🍶 탕전실</span>
-          <span style="font-size: 11px;">↗</span>
-        </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
-      </div>
-      <ul class="link-list">
-        <li class="link-item"><a href="https://drive.google.com/drive/folders/1sYdNudJ3Y1wWMhrvIM39M4hmKLryo9NY" target="_blank">탕전 및 제형별 조제 매뉴얼</a></li>
-      </ul>
-    </div>
-
-    <div class="column locked" id="colDoctor">
-      <div class="column-header bg-purple">
-        <a href="https://drive.google.com/drive/folders/1caciuhYkxjhIC3zQi6b4ZPLI4huSNFz_" target="_blank">
-          <span>🩺 진료</span>
-          <span style="font-size: 11px;">↗</span>
-        </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
-      </div>
-      <ul class="link-list">
-        <li class="link-item"><a href="https://drive.google.com/drive/folders/1caciuhYkxjhIC3zQi6b4ZPLI4huSNFz_" target="_blank">학술 / 임상 가이드라인</a></li>
-      </ul>
-    </div>
-
-    <div class="column locked" id="colAdmin">
-      <div class="column-header bg-yellow">
-        <a href="https://drive.google.com/drive/folders/1HE5f_uSjP8v-lSeO5yTgherYXjt24_yX" target="_blank">
-          <span>💰 경영</span>
-          <span style="font-size: 11px;">↗</span>
-        </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
-      </div>
-      <ul class="link-list">
-        <li class="link-item"><a href="https://drive.google.com/drive/folders/1HE5f_uSjP8v-lSeO5yTgherYXjt24_yX" target="_blank">일일 매출 / 수입 집계표</a></li>
-      </ul>
-    </div>
-  </div>
-
-  <script>
-    const CONFIG = {
-      API_KEY: 'AIzaSyBh-jsauSpFXpQ6jBchn-6R4LhozW81woE',
-      CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
-      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyvLSeRmv-dExUjuiDrFGoFQQeEnZIWCRvL_nRITravpe_QTM3KV1hPitC7L2sxEuYw/exec',
-      MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
-      ACCOUNTS: {
-        DECOCTION: ['samepsl89@gmail.com'],
-        DOCTOR: ['crammy55@naver.com'],
-        ADMIN: ['amercury74@gmail.com', '247stillmoon@gmail.com']
-      },
-      FOLDERS: {
-        STAFF: '1w2C4X7dtGdOdLnBkkGLqWW18C3z5HSQG',
-        DECOCTION: '1sYdNudJ3Y1wWMhrvIM39M4hmKLryo9NY',
-        DOCTOR: '1caciuhYkxjhIC3zQi6b4ZPLI4huSNFz_',
-        ADMIN: '1HE5f_uSjP8v-lSeO5yTgherYXjt24_yX'
-      }
-    };
-
-    let tokenClient;
-    let accessToken = null;
-    let accessibleFolders = [CONFIG.FOLDERS.STAFF];
-    let attendanceStates = {}; // IN 또는 OUT
-    let noticeList = [];
-
-    window.onload = async function() {
-      CONFIG.MEMBERS.forEach(name => { attendanceStates[name] = 'OUT'; });
-      renderAttendanceGrid();
-      loadNotices();
-      loadRecentFiles();
-
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: CONFIG.CLIENT_ID,
-        scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.email',
-        callback: async (tokenResponse) => {
-          if (tokenResponse.access_token) {
-            accessToken = tokenResponse.access_token;
-            document.getElementById('btnLogin').style.display = 'none';
-            document.getElementById('btnLogout').style.display = 'inline-block';
-            const userEmail = await fetchUserEmail(accessToken);
-            applyRoleByEmail(userEmail);
-          }
-        },
-      });
-
-      await syncServerData();
-      renderAttendanceGrid();
-      loadNotices();
-    };
-
-    async function syncServerData() {
-      try {
-        const res = await fetch(CONFIG.ATTENDANCE_WEBAPP_URL);
-        const data = await res.json();
-        
-        if (data && data.statuses) {
-          for (let name in data.statuses) {
-            if (CONFIG.MEMBERS.includes(name)) {
-              let val = String(data.statuses[name]).trim();
-              if (val === 'IN' || val === '출근') {
-                attendanceStates[name] = 'IN';
-              } else {
-                attendanceStates[name] = 'OUT';
-              }
-            }
-          }
-        }
-
-        if (data && data.notices) {
-          noticeList = data.notices;
-        }
-      } catch (e) {
-        console.error("서버 데이터 동기화 중 오류:", e);
-      }
-    }
-
-    async function updateServerNotices(newList) {
-      noticeList = newList;
-      loadNotices();
-
-      try {
-        await fetch(CONFIG.ATTENDANCE_WEBAPP_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ type: 'UPDATE_NOTICES', notices: noticeList })
-        });
-      } catch (e) {
-        console.error("임시공지 서버 저장 실패:", e);
-      }
-    }
-
-    function loadNotices() {
-      const container = document.getElementById('noticeListContainer');
-
-      if (!noticeList || noticeList.length === 0) {
-        container.innerHTML = '<div class="notice-empty">등록된 임시공지가 없습니다.</div>';
-        return;
-      }
-
-      let html = '';
-      noticeList.forEach((item, index) => {
-        const newBadge = item.isNew ? '<span class="new-badge">NEW</span>' : '';
-        html += `
-          <div class="notice-item-row">
-            <div class="notice-content-wrap">
-              ${newBadge}
-              <span class="notice-text" title="${item.text}">${item.text}</span>
+    <!-- 메인 대시보드 그리드 -->
+    <main class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <!-- 📌 임시공지 카드 -->
+        <section class="card p-4">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="font-bold text-yellow-400">📌 임시공지 <span class="text-xs text-gray-400 font-normal">원내 실시간 메모 공간</span></h2>
             </div>
-            <button class="notice-btn btn-del-row" onclick="deleteNotice(${index})">삭제</button>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
-    }
+            <div id="noticeList" class="space-y-2 mb-3 min-h-[100px] max-h-[150px] overflow-y-auto">
+                <!-- 동적 공지 항목 생성 -->
+            </div>
+            <div class="flex space-x-2">
+                <input type="text" id="noticeInput" placeholder="새로운 임시공지 입력..." class="flex-1 bg-gray-900 border border-gray-700 rounded px-3 py-1.5 text-sm focus:outline-none focus:border-blue-500 text-white">
+                <button onclick="addNotice()" class="bg-blue-600 hover:bg-blue-700 px-4 py-1.5 rounded text-sm font-semibold text-white">저장</button>
+            </div>
+        </section>
 
-    function addNewNotice() {
-      const input = document.getElementById('newNoticeInput');
-      const text = input.value.trim();
+        <!-- 📢 최근 업데이트된 문서 카드 -->
+        <section class="card p-4">
+            <h2 class="font-bold text-pink-400 mb-3">📢 최근 업데이트된 문서 <span class="text-xs text-gray-400 font-normal">최근 5일간 수정된 파일</span></h2>
+            <ul id="recentFileList" class="space-y-2 text-sm max-h-[180px] overflow-y-auto">
+                <li class="text-gray-500 italic">문서를 불러오는 중...</li>
+            </ul>
+        </section>
 
-      if (!text) {
-        showToast('⚠️ 공지 내용을 입력해주세요.');
-        return;
-      }
+        <!-- ⏰ 출퇴근 기록 카드 -->
+        <section class="card p-4">
+            <h2 class="font-bold text-blue-400 mb-3">⏰ 출퇴근 기록 <span class="text-xs text-gray-400 font-normal">터치 시 출/퇴근 교대 기록</span></h2>
+            <div id="staffGrid" class="grid grid-cols-2 gap-2 text-sm">
+                <!-- 직원별 출퇴근 버튼 동적 생성 -->
+            </div>
+        </section>
+    </main>
 
-      let currentNotices = [...noticeList];
-      currentNotices.forEach(item => item.isNew = false);
-      currentNotices.unshift({ text: text, isNew: true });
+    <!-- 폴더 메뉴 그리드 -->
+    <section class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <!-- 01 전직원 (접수/치료) -->
+        <div id="colStaff" class="card p-4 border-l-4 border-blue-500">
+            <h3 class="font-bold text-lg text-blue-400 mb-1">🏥 접수 / 치료</h3>
+            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
+            <ul id="folderListStaff" class="space-y-2 text-sm"></ul>
+        </div>
 
-      updateServerNotices(currentNotices);
-      input.value = '';
-      showToast('✅ 새로운 임시공지가 최상단에 등록되었습니다.');
-    }
+        <!-- 01 전직원 (매뉴얼) -->
+        <div id="colManual" class="card p-4 border-l-4 border-green-500">
+            <h3 class="font-bold text-lg text-green-400 mb-1">📜 매뉴얼</h3>
+            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
+            <ul id="folderListManual" class="space-y-2 text-sm"></ul>
+        </div>
 
-    function deleteNotice(index) {
-      showCustomConfirm('해당 공지 내용을 삭제하시겠습니까?', function(confirmed) {
-        if (!confirmed) return;
-        let currentNotices = [...noticeList];
-        currentNotices.splice(index, 1);
-        updateServerNotices(currentNotices);
-        showToast('🗑️ 공지가 삭제되었습니다.');
-      });
-    }
+        <!-- 02 탕전실 -->
+        <div id="colDecoction" class="card p-4 border-l-4 border-amber-500 locked">
+            <h3 class="font-bold text-lg text-amber-400 mb-1">🍶 탕전실</h3>
+            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
+            <ul id="folderListDecoction" class="space-y-2 text-sm"></ul>
+        </div>
 
-    function showCustomConfirm(message, onConfirm) {
-      const modal = document.getElementById('customModal');
-      const msgEl = document.getElementById('modalMsg');
-      const confirmBtn = document.getElementById('modalConfirmBtn');
-      const cancelBtn = document.getElementById('modalCancelBtn');
+        <!-- 03 진료 -->
+        <div id="colDoctor" class="card p-4 border-l-4 border-purple-500 locked">
+            <h3 class="font-bold text-lg text-purple-400 mb-1">🩺 진료</h3>
+            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
+            <ul id="folderListDoctor" class="space-y-2 text-sm"></ul>
+        </div>
 
-      msgEl.innerText = message;
-      modal.style.display = 'flex';
+        <!-- 04 경영 -->
+        <div id="colAdmin" class="card p-4 border-l-4 border-red-500 locked">
+            <h3 class="font-bold text-lg text-red-400 mb-1">💰 경영</h3>
+            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
+            <ul id="folderListAdmin" class="space-y-2 text-sm"></ul>
+        </div>
+    </section>
 
-      const newConfirmBtn = confirmBtn.cloneNode(true);
-      const newCancelBtn = cancelBtn.cloneNode(true);
-      confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-      cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+    <!-- 알림 토스트 -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded shadow-lg hidden"></div>
 
-      newConfirmBtn.onclick = function() {
-        modal.style.display = 'none';
-        onConfirm(true);
-      };
-      newCancelBtn.onclick = function() {
-        modal.style.display = 'none';
-        onConfirm(false);
-      };
-    }
+    <script>
+        const CONFIG = {
+            CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
+            GAS_URL: 'https://script.google.com/macros/s/AKfycbyvLSeRmv-dExUjuiDrFGoFQQeEnZIWCRvL_nRITravpe_QTM3KV1hPitC7L2sxEuYw/exec',
+            ACCOUNTS: {
+                ADMIN: ['amercury74@gmail.com'],
+                DOCTOR: ['doctor1@gmail.com'],
+                DECOCTION: ['decoct@gmail.com']
+            },
+            FOLDERS: {
+                STAFF: '1-StaffFolderIDSample',
+                DECOCTION: '1-DecoctionFolderIDSample',
+                DOCTOR: '1-DoctorFolderIDSample',
+                ADMIN: '1-AdminFolderIDSample'
+            }
+        };
 
-    function showToast(message) {
-      const toast = document.getElementById('toastModal');
-      const msgEl = document.getElementById('toastMsg');
-      msgEl.innerText = message;
-      toast.style.display = 'flex';
-      setTimeout(() => { toast.style.display = 'none'; }, 1200);
-    }
+        const STAFF_MEMBERS = ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'];
+        let tokenClient;
+        let accessToken = null;
+        let accessibleFolders = [CONFIG.FOLDERS.STAFF];
 
-    function renderAttendanceGrid() {
-      const grid = document.getElementById('attendanceGrid');
-      grid.innerHTML = '';
+        window.onload = function() {
+            initGis();
+            renderStaffButtons();
+            loadNotices();
+        };
 
-      CONFIG.MEMBERS.forEach(name => {
-        const currentState = attendanceStates[name] || 'OUT';
-        const nextActionLabel = (currentState === 'OUT') ? '출근' : '퇴근';
-        const btnClass = (currentState === 'OUT') ? 'state-in' : 'state-out';
-
-        const card = document.createElement('div');
-        card.className = 'member-card';
-        card.innerHTML = `
-          <span class="member-name">${name}</span>
-          <button id="btn-${name}" class="btn-toggle-att ${btnClass}" onclick="toggleAttendance('${name}')">${nextActionLabel}</button>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    function toggleAttendance(name) {
-      const currentState = attendanceStates[name] || 'OUT';
-      const targetAction = (currentState === 'OUT') ? '출근' : '퇴근';
-      const promptMsg = `${name} 님을 [${targetAction}] 처리하시겠습니까?`;
-
-      showCustomConfirm(promptMsg, function(confirmed) {
-        if (!confirmed) return;
-
-        attendanceStates[name] = (currentState === 'OUT') ? 'IN' : 'OUT';
-        renderAttendanceGrid();
-
-        const payload = JSON.stringify({ name: name, type: targetAction });
-
-        fetch(CONFIG.ATTENDANCE_WEBAPP_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: payload
-        })
-        .then(() => {
-          const timeStr = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-          showToast(`✅ ${name} 님 [${targetAction}] 기록되었습니다. (${timeStr})`);
-        })
-        .catch(err => {
-          console.error(err);
-          showToast('출퇴근 기록 실패. 인터넷 연결 상태를 확인해주세요.');
-        });
-      });
-    }
-
-    function handleAuthClick() { tokenClient.requestAccessToken({prompt: 'consent'}); }
-    
-    function handleSignoutClick() {
-      if (accessToken) {
-        google.accounts.oauth2.revoke(accessToken, () => {
-          accessToken = null;
-          accessibleFolders = [CONFIG.FOLDERS.STAFF];
-          document.getElementById('userStatus').innerText = '🔒 01 전직원 접근 가능';
-          document.getElementById('userStatus').style.color = '#E5E7EB';
-          document.getElementById('btnLogin').style.display = 'inline-block';
-          document.getElementById('btnLogout').style.display = 'none';
-          loadRecentFiles();
-          showToast('로그아웃 되었습니다.');
-        });
-      }
-    }
-
-    async function fetchUserEmail(token) {
-      try {
-        const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: `Bearer ${token}` } });
-        const data = await res.json();
-        return data.email ? data.email.toLowerCase() : '';
-      } catch (e) { return ''; }
-    }
-
-    function applyRoleByEmail(email) {
-      const statusEl = document.getElementById('userStatus');
-      accessibleFolders = [CONFIG.FOLDERS.STAFF];
-      const isAdmin = CONFIG.ACCOUNTS.ADMIN.map(e => e.toLowerCase()).includes(email);
-      const isDoctor = CONFIG.ACCOUNTS.DOCTOR.map(e => e.toLowerCase()).includes(email);
-      const isDecoction = CONFIG.ACCOUNTS.DECOCTION.map(e => e.toLowerCase()).includes(email);
-
-      if (isAdmin) {
-        accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR, CONFIG.FOLDERS.ADMIN);
-        statusEl.innerText = `🔴 관리자`;
-      } else if (isDoctor) {
-        accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR);
-        statusEl.innerText = `🔵 진료원장`;
-      } else if (isDecoction) {
-        accessibleFolders.push(CONFIG.FOLDERS.DECOCTION);
-        statusEl.innerText = `🟡 탕전실`;
-      }
-      loadRecentFiles();
-    }
-
-    function loadRecentFiles() {
-      const contentEl = document.getElementById('resultsContent');
-      const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
-      const folderConditions = accessibleFolders.map(id => `'${id}' in parents`).join(' or ');
-      const query = `(${folderConditions}) and modifiedTime > '${fiveDaysAgo}' and trashed = false`;
-      let url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&fields=files(id,name,webViewLink,modifiedTime)`;
-      let headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
-      if (!accessToken) url += `&key=${CONFIG.API_KEY}`;
-
-      fetch(url, { headers })
-        .then(res => res.json())
-        .then(data => {
-          if (data.files && data.files.length > 0) {
-            let html = '<ul class="recent-results-list">';
-            data.files.forEach(file => {
-              const dateStr = new Date(file.modifiedTime).toLocaleDateString();
-              html += `<li><span>📄 ${file.name} <span class="file-date">(${dateStr} 수정)</span></span> <a href="${file.webViewLink}" target="_blank">열기 ↗</a></li>`;
+        function initGis() {
+            tokenClient = google.accounts.oauth2.initTokenClient({
+                client_id: CONFIG.CLIENT_ID,
+                scope: 'https://www.googleapis.com/auth/drive.readonly',
+                callback: (tokenResponse) => {
+                    if (tokenResponse && tokenResponse.access_token) {
+                        accessToken = tokenResponse.access_token;
+                        document.getElementById('btnLogin').style.display = 'none';
+                        document.getElementById('btnLogout').style.display = 'inline-block';
+                        
+                        // 구글 사용자 정보 가져오기
+                        fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                            headers: { Authorization: `Bearer ${accessToken}` }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            applyRoleByEmail(data.email);
+                        });
+                    }
+                }
             });
-            html += '</ul>';
-            contentEl.innerHTML = html;
-          } else {
-            contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 5일간 업데이트된 문서가 없습니다.</p>';
-          }
-        })
-        .catch(err => {
-          contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 5일간 업데이트된 문서가 없습니다.</p>';
-        });
-    }
-  </script>
+        }
+
+        function handleAuthClick() {
+            if (accessToken === null) {
+                tokenClient.requestAccessToken({ prompt: 'consent' });
+            }
+        }
+
+        function handleSignoutClick() {
+            if (accessToken) {
+                google.accounts.oauth2.revoke(accessToken, () => {
+                    accessToken = null;
+                    accessibleFolders = [CONFIG.FOLDERS.STAFF];
+                    document.getElementById('userStatus').innerText = '🔒 01 전직원 접근 가능';
+                    document.getElementById('btnLogin').style.display = 'inline-block';
+                    document.getElementById('btnLogout').style.display = 'none';
+                    
+                    // 로그아웃 시 컬럼 다시 잠금 처리
+                    document.getElementById('colDecoction').classList.add('locked');
+                    document.getElementById('colDoctor').classList.add('locked');
+                    document.getElementById('colAdmin').classList.add('locked');
+                    
+                    loadRecentFiles();
+                    showToast('로그아웃 되었습니다.');
+                });
+            }
+        }
+
+        function applyRoleByEmail(email) {
+            const statusEl = document.getElementById('userStatus');
+            accessibleFolders = [CONFIG.FOLDERS.STAFF];
+            
+            // 모든 컬럼 잠금 상태로 초기화
+            document.getElementById('colDecoction').classList.add('locked');
+            document.getElementById('colDoctor').classList.add('locked');
+            document.getElementById('colAdmin').classList.add('locked');
+
+            const isAdmin = CONFIG.ACCOUNTS.ADMIN.map(e => e.toLowerCase()).includes(email.toLowerCase());
+            const isDoctor = CONFIG.ACCOUNTS.DOCTOR.map(e => e.toLowerCase()).includes(email.toLowerCase());
+            const isDecoction = CONFIG.ACCOUNTS.DECOCTION.map(e => e.toLowerCase()).includes(email.toLowerCase());
+
+            if (isAdmin) {
+                accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR, CONFIG.FOLDERS.ADMIN);
+                statusEl.innerText = `🔴 관리자`;
+                
+                // 관리자: 모든 컬럼 잠금 해제
+                document.getElementById('colDecoction').classList.remove('locked');
+                document.getElementById('colDoctor').classList.remove('locked');
+                document.getElementById('colAdmin').classList.remove('locked');
+            } else if (isDoctor) {
+                accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR);
+                statusEl.innerText = `🔵 진료원장`;
+                
+                // 진료원장: 탕전실, 진료 컬럼 잠금 해제
+                document.getElementById('colDecoction').classList.remove('locked');
+                document.getElementById('colDoctor').classList.remove('locked');
+            } else if (isDecoction) {
+                accessibleFolders.push(CONFIG.FOLDERS.DECOCTION);
+                statusEl.innerText = `🟡 탕전실`;
+                
+                // 탕전실: 탕전실 컬럼 잠금 해제
+                document.getElementById('colDecoction').classList.remove('locked');
+            }
+            
+            loadRecentFiles();
+        }
+
+        // --- 최근 업데이트 파일 불러오기 (Drive API) ---
+        function loadRecentFiles() {
+            if (!accessToken) return;
+            const recentListEl = document.getElementById('recentFileList');
+            
+            // 접근 가능한 폴더 내 파일만 쿼리
+            const folderQueries = accessibleFolders.map(id => `'${id}' in parents`).join(' or ');
+            const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
+            const q = `(${folderQueries}) and modifiedTime > '${fiveDaysAgo}' and trashed = false`;
+
+            fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&orderBy=modifiedTime desc&pageSize=5&fields=files(id,name,webViewLink,modifiedTime)`, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                recentListEl.innerHTML = '';
+                if (!data.files || data.files.length === 0) {
+                    recentListEl.innerHTML = '<li class="text-gray-500 italic">최근 5일간 수정된 문서가 없습니다.</li>';
+                    return;
+                }
+                data.files.forEach(file => {
+                    const dateStr = new Date(file.modifiedTime).toLocaleDateString();
+                    const li = document.createElement('li');
+                    li.className = 'flex justify-between items-center bg-gray-900 p-2 rounded border border-gray-800';
+                    li.innerHTML = `
+                        <span class="truncate max-w-[200px]">📄 ${file.name} <span class="text-xs text-gray-500">(${dateStr})</span></span>
+                        <a href="${file.webViewLink}" target="_blank" class="text-blue-400 hover:text-blue-300 text-xs">열기 ↗</a>
+                    `;
+                    recentListEl.appendChild(li);
+                });
+            });
+        }
+
+        // --- 임시 공지 연동 (GAS 백엔드) ---
+        function loadNotices() {
+            fetch(`${CONFIG.GAS_URL}?action=getNotices`)
+            .then(res => res.json())
+            .then(data => {
+                const listEl = document.getElementById('noticeList');
+                listEl.innerHTML = '';
+                data.forEach((notice, index) => {
+                    const item = document.createElement('div');
+                    item.className = 'flex justify-between items-center bg-gray-900 px-3 py-1.5 rounded border border-gray-800 text-sm';
+                    item.innerHTML = `
+                        <span><span class="bg-red-500/20 text-red-400 text-xs px-1.5 py-0.5 rounded mr-2 font-bold">NEW</span>${notice}</span>
+                        <button onclick="deleteNotice(${index})" class="text-xs text-gray-500 hover:text-red-400">삭제</button>
+                    `;
+                    listEl.appendChild(item);
+                });
+            });
+        }
+
+        function addNotice() {
+            const input = document.getElementById('noticeInput');
+            if (!input.value.trim()) return;
+            fetch(`${CONFIG.GAS_URL}?action=addNotice&text=${encodeURIComponent(input.value.trim())}`)
+            .then(() => {
+                input.value = '';
+                loadNotices();
+                showToast('공지가 추가되었습니다.');
+            });
+        }
+
+        function deleteNotice(index) {
+            fetch(`${CONFIG.GAS_URL}?action=deleteNotice&index=${index}`)
+            .then(() => {
+                loadNotices();
+                showToast('공지가 삭제되었습니다.');
+            });
+        }
+
+        // --- 출퇴근 UI 연동 ---
+        function renderStaffButtons() {
+            const grid = document.getElementById('staffGrid');
+            grid.innerHTML = '';
+            STAFF_MEMBERS.forEach(name => {
+                const btnBox = document.createElement('div');
+                btnBox.className = 'flex justify-between items-center bg-gray-900 p-2 rounded border border-gray-800';
+                btnBox.innerHTML = `
+                    <span class="font-semibold">${name}</span>
+                    <button onclick="toggleWorkStatus('${name}', this)" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition">출근</button>
+                `;
+                grid.appendChild(btnBox);
+            });
+        }
+
+        function toggleWorkStatus(name, btnEl) {
+            const isWorking = btnEl.innerText === '출근';
+            const action = isWorking ? 'WORK_IN' : 'WORK_OUT';
+            
+            fetch(`${CONFIG.GAS_URL}?action=toggleWork&name=${encodeURIComponent(name)}&type=${action}`)
+            .then(res => res.json())
+            .then(data => {
+                if(data.success) {
+                    btnEl.innerText = isWorking ? '퇴근' : '출근';
+                    btnEl.className = isWorking 
+                        ? 'px-2.5 py-1 bg-rose-600 hover:bg-rose-700 text-white rounded text-xs font-bold transition'
+                        : 'px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded text-xs font-bold transition';
+                    showToast(`${name}님 ${isWorking ? '출근' : '퇴근'} 처리되었습니다.`);
+                }
+            });
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.classList.remove('hidden');
+            setTimeout(() => t.classList.add('hidden'), 3000);
+        }
+    </script>
 </body>
 </html>
