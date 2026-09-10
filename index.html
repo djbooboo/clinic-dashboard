@@ -480,6 +480,12 @@
           document.getElementById('userStatus').style.color = '#E5E7EB';
           document.getElementById('btnLogin').style.display = 'inline-block';
           document.getElementById('btnLogout').style.display = 'none';
+          
+          // 로그아웃 시 탕전실, 진료, 경영 영역 재잠금
+          document.getElementById('colDecoction').classList.add('locked');
+          document.getElementById('colDoctor').classList.add('locked');
+          document.getElementById('colAdmin').classList.add('locked');
+
           loadRecentFiles();
           showToast('로그아웃 되었습니다.');
         });
@@ -497,6 +503,16 @@
     function applyRoleByEmail(email) {
       const statusEl = document.getElementById('userStatus');
       accessibleFolders = [CONFIG.FOLDERS.STAFF];
+
+      // 잠금 상태 초기화
+      const elDecoction = document.getElementById('colDecoction');
+      const elDoctor = document.getElementById('colDoctor');
+      const elAdmin = document.getElementById('colAdmin');
+
+      elDecoction.classList.add('locked');
+      elDoctor.classList.add('locked');
+      elAdmin.classList.add('locked');
+
       const isAdmin = CONFIG.ACCOUNTS.ADMIN.map(e => e.toLowerCase()).includes(email);
       const isDoctor = CONFIG.ACCOUNTS.DOCTOR.map(e => e.toLowerCase()).includes(email);
       const isDecoction = CONFIG.ACCOUNTS.DECOCTION.map(e => e.toLowerCase()).includes(email);
@@ -504,12 +520,24 @@
       if (isAdmin) {
         accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR, CONFIG.FOLDERS.ADMIN);
         statusEl.innerText = `🔴 관리자`;
+        
+        // 관리자: 탕전실, 진료, 경영 컬럼 잠금 해제
+        elDecoction.classList.remove('locked');
+        elDoctor.classList.remove('locked');
+        elAdmin.classList.remove('locked');
       } else if (isDoctor) {
         accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR);
         statusEl.innerText = `🔵 진료원장`;
+        
+        // 진료원장: 탕전실, 진료 컬럼 잠금 해제
+        elDecoction.classList.remove('locked');
+        elDoctor.classList.remove('locked');
       } else if (isDecoction) {
         accessibleFolders.push(CONFIG.FOLDERS.DECOCTION);
         statusEl.innerText = `🟡 탕전실`;
+        
+        // 탕전실: 탕전실 컬럼 잠금 해제
+        elDecoction.classList.remove('locked');
       }
       loadRecentFiles();
     }
