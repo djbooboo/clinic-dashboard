@@ -280,7 +280,12 @@
         callback: async (tokenResponse) => {
           if (tokenResponse.access_token) {
             accessToken = tokenResponse.access_token;
+            
+            // 토큰 보존 및 만료 시간 설정 (1시간)
+            const expiresAt = Date.now() + 3500 * 1000;
             localStorage.setItem('dashboard_access_token', accessToken);
+            localStorage.setItem('dashboard_token_expires', expiresAt.toString());
+
             document.getElementById('btnLogin').style.display = 'none';
             document.getElementById('btnLogout').style.display = 'inline-block';
             
@@ -293,13 +298,18 @@
         },
       });
 
-      const savedToken = localStorage.getItem('dashboard_access_token');
+      // 저장된 사용자 정보 및 유효한 토큰 확인 후 즉시 권한 복원
       const savedEmail = localStorage.getItem('dashboard_user_email');
+      const savedToken = localStorage.getItem('dashboard_access_token');
+      const savedExpires = localStorage.getItem('dashboard_token_expires');
 
-      if (savedToken && savedEmail) {
-        accessToken = savedToken;
+      if (savedEmail) {
         document.getElementById('btnLogin').style.display = 'none';
         document.getElementById('btnLogout').style.display = 'inline-block';
+        
+        if (savedToken && savedExpires && Date.now() < parseInt(savedExpires)) {
+          accessToken = savedToken;
+        }
         applyRoleByEmail(savedEmail);
       } else {
         loadRecentFiles();
@@ -336,6 +346,8 @@
           document.getElementById('btnLogin').style.display = 'none';
           document.getElementById('btnLogout').style.display = 'inline-block';
           applyRoleByEmail(userEmail);
+          
+          // 배경에서 Drive API 토큰 조용히 갱신
           tokenClient.requestAccessToken({ prompt: 'none' });
         }
       } catch (e) {
@@ -524,8 +536,12 @@
     
     function handleSignoutClick() {
       localStorage.removeItem('dashboard_access_token');
+      localStorage.removeItem('dashboard_token_expires');
       localStorage.removeItem('dashboard_user_email');
-      google.accounts.id.disableAutoSelect();
+      
+      if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.disableAutoSelect();
+      }
 
       if (accessToken) {
         google.accounts.oauth2.revoke(accessToken, () => {
