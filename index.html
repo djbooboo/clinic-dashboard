@@ -49,7 +49,7 @@
         <section class="card p-4">
             <h2 class="font-bold text-pink-400 mb-3">📢 최근 업데이트된 문서 <span class="text-xs text-gray-400 font-normal">최근 5일간 수정된 파일</span></h2>
             <ul id="recentFileList" class="space-y-2 text-sm max-h-[180px] overflow-y-auto">
-                <li class="text-gray-500 italic">문서를 불러오는 중...</li>
+                <li class="text-gray-500 italic">로그인 후 문서를 불러옵니다.</li>
             </ul>
         </section>
 
@@ -62,78 +62,67 @@
         </section>
     </main>
 
-    <!-- 5개 영역 메인 그리드 (실제 UI 이미지 레이아웃 적용) -->
+    <!-- 5개 영역 메인 그리드 -->
     <section class="grid grid-cols-1 md:grid-cols-5 gap-4">
         
         <!-- 1. 접수 / 치료 -->
         <div id="colStaff" class="card p-4 border-l-4 border-blue-500">
-            <div class="flex justify-between items-start mb-2">
-                <h3 class="font-bold text-lg text-blue-400">🏥 접수 / 치료</h3>
+            <a id="linkStaff" href="#" target="_blank" class="flex justify-between items-start mb-2 group">
+                <h3 class="font-bold text-lg text-blue-400 group-hover:underline">🏥 접수 / 치료</h3>
                 <span class="text-blue-400 font-bold">↗</span>
-            </div>
+            </a>
             <p class="text-xs text-gray-400 mb-4">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            
-            <ul class="space-y-2 text-sm text-gray-300">
-                <li class="hover:text-white cursor-pointer">📢 전체 공지 사항</li>
-                <li class="hover:text-white cursor-pointer">💰 급여 관련 공지 사항</li>
-                <li class="hover:text-white cursor-pointer">👶 난임사업 프로세스</li>
-                <li class="hover:text-white cursor-pointer">🎓 법정의무교육</li>
-                <li class="hover:text-white cursor-pointer">💻 한의맥 관련</li>
-                <li class="hover:text-white cursor-pointer">🚑 자보 관련 자료</li>
-                <li class="hover:text-white cursor-pointer">📄 근로능력평가 진단서 발급 방법</li>
+            <ul id="fileListStaff" class="space-y-2 text-sm text-gray-300">
+                <li class="text-gray-500 italic">폴더 내 파일 읽는 중...</li>
             </ul>
         </div>
 
         <!-- 2. 매뉴얼 -->
         <div id="colManual" class="card p-4 border-l-4 border-emerald-500">
-            <div class="flex justify-between items-start mb-2">
-                <h3 class="font-bold text-lg text-emerald-400">📜 매뉴얼</h3>
+            <a id="linkManual" href="#" target="_blank" class="flex justify-between items-start mb-2 group">
+                <h3 class="font-bold text-lg text-emerald-400 group-hover:underline">📜 매뉴얼</h3>
                 <span class="text-emerald-400 font-bold">↗</span>
-            </div>
+            </a>
             <p class="text-xs text-gray-400 mb-4">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            
-            <div class="text-sm font-semibold text-gray-200">
-                원내 처방집 및 약재 용량표
-            </div>
+            <ul id="fileListManual" class="space-y-2 text-sm text-gray-300">
+                <li class="text-gray-500 italic">폴더 내 파일 읽는 중...</li>
+            </ul>
         </div>
 
         <!-- 3. 탕전실 (기본 잠금) -->
         <div id="colDecoction" class="card p-4 border-l-4 border-amber-500 locked">
-            <div class="flex justify-between items-start mb-2">
-                <h3 class="font-bold text-lg text-amber-400">🍶 탕전실</h3>
+            <a id="linkDecoction" href="#" target="_blank" class="flex justify-between items-start mb-2 group">
+                <h3 class="font-bold text-lg text-amber-400 group-hover:underline">🍶 탕전실</h3>
                 <span class="text-amber-400 font-bold">↗</span>
-            </div>
+            </a>
             <p class="text-xs text-gray-400 mb-4">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            
-            <div class="text-sm font-semibold text-gray-400">
-                탕전 및 제형별 조제 매뉴얼
-            </div>
+            <ul id="fileListDecoction" class="space-y-2 text-sm text-gray-300">
+                <li class="text-gray-500 italic">폴더 내 파일 읽는 중...</li>
+            </ul>
         </div>
 
         <!-- 4. 진료 (기본 잠금) -->
         <div id="colDoctor" class="card p-4 border-l-4 border-purple-500 locked">
-            <div class="flex justify-between items-start mb-2">
-                <h3 class="font-bold text-lg text-purple-400">🩺 진료</h3>
+            <a id="linkDoctor" href="#" target="_blank" class="flex justify-between items-start mb-2 group">
+                <h3 class="font-bold text-lg text-purple-400 group-hover:underline">🩺 진료</h3>
                 <span class="text-purple-400 font-bold">↗</span>
-            </div>
+            </a>
             <p class="text-xs text-gray-400 mb-4">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            
-            <div class="text-sm font-semibold text-gray-400">
-                학술 / 임상 가이드라인
-            </div>
+            <ul id="fileListDoctor" class="space-y-2 text-sm text-gray-300">
+                <li class="text-gray-500 italic">폴더 내 파일 읽는 중...</li>
+            </ul>
         </div>
 
         <!-- 5. 경영 (기본 잠금) -->
         <div id="colAdmin" class="card p-4 border-l-4 border-red-500 locked">
-            <div class="flex justify-between items-start mb-2">
-                <h3 class="font-bold text-lg text-red-400">💰 경영</h3>
+            <a id="linkAdmin" href="#" target="_blank" class="flex justify-between items-start mb-2 group">
+                <h3 class="font-bold text-lg text-red-400 group-hover:underline">💰 경영</h3>
                 <span class="text-red-400 font-bold">↗</span>
-            </div>
+            </a>
             <p class="text-xs text-gray-400 mb-4">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            
-            <div class="text-sm font-semibold text-gray-400">
-                일일 매출 / 수입 집계표
-            </div>
+            <ul id="fileListAdmin" class="space-y-2 text-sm text-gray-300">
+                <li class="text-gray-500 italic">폴더 내 파일 읽는 중...</li>
+            </ul>
         </div>
 
     </section>
@@ -142,6 +131,7 @@
     <div id="toast" class="fixed bottom-5 right-5 bg-gray-800 border border-gray-700 text-white px-4 py-2 rounded shadow-lg hidden"></div>
 
     <script>
+        // ⚠️ 아래 FOLDERS 객체의 폴더 ID 항목들을 원장님의 실제 구글 드라이브 폴더 ID로 변경해 주세요!
         const CONFIG = {
             CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
             GAS_URL: 'https://script.google.com/macros/s/AKfycbyvLSeRmv-dExUjuiDrFGoFQQeEnZIWCRvL_nRITravpe_QTM3KV1hPitC7L2sxEuYw/exec',
@@ -151,23 +141,34 @@
                 DECOCTION: ['decoct@gmail.com']
             },
             FOLDERS: {
-                STAFF: '1-StaffFolderIDSample',
-                DECOCTION: '1-DecoctionFolderIDSample',
-                DOCTOR: '1-DoctorFolderIDSample',
-                ADMIN: '1-AdminFolderIDSample'
+                STAFF: '실제_접수치료_폴더_ID_입력',
+                MANUAL: '실제_매뉴얼_폴더_ID_입력',
+                DECOCTION: '실제_탕전실_폴더_ID_입력',
+                DOCTOR: '실제_진료_폴더_ID_입력',
+                ADMIN: '실제_경영_폴더_ID_입력'
             }
         };
 
         const STAFF_MEMBERS = ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'];
         let tokenClient;
         let accessToken = null;
-        let accessibleFolders = [CONFIG.FOLDERS.STAFF];
+        let accessibleFolders = [];
 
         window.onload = function() {
             initGis();
             renderStaffButtons();
             loadNotices();
+            setupFolderLinks();
         };
+
+        // 구글 드라이브 폴더 이동 링크 구성
+        function setupFolderLinks() {
+            document.getElementById('linkStaff').href = `https://drive.google.com/drive/folders/${CONFIG.FOLDERS.STAFF}`;
+            document.getElementById('linkManual').href = `https://drive.google.com/drive/folders/${CONFIG.FOLDERS.MANUAL}`;
+            document.getElementById('linkDecoction').href = `https://drive.google.com/drive/folders/${CONFIG.FOLDERS.DECOCTION}`;
+            document.getElementById('linkDoctor').href = `https://drive.google.com/drive/folders/${CONFIG.FOLDERS.DOCTOR}`;
+            document.getElementById('linkAdmin').href = `https://drive.google.com/drive/folders/${CONFIG.FOLDERS.ADMIN}`;
+        }
 
         function initGis() {
             tokenClient = google.accounts.oauth2.initTokenClient({
@@ -179,7 +180,6 @@
                         document.getElementById('btnLogin').style.display = 'none';
                         document.getElementById('btnLogout').style.display = 'inline-block';
                         
-                        // 로그인된 구글 계정 이메일 확인
                         fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
                             headers: { Authorization: `Bearer ${accessToken}` }
                         })
@@ -202,29 +202,26 @@
             if (accessToken) {
                 google.accounts.oauth2.revoke(accessToken, () => {
                     accessToken = null;
-                    accessibleFolders = [CONFIG.FOLDERS.STAFF];
+                    accessibleFolders = [];
                     document.getElementById('userStatus').innerText = '🔒 01 전직원 접근 가능';
                     document.getElementById('btnLogin').style.display = 'inline-block';
                     document.getElementById('btnLogout').style.display = 'none';
                     
-                    // 로그아웃 시 잠금 다시 적용
                     document.getElementById('colDecoction').classList.add('locked');
                     document.getElementById('colDoctor').classList.add('locked');
                     document.getElementById('colAdmin').classList.add('locked');
                     
-                    loadRecentFiles();
+                    document.getElementById('recentFileList').innerHTML = '<li class="text-gray-500 italic">로그인 후 문서를 불러옵니다.</li>';
                     showToast('로그아웃 되었습니다.');
                 });
             }
         }
 
-        // 이메일에 따른 DOM 잠금 해제 제어
         function applyRoleByEmail(email) {
             const statusEl = document.getElementById('userStatus');
             const userEmail = email.toLowerCase().trim();
-            accessibleFolders = [CONFIG.FOLDERS.STAFF];
+            accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
             
-            // 1. 초기화 (모두 잠금)
             const elDecoction = document.getElementById('colDecoction');
             const elDoctor = document.getElementById('colDoctor');
             const elAdmin = document.getElementById('colAdmin');
@@ -241,7 +238,6 @@
                 accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR, CONFIG.FOLDERS.ADMIN);
                 statusEl.innerText = `🔴 관리자`;
                 
-                // 관리자 권한: 탕전실, 진료, 경영 모두 잠금 해제
                 elDecoction.classList.remove('locked');
                 elDoctor.classList.remove('locked');
                 elAdmin.classList.remove('locked');
@@ -259,14 +255,53 @@
             }
             
             loadRecentFiles();
+            loadColumnFiles('Staff', CONFIG.FOLDERS.STAFF);
+            loadColumnFiles('Manual', CONFIG.FOLDERS.MANUAL);
+            if (accessibleFolders.includes(CONFIG.FOLDERS.DECOCTION)) loadColumnFiles('Decoction', CONFIG.FOLDERS.DECOCTION);
+            if (accessibleFolders.includes(CONFIG.FOLDERS.DOCTOR)) loadColumnFiles('Doctor', CONFIG.FOLDERS.DOCTOR);
+            if (accessibleFolders.includes(CONFIG.FOLDERS.ADMIN)) loadColumnFiles('Admin', CONFIG.FOLDERS.ADMIN);
         }
 
-        // --- 최근 업데이트 파일 불러오기 (Drive API) ---
+        // --- 각 카드별 구글 드라이브 파일 목록 가져오기 ---
+        function loadColumnFiles(targetKey, folderId) {
+            if (!accessToken || !folderId) return;
+            const listEl = document.getElementById(`fileList${targetKey}`);
+            const q = `'${folderId}' in parents and trashed = false`;
+
+            fetch(`https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(q)}&orderBy=name&pageSize=10&fields=files(id,name,webViewLink)`, {
+                headers: { Authorization: `Bearer ${accessToken}` }
+            })
+            .then(res => res.json())
+            .then(data => {
+                listEl.innerHTML = '';
+                if (!data.files || data.files.length === 0) {
+                    listEl.innerHTML = '<li class="text-gray-500 italic">등록된 파일이 없습니다.</li>';
+                    return;
+                }
+                data.files.forEach(file => {
+                    const li = document.createElement('li');
+                    li.className = 'hover:text-white cursor-pointer truncate';
+                    li.innerHTML = `<a href="${file.webViewLink}" target="_blank" class="block truncate">📄 ${file.name}</a>`;
+                    listEl.appendChild(li);
+                });
+            })
+            .catch(() => {
+                listEl.innerHTML = '<li class="text-red-400 italic">파일 조회 실패 (폴더 ID 확인 필요)</li>';
+            });
+        }
+
+        // --- 최근 업데이트 파일 불러오기 ---
         function loadRecentFiles() {
             if (!accessToken) return;
             const recentListEl = document.getElementById('recentFileList');
             
-            const folderQueries = accessibleFolders.map(id => `'${id}' in parents`).join(' or ');
+            const validFolders = accessibleFolders.filter(id => id && !id.includes('실제_'));
+            if (validFolders.length === 0) {
+                recentListEl.innerHTML = '<li class="text-amber-400 italic">CONFIG에 실제 폴더 ID를 설정해 주세요.</li>';
+                return;
+            }
+
+            const folderQueries = validFolders.map(id => `'${id}' in parents`).join(' or ');
             const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
             const q = `(${folderQueries}) and modifiedTime > '${fiveDaysAgo}' and trashed = false`;
 
@@ -293,7 +328,7 @@
             });
         }
 
-        // --- 임시 공지 연동 (GAS 백엔드) ---
+        // --- 임시 공지 연동 ---
         function loadNotices() {
             fetch(`${CONFIG.GAS_URL}?action=getNotices`)
             .then(res => res.json())
