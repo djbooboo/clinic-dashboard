@@ -29,7 +29,7 @@
         </div>
     </header>
 
-    <!-- 메인 대시보드 그리드 -->
+    <!-- 메인 대시보드 상단 그리드 -->
     <main class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         <!-- 📌 임시공지 카드 -->
         <section class="card p-4">
@@ -62,42 +62,80 @@
         </section>
     </main>
 
-    <!-- 폴더 메뉴 그리드 -->
+    <!-- 5개 영역 메인 그리드 (실제 UI 이미지 레이아웃 적용) -->
     <section class="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <!-- 01 전직원 (접수/치료) -->
+        
+        <!-- 1. 접수 / 치료 -->
         <div id="colStaff" class="card p-4 border-l-4 border-blue-500">
-            <h3 class="font-bold text-lg text-blue-400 mb-1">🏥 접수 / 치료</h3>
-            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            <ul id="folderListStaff" class="space-y-2 text-sm"></ul>
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="font-bold text-lg text-blue-400">🏥 접수 / 치료</h3>
+                <span class="text-blue-400 font-bold">↗</span>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
+            
+            <ul class="space-y-2 text-sm text-gray-300">
+                <li class="hover:text-white cursor-pointer">📢 전체 공지 사항</li>
+                <li class="hover:text-white cursor-pointer">💰 급여 관련 공지 사항</li>
+                <li class="hover:text-white cursor-pointer">👶 난임사업 프로세스</li>
+                <li class="hover:text-white cursor-pointer">🎓 법정의무교육</li>
+                <li class="hover:text-white cursor-pointer">💻 한의맥 관련</li>
+                <li class="hover:text-white cursor-pointer">🚑 자보 관련 자료</li>
+                <li class="hover:text-white cursor-pointer">📄 근로능력평가 진단서 발급 방법</li>
+            </ul>
         </div>
 
-        <!-- 01 전직원 (매뉴얼) -->
-        <div id="colManual" class="card p-4 border-l-4 border-green-500">
-            <h3 class="font-bold text-lg text-green-400 mb-1">📜 매뉴얼</h3>
-            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            <ul id="folderListManual" class="space-y-2 text-sm"></ul>
+        <!-- 2. 매뉴얼 -->
+        <div id="colManual" class="card p-4 border-l-4 border-emerald-500">
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="font-bold text-lg text-emerald-400">📜 매뉴얼</h3>
+                <span class="text-emerald-400 font-bold">↗</span>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
+            
+            <div class="text-sm font-semibold text-gray-200">
+                원내 처방집 및 약재 용량표
+            </div>
         </div>
 
-        <!-- 02 탕전실 -->
+        <!-- 3. 탕전실 (기본 잠금) -->
         <div id="colDecoction" class="card p-4 border-l-4 border-amber-500 locked">
-            <h3 class="font-bold text-lg text-amber-400 mb-1">🍶 탕전실</h3>
-            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            <ul id="folderListDecoction" class="space-y-2 text-sm"></ul>
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="font-bold text-lg text-amber-400">🍶 탕전실</h3>
+                <span class="text-amber-400 font-bold">↗</span>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
+            
+            <div class="text-sm font-semibold text-gray-400">
+                탕전 및 제형별 조제 매뉴얼
+            </div>
         </div>
 
-        <!-- 03 진료 -->
+        <!-- 4. 진료 (기본 잠금) -->
         <div id="colDoctor" class="card p-4 border-l-4 border-purple-500 locked">
-            <h3 class="font-bold text-lg text-purple-400 mb-1">🩺 진료</h3>
-            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            <ul id="folderListDoctor" class="space-y-2 text-sm"></ul>
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="font-bold text-lg text-purple-400">🩺 진료</h3>
+                <span class="text-purple-400 font-bold">↗</span>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
+            
+            <div class="text-sm font-semibold text-gray-400">
+                학술 / 임상 가이드라인
+            </div>
         </div>
 
-        <!-- 04 경영 -->
+        <!-- 5. 경영 (기본 잠금) -->
         <div id="colAdmin" class="card p-4 border-l-4 border-red-500 locked">
-            <h3 class="font-bold text-lg text-red-400 mb-1">💰 경영</h3>
-            <p class="text-xs text-gray-400 mb-3">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
-            <ul id="folderListAdmin" class="space-y-2 text-sm"></ul>
+            <div class="flex justify-between items-start mb-2">
+                <h3 class="font-bold text-lg text-red-400">💰 경영</h3>
+                <span class="text-red-400 font-bold">↗</span>
+            </div>
+            <p class="text-xs text-gray-400 mb-4">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</p>
+            
+            <div class="text-sm font-semibold text-gray-400">
+                일일 매출 / 수입 집계표
+            </div>
         </div>
+
     </section>
 
     <!-- 알림 토스트 -->
@@ -141,7 +179,7 @@
                         document.getElementById('btnLogin').style.display = 'none';
                         document.getElementById('btnLogout').style.display = 'inline-block';
                         
-                        // 구글 사용자 정보 가져오기
+                        // 로그인된 구글 계정 이메일 확인
                         fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
                             headers: { Authorization: `Bearer ${accessToken}` }
                         })
@@ -169,7 +207,7 @@
                     document.getElementById('btnLogin').style.display = 'inline-block';
                     document.getElementById('btnLogout').style.display = 'none';
                     
-                    // 로그아웃 시 컬럼 다시 잠금 처리
+                    // 로그아웃 시 잠금 다시 적용
                     document.getElementById('colDecoction').classList.add('locked');
                     document.getElementById('colDoctor').classList.add('locked');
                     document.getElementById('colAdmin').classList.add('locked');
@@ -180,40 +218,44 @@
             }
         }
 
+        // 이메일에 따른 DOM 잠금 해제 제어
         function applyRoleByEmail(email) {
             const statusEl = document.getElementById('userStatus');
+            const userEmail = email.toLowerCase().trim();
             accessibleFolders = [CONFIG.FOLDERS.STAFF];
             
-            // 모든 컬럼 잠금 상태로 초기화
-            document.getElementById('colDecoction').classList.add('locked');
-            document.getElementById('colDoctor').classList.add('locked');
-            document.getElementById('colAdmin').classList.add('locked');
+            // 1. 초기화 (모두 잠금)
+            const elDecoction = document.getElementById('colDecoction');
+            const elDoctor = document.getElementById('colDoctor');
+            const elAdmin = document.getElementById('colAdmin');
 
-            const isAdmin = CONFIG.ACCOUNTS.ADMIN.map(e => e.toLowerCase()).includes(email.toLowerCase());
-            const isDoctor = CONFIG.ACCOUNTS.DOCTOR.map(e => e.toLowerCase()).includes(email.toLowerCase());
-            const isDecoction = CONFIG.ACCOUNTS.DECOCTION.map(e => e.toLowerCase()).includes(email.toLowerCase());
+            elDecoction.classList.add('locked');
+            elDoctor.classList.add('locked');
+            elAdmin.classList.add('locked');
+
+            const isAdmin = CONFIG.ACCOUNTS.ADMIN.some(e => e.toLowerCase() === userEmail);
+            const isDoctor = CONFIG.ACCOUNTS.DOCTOR.some(e => e.toLowerCase() === userEmail);
+            const isDecoction = CONFIG.ACCOUNTS.DECOCTION.some(e => e.toLowerCase() === userEmail);
 
             if (isAdmin) {
                 accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR, CONFIG.FOLDERS.ADMIN);
                 statusEl.innerText = `🔴 관리자`;
                 
-                // 관리자: 모든 컬럼 잠금 해제
-                document.getElementById('colDecoction').classList.remove('locked');
-                document.getElementById('colDoctor').classList.remove('locked');
-                document.getElementById('colAdmin').classList.remove('locked');
+                // 관리자 권한: 탕전실, 진료, 경영 모두 잠금 해제
+                elDecoction.classList.remove('locked');
+                elDoctor.classList.remove('locked');
+                elAdmin.classList.remove('locked');
             } else if (isDoctor) {
                 accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR);
                 statusEl.innerText = `🔵 진료원장`;
                 
-                // 진료원장: 탕전실, 진료 컬럼 잠금 해제
-                document.getElementById('colDecoction').classList.remove('locked');
-                document.getElementById('colDoctor').classList.remove('locked');
+                elDecoction.classList.remove('locked');
+                elDoctor.classList.remove('locked');
             } else if (isDecoction) {
                 accessibleFolders.push(CONFIG.FOLDERS.DECOCTION);
                 statusEl.innerText = `🟡 탕전실`;
                 
-                // 탕전실: 탕전실 컬럼 잠금 해제
-                document.getElementById('colDecoction').classList.remove('locked');
+                elDecoction.classList.remove('locked');
             }
             
             loadRecentFiles();
@@ -224,7 +266,6 @@
             if (!accessToken) return;
             const recentListEl = document.getElementById('recentFileList');
             
-            // 접근 가능한 폴더 내 파일만 쿼리
             const folderQueries = accessibleFolders.map(id => `'${id}' in parents`).join(' or ');
             const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
             const q = `(${folderQueries}) and modifiedTime > '${fiveDaysAgo}' and trashed = false`;
