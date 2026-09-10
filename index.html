@@ -647,33 +647,50 @@
       loadRecentFiles();
     }
 
-    function loadRecentFiles() {
+    async function loadRecentFiles() {
       const contentEl = document.getElementById('resultsContent');
       const fiveDaysAgo = new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString();
-      const folderConditions = accessibleFolders.map(id => `'${id}' in parents`).join(' or ');
-      const query = `(${folderConditions}) and modifiedTime > '${fiveDaysAgo}' and trashed = false`;
-      let url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&fields=files(id,name,webViewLink,modifiedTime)`;
-      let headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
-      if (!accessToken) url += `&key=${CONFIG.API_KEY}`;
-
-      fetch(url, { headers })
-        .then(res => res.json())
-        .then(data => {
+      
+      let allFolderIds = [...accessibleFolders];
+      
+      try {
+        for (const parentId of accessibleFolders) {
+          const subFolderQuery = `'${parentId}' in parents and mimeType = 'application/vnd.google-apps.folder' and trashed = false`;
+          let subUrl = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(subFolderQuery)}&fields=files(id)`;
+          if (!accessToken) subUrl += `&key=${CONFIG.API_KEY}`;
+          
+          const res = await fetch(subUrl, { headers: accessToken ? { Authorization: `Bearer ${accessToken}` } : {} });
+          const data = await res.json();
           if (data.files && data.files.length > 0) {
-            let html = '<ul class="recent-results-list">';
-            data.files.forEach(file => {
-              const dateStr = new Date(file.modifiedTime).toLocaleDateString();
-              html += `<li><span>📄 ${file.name} <span class="file-date">(${dateStr} 수정)</span></span> <a href="${file.webViewLink}" target="_blank">열기 ↗</a></li>`;
-            });
-            html += '</ul>';
-            contentEl.innerHTML = html;
-          } else {
-            contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 5일간 업데이트된 문서가 없습니다.</p>';
+            data.files.forEach(f => allFolderIds.push(f.id));
           }
-        })
-        .catch(err => {
+        }
+
+        const folderConditions = allFolderIds.map(id => `'${id}' in parents`).join(' or ');
+        const query = `(${folderConditions}) and mimeType != 'application/vnd.google-apps.folder' and modifiedTime > '${fiveDaysAgo}' and trashed = false`;
+        
+        let url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&fields=files(id,name,webViewLink,modifiedTime)`;
+        let headers = accessToken ? { Authorization: `Bearer ${accessToken}` } : {};
+        if (!accessToken) url += `&key=${CONFIG.API_KEY}`;
+
+        const fileRes = await fetch(url, { headers });
+        const fileData = await fileRes.json();
+
+        if (fileData.files && fileData.files.length > 0) {
+          let html = '<ul class="recent-results-list">';
+          fileData.files.forEach(file => {
+            const dateStr = new Date(file.modifiedTime).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+            html += `<li><span>📄 ${file.name} <span class="file-date">(${dateStr} 수정)</span></span> <a href="${file.webViewLink}" target="_blank">열기 ↗</a></li>`;
+          });
+          html += '</ul>';
+          contentEl.innerHTML = html;
+        } else {
           contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 5일간 업데이트된 문서가 없습니다.</p>';
-        });
+        }
+      } catch (err) {
+        console.error("최근 파일 로드 오류:", err);
+        contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 5일간 업데이트된 문서가 없습니다.</p>';
+      }
     }
   </script>
 </body>
