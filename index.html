@@ -275,7 +275,8 @@
 
   <script>
     const CONFIG = {
-      API_KEY: '새로_발급받으신_API_키를_여기에_붙여넣으세요',
+      // ⚠️ 새로 생성하신 API 키를 아래 큰따옴표("") 안에 직접 넣어주세요.
+      API_KEY: "",
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
       ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyvLSeRmv-dExUjuiDrFGoFQQeEnZIWCRvL_nRITravpe_QTM3KV1hPitC7L2sxEuYw/exec',
       MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
@@ -653,11 +654,9 @@
       
       let query = "";
       if (accessToken) {
-        // OAuth 로그인 시: 현재 역할에 부여된 접근 가능 폴더 내부 파일 탐색
         const folderConditions = accessibleFolders.map(id => `'${id}' in parents`).join(' or ');
         query = `(${folderConditions}) and mimeType != 'application/vnd.google-apps.folder' and modifiedTime > '${threeDaysAgo}' and trashed = false`;
       } else {
-        // 비로그인 시: 최근 3일 내 수정된 전체 파일 중 '폴더' 타입 제외
         query = `mimeType != 'application/vnd.google-apps.folder' and modifiedTime > '${threeDaysAgo}' and trashed = false`;
       }
 
@@ -667,6 +666,10 @@
       if (accessToken) {
         headers['Authorization'] = `Bearer ${accessToken}`;
       } else {
+        if (!CONFIG.API_KEY) {
+          contentEl.innerHTML = '<p style="color:#F87171; padding:4px 0; font-size:11.5px;">API 키가 설정되지 않았습니다.</p>';
+          return;
+        }
         url += `&key=${CONFIG.API_KEY}`;
       }
 
