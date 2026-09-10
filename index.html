@@ -1,11 +1,660 @@
-async function loadRecentFiles() {
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>다정부부한의원 업무 대시보드</title>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body { background-color: #121212; color: #F3F4F6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px 20px; font-size: 13px; }
+    
+    .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
+    .brand-group { display: flex; align-items: flex-end; gap: 16px; }
+    .header-logo { height: 90px; width: auto; display: block; filter: invert(1) grayscale(100%) brightness(200%); }
+    .title { font-size: 34px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px; line-height: 1; margin-bottom: 4px; }
+    
+    .auth-btn-group { display: flex; gap: 10px; align-items: center; }
+    .role-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #2A2A2A; border: 1px solid #4B5563; color: #E5E7EB; }
+    .btn-login { padding: 6px 14px; background: #2563EB; color: #FFF; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12.5px; }
+    .btn-login:hover { background: #1D4ED8; }
+    .btn-logout { padding: 6px 14px; background: #2A2A2A; color: #E5E7EB; border: 1px solid #4B5563; border-radius: 5px; cursor: pointer; display: none; font-size: 12.5px; }
+    .btn-logout:hover { background: #374151; }
+    
+    .top-layout-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 14px; margin-bottom: 16px; align-items: stretch; }
+    
+    .notice-board-section { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; }
+    .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .section-title-group { display: flex; align-items: baseline; gap: 6px; }
+    .notice-label { font-size: 13.5px; font-weight: bold; color: #FBBF24; }
+    .section-desc { font-size: 11px; color: #D1D5DB; }
+    
+    .notice-list-container { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; max-height: 105px; overflow-y: auto; }
+    .notice-item-row { display: flex; justify-content: space-between; align-items: center; background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
+    .notice-content-wrap { display: flex; align-items: center; gap: 6px; overflow: hidden; }
+    .new-badge { background-color: #EF4444; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
+    .notice-text { color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+    
+    .notice-empty { color: #9CA3AF; font-size: 11.5px; text-align: center; padding: 10px 0; }
+    
+    .notice-input-area { display: flex; gap: 6px; align-items: center; border-top: 1px solid #374151; padding-top: 8px; }
+    .notice-input { flex-grow: 1; border: 1px solid #4B5563; border-radius: 4px; padding: 5px 8px; font-size: 12.5px; color: #FFFFFF; background-color: #121212; outline: none; }
+    .notice-input::placeholder { color: #9CA3AF; }
+    .notice-input:focus { background-color: #1E1E1E; border-color: #3B82F6; box-shadow: 0 0 0 2px rgba(59,130,246,0.3); }
+    .notice-btn { padding: 5px 10px; font-size: 11.5px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; white-space: nowrap; }
+    .btn-save-row { background-color: #2563EB; color: #FFF; }
+    .btn-save-row:hover { background-color: #1D4ED8; }
+    .btn-del-row { background-color: #2A2A2A; color: #F87171; border: 1px solid #4B5563; font-size: 10.5px; padding: 3px 6px; }
+    .btn-del-row:hover { background-color: #451A03; }
+
+    .recent-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+    .recent-results { max-height: 130px; overflow-y: auto; }
+    .recent-results-list { list-style: none; }
+    .recent-results-list li { padding: 5px 6px; border-bottom: 1px solid #374151; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #E5E7EB; }
+    .recent-results-list a { color: #60A5FA; text-decoration: none; font-weight: 500; }
+    .recent-results-list a:hover { text-decoration: underline; }
+    .file-date { font-size: 11px; color: #9CA3AF; margin-left: 6px; }
+    
+    .attendance-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+    .attendance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; flex-grow: 1; align-content: center; }
+    .member-card { background-color: #121212; border: 1px solid #374151; border-radius: 6px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; }
+    
+    .member-name { font-size: 12.5px; font-weight: bold; color: #FFFFFF; white-space: nowrap; }
+    .btn-toggle-att { padding: 3px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; white-space: nowrap; }
+    .state-in { background-color: #064E3B; color: #34D399; border: 1px solid #059669; }
+    .state-out { background-color: #7F1D1D; color: #FCA5A5; border: 1px solid #DC2626; }
+    
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; display: none; }
+    .modal-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 20px 24px; width: 320px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    .modal-msg { font-size: 14px; color: #FFFFFF; margin-bottom: 16px; line-height: 1.4; }
+    .modal-btn-group { display: flex; gap: 8px; justify-content: center; }
+    .modal-btn { padding: 6px 16px; font-size: 13px; font-weight: bold; border-radius: 5px; border: none; cursor: pointer; }
+    .modal-btn-confirm { background-color: #2563EB; color: #FFF; }
+    .modal-btn-cancel { background-color: #374151; color: #E5E7EB; }
+    
+    .toast-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1100; display: none; }
+    .toast-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 16px 24px; text-align: center; font-size: 14px; color: #FFFFFF; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    
+    .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
+    .column { background-color: #1E1E1E; border-radius: 8px; padding: 12px; border: 1px solid #374151; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    .column-header { padding: 5px 10px; border-radius: 4px; font-size: 14px; font-weight: 700; margin-bottom: 10px; display: inline-block; width: 100%; }
+    .column-header a { color: inherit; text-decoration: none; display: flex; justify-content: space-between; align-items: center; }
+    .column-subtext { font-size: 10.5px; font-weight: normal; color: #D1D5DB; margin-top: 2px; display: block; }
+    
+    .bg-blue { background-color: #1E3A8A; color: #93C5FD; }
+    .bg-green { background-color: #064E3B; color: #6EE7B7; }
+    .bg-teal { background-color: #134E4A; color: #5EEAD4; }
+    .bg-purple { background-color: #581C87; color: #D8B4FE; }
+    .bg-yellow { background-color: #78350F; color: #FDE047; }
+    
+    .link-list { list-style: none; }
+    .link-item { margin-bottom: 3px; }
+    .link-item a { display: flex; align-items: center; gap: 6px; padding: 5px 6px; color: #E5E7EB; text-decoration: none; font-size: 12px; border-radius: 4px; }
+    .link-item a:hover { background-color: #374151; color: #FFFFFF; }
+    .locked { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
+
+    @media (max-width: 1200px) {
+      .top-layout-grid { grid-template-columns: 1fr; }
+      .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="customModal" class="modal-overlay">
+    <div class="modal-box">
+      <div id="modalMsg" class="modal-msg">메시지 내용</div>
+      <div class="modal-btn-group">
+        <button id="modalConfirmBtn" class="modal-btn modal-btn-confirm">확인</button>
+        <button id="modalCancelBtn" class="modal-btn modal-btn-cancel">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastModal" class="toast-overlay">
+    <div id="toastMsg" class="toast-box">완료 메시지</div>
+  </div>
+
+  <div class="header">
+    <div class="brand-group">
+      <img src="logo.png" alt="다정부부한의원" class="header-logo">
+      <h1 class="title">업무 대시보드</h1>
+    </div>
+    <div class="auth-btn-group">
+      <span id="userStatus" class="role-badge">🔒 01 전직원 접근 가능</span>
+      <button id="btnLogin" class="btn-login" onclick="handleAuthClick()">구글 로그인</button>
+      <button id="btnLogout" class="btn-logout" onclick="handleSignoutClick()">로그아웃</button>
+    </div>
+  </div>
+
+  <div class="top-layout-grid">
+    
+    <!-- 📌 임시 공지 카드 -->
+    <div class="notice-board-section">
+      <div>
+        <div class="section-header-row">
+          <div class="section-title-group">
+            <span class="notice-label">📌 임시 공지</span>
+            <span class="section-desc">원내 실시간 메모 공간</span>
+          </div>
+        </div>
+        <div id="noticeListContainer" class="notice-list-container"></div>
+      </div>
+      <div class="notice-input-area">
+        <input type="text" id="newNoticeInput" class="notice-input" placeholder="새로운 임시 공지 입력...">
+        <button class="notice-btn btn-save-row" onclick="addNewNotice()">저장</button>
+      </div>
+    </div>
+
+    <!-- 📢 최근 업데이트된 문서 카드 -->
+    <div class="recent-pane">
+      <div class="section-header-row" style="margin-bottom: 8px;">
+        <div class="section-title-group">
+          <span style="font-size: 13.5px; font-weight: bold; color: #60A5FA;">📢 최근 업데이트된 문서</span>
+          <span class="section-desc">최근 3일간 수정된 파일</span>
+        </div>
+      </div>
+      <div id="resultsContent" class="recent-results">
+        <p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 업데이트 문서를 불러오는 중입니다...</p>
+      </div>
+    </div>
+
+    <!-- ⏰ 출퇴근 기록 카드 -->
+    <div class="attendance-pane">
+      <div class="section-header-row" style="margin-bottom: 8px;">
+        <div class="section-title-group">
+          <span style="font-size: 13.5px; font-weight: bold; color: #60A5FA;">⏰ 출퇴근 기록</span>
+          <span class="section-desc">터치 시 출/퇴근 교대 기록</span>
+        </div>
+      </div>
+      <div class="attendance-grid" id="attendanceGrid"></div>
+    </div>
+
+  </div>
+
+  <div class="dashboard-grid">
+    <!-- 1. 접수 / 치료 -->
+    <div class="column" id="colReception">
+      <div class="column-header bg-blue">
+        <a href="https://drive.google.com/drive/folders/1w2C4X7dtGdOdLnBkkGLqWW18C3z5HSQG?usp=sharing" target="_blank">
+          <span>🏥 접수 / 치료</span>
+          <span style="font-size: 11px;">↗</span>
+        </a>
+        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
+      </div>
+      <ul class="link-list">
+        <li class="link-item"><a href="https://docs.google.com/document/d/1_JetPI2A6iw_0WccOxRhg7_Pv3ve54WfOZLOu5osWvw/edit?usp=sharing" target="_blank">📢 전체 공지 사항</a></li>
+        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1DszbN7mLi7BCin_2k_B4fxuMQ3emfLfYhcuNe6cR0uw/edit?usp=sharing" target="_blank">📋 처방 조제 일지</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1ccJVPXRdGn2dCb3uieWWpUwgVoUatSsgwCR4NppI_sM/edit?usp=sharing" target="_blank">💰 급여 관련 공지 사항</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1Tb7IIrIo9Di2ydio2AOcadQ2EIMyYbwrAxVDVCWXzRY/edit?usp=sharing" target="_blank">💻 한의맥 관련</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1qfvsEQM2JoY2Twkz09ni8yUtr_FLR39bsgKbgbDVPcE/edit?usp=sharing" target="_blank">🚗 자보 관련 자료</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1kGHYJiskVAVvq-kyZ5W5uDUdBWjSHoDslweRJqE45YQ/edit?usp=sharing" target="_blank">📝 한의원 작업 일지</a></li>
+        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/10kpCXQSA2lhrbvPle6ZpbupYHTElg1EwCRlIP-mmTPI/edit?usp=sharing" target="_blank">📅 연간 일정표</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1yP79XXA35h0dR-lHKH5WBsDxpq4zKTuuuAEScBRcinw/edit?usp=sharing" target="_blank">📋 근로능력평가 진단서 발급 방법</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1nbiAqkSsLphKycZR5egqJnOf1ChHjw_q5Sr1ggBLDpg/edit?usp=sharing" target="_blank">👶 난임사업 프로세스</a></li>
+        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1Tvi_kzA3XKsFE2jmrHOSmCLWEJEwHaLBmElL56MsIRg/edit?usp=sharing" target="_blank">🎓 법정의무교육</a></li>
+      </ul>
+    </div>
+
+    <!-- 2. 매뉴얼 -->
+    <div class="column" id="colManual">
+      <div class="column-header bg-green">
+        <a href="https://drive.google.com/drive/folders/1qFpt6Q4TAP9Ko1LdsJ5e3lW4MZlTy58D?usp=sharing" target="_blank">
+          <span>📜 매뉴얼</span>
+          <span style="font-size: 11px;">↗</span>
+        </a>
+        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
+      </div>
+      <ul class="link-list">
+        <li class="link-item"><a href="https://docs.google.com/document/d/1_iBcUIGZ_wpPLXuJa7iKiCKI67h-txshWyXSJ9Yaj4E/edit?usp=sharing" target="_blank">⚡ 치료실 기기 매뉴얼</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1VtILxAfSzcLN7xB3krELwz1e839_kUGRxepguLIHn9I/edit?usp=sharing" target="_blank">🖨️ 스캐너 사용법</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1N6O16DZboVkSp6WRkMNI09IEUjpFARNRDdE__HhKu5I/edit?usp=sharing" target="_blank">📠 FAX 사용법</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1SclAzFjX73qOkNt8gfIDSgYx4JVD5iHM7XyP9jIoqRM/edit?usp=sharing" target="_blank">💳 카드단말기 관련</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1QVb4FkcNvcdGV2dBUhLG49xNH8gwBDd7DQ9fB4nW5y8/edit?usp=sharing" target="_blank">📦 안전하게 택배 발송하기</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1psZ-QnxTu5s5ujJNeAR3Z_HL4P88GJAj-bify8szb2U/edit?usp=sharing" target="_blank">💊 공진단 매뉴얼</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1MD_7XjpLbnZBPB1YqZznNsUbkiGCwizSnjKHjRcqgso/edit?usp=sharing" target="_blank">🧹 ICT 청소 매뉴얼</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1ArijjS76BRt7KHOpmb7VweXek20ZFssSte5OlDRH9cE/edit?usp=sharing" target="_blank">🛠️ 기기구 관리 및 수리법</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/14l4L_4TjshMMJHta0OKBWfzZAbwJzOPHiZAL5VDSZHM/edit?usp=sharing" target="_blank">🔥 난방 설명서</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1sO977hK2ir0aClN5x6xEwRI26mphKtdG9CMlByihNL0/edit?usp=sharing" target="_blank">❄️ 에어컨 관련</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/19PDNhI9ljimpZfriqSrskKmnL-KqBaCFMzBQ65blIqA/edit?usp=sharing" target="_blank">⚡ 정전시 매뉴얼</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1yUmFgQDZw-kHSLFxaO-qtuObpKZPW70TU_jW9KQNcTU/edit?usp=sharing" target="_blank">☕ 커피머신</a></li>
+      </ul>
+    </div>
+
+    <!-- 3. 탕전실 -->
+    <div class="column locked" id="colDecoction">
+      <div class="column-header bg-teal">
+        <a href="https://drive.google.com/drive/folders/1sYdNudJ3Y1wWMhrvIM39M4hmKLryo9NY?usp=sharing" target="_blank">
+          <span>🍶 탕전실</span>
+          <span style="font-size: 11px;">↗</span>
+        </a>
+        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
+      </div>
+      <ul class="link-list">
+        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1GHiMHhcsJtPRw0euHWe3ILSjCViXl8SOeRmCKykBNFo/edit?usp=sharing" target="_blank">📅 탕전 스케줄(홍박진영 외_입력금지)</a></li>
+        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1ZsSm2XH8quFJ8Q3lgs9hq1zjLd5xavGnvhWx3xUSNEo/edit?usp=sharing" target="_blank">📦 한약재 재고 관리</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1PWbsh2Y_XuyPYpz2dvb7fnBSKjgmHSzk44dwMFjPIq8/edit?usp=sharing" target="_blank">📖 탕전실 업무일지</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1mUL9vFPo7Yezb0wrXOgAa1R_6k-uwYim2tA7D7VAlw4/edit?usp=sharing" target="_blank">📜 탕전 매뉴얼</a></li>
+      </ul>
+    </div>
+
+    <!-- 4. 진료 -->
+    <div class="column locked" id="colDoctor">
+      <div class="column-header bg-purple">
+        <a href="https://drive.google.com/drive/folders/1caciuhYkxjhIC3zQi6b4ZPLI4huSNFz_?usp=sharing" target="_blank">
+          <span>🩺 진료</span>
+          <span style="font-size: 11px;">↗</span>
+        </a>
+        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
+      </div>
+      <ul class="link-list">
+        <li class="link-item"><a href="https://docs.google.com/document/d/1HATTWrOuyAAYbZhnhOsPbDaunzaIcouQm6Y3PXOhlJc/edit?usp=sharing" target="_blank">📢 진료진 공지</a></li>
+        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1w2e4esHCPgNZATqvx8FmT_pcz4LYOpUVwbqLguKKH0o/edit?usp=sharing" target="_blank">💊 복약 설명 문구</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1zO9iIyPdefBfatrRV8VMSEI5LSoHtOWVrV3OcapRJs0/edit?usp=sharing" target="_blank">🩺 주요 질환 설명</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1EX9KY80ugtWsvf1YPXd8xjURbGwN_0U3HFzcG7DkC3Y/edit?usp=sharing" target="_blank">🌿 탕전 방법과 약재-한의사</a></li>
+      </ul>
+    </div>
+
+    <!-- 5. 경영 -->
+    <div class="column locked" id="colAdmin">
+      <div class="column-header bg-yellow">
+        <a href="https://drive.google.com/drive/folders/1HE5f_uSjP8v-lSeO5yTgherYXjt24_yX?usp=sharing" target="_blank">
+          <span>💰 경영</span>
+          <span style="font-size: 11px;">↗</span>
+        </a>
+        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
+      </div>
+      <ul class="link-list">
+        <li class="link-item"><a href="https://docs.google.com/document/d/14KpBGM7Ow-CYR-CsTDBMJoyTFkjoXyhPlHUWqTp0u6c/edit?usp=sharing" target="_blank">💵 급여 계산 및 명세서 작성</a></li>
+        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/14JXATBgZ4A6SDRQW9HdVLsgUhzUDkPMaxH3P1wmj-KE/edit?usp=sharing" target="_blank">⏰ 근태기록</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    const CONFIG = {
+      API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
+      CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
+      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyvLSeRmv-dExUjuiDrFGoFQQeEnZIWCRvL_nRITravpe_QTM3KV1hPitC7L2sxEuYw/exec',
+      MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
+      ACCOUNTS: {
+        DECOCTION: ['samepsl89@gmail.com', 'alexkkansu@gmail.com'],
+        DOCTOR: ['crammy55@naver.com'],
+        ADMIN: ['amercury74@gmail.com', '247stillmoon@gmail.com']
+      },
+      FOLDERS: {
+        STAFF: '1w2C4X7dtGdOdLnBkkGLqWW18C3z5HSQG',
+        MANUAL: '1qFpt6Q4TAP9Ko1LdsJ5e3lW4MZlTy58D',
+        DECOCTION: '1sYdNudJ3Y1wWMhrvIM39M4hmKLryo9NY',
+        DOCTOR: '1caciuhYkxjhIC3zQi6b4ZPLI4huSNFz_',
+        ADMIN: '1HE5f_uSjP8v-lSeO5yTgherYXjt24_yX'
+      }
+    };
+
+    let tokenClient;
+    let accessToken = null;
+    let accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
+    let attendanceStates = {};
+    let noticeList = [];
+
+    window.onload = async function() {
+      CONFIG.MEMBERS.forEach(name => { attendanceStates[name] = 'OUT'; });
+      renderAttendanceGrid();
+      loadNotices();
+
+      tokenClient = google.accounts.oauth2.initTokenClient({
+        client_id: CONFIG.CLIENT_ID,
+        scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.email',
+        callback: async (tokenResponse) => {
+          if (tokenResponse.access_token) {
+            accessToken = tokenResponse.access_token;
+            
+            const expiresAt = Date.now() + 3500 * 1000;
+            localStorage.setItem('dashboard_access_token', accessToken);
+            localStorage.setItem('dashboard_token_expires', expiresAt.toString());
+
+            document.getElementById('btnLogin').style.display = 'none';
+            document.getElementById('btnLogout').style.display = 'inline-block';
+            
+            const userEmail = await fetchUserEmail(accessToken);
+            if (userEmail) {
+              localStorage.setItem('dashboard_user_email', userEmail);
+              applyRoleByEmail(userEmail);
+            }
+          }
+        },
+      });
+
+      const savedEmail = localStorage.getItem('dashboard_user_email');
+      const savedToken = localStorage.getItem('dashboard_access_token');
+      const savedExpires = localStorage.getItem('dashboard_token_expires');
+
+      if (savedEmail) {
+        document.getElementById('btnLogin').style.display = 'none';
+        document.getElementById('btnLogout').style.display = 'inline-block';
+        
+        if (savedToken && savedExpires && Date.now() < parseInt(savedExpires)) {
+          accessToken = savedToken;
+        }
+        applyRoleByEmail(savedEmail);
+      } else {
+        loadRecentFiles();
+        initGoogleOneTap();
+      }
+
+      await syncServerData();
+      renderAttendanceGrid();
+      loadNotices();
+    };
+
+    function initGoogleOneTap() {
+      google.accounts.id.initialize({
+        client_id: CONFIG.CLIENT_ID,
+        callback: handleOneTapCallback,
+        auto_select: true
+      });
+      google.accounts.id.prompt();
+    }
+
+    async function handleOneTapCallback(response) {
+      try {
+        const base64Url = response.credential.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+        
+        const payload = JSON.parse(jsonPayload);
+        const userEmail = payload.email ? payload.email.toLowerCase() : '';
+
+        if (userEmail) {
+          localStorage.setItem('dashboard_user_email', userEmail);
+          document.getElementById('btnLogin').style.display = 'none';
+          document.getElementById('btnLogout').style.display = 'inline-block';
+          applyRoleByEmail(userEmail);
+          
+          tokenClient.requestAccessToken({ prompt: 'none' });
+        }
+      } catch (e) {
+        console.error("One Tap 로그인 처리 오류:", e);
+      }
+    }
+
+    async function syncServerData() {
+      try {
+        const res = await fetch(CONFIG.ATTENDANCE_WEBAPP_URL);
+        const data = await res.json();
+        
+        if (data && data.statuses) {
+          for (let name in data.statuses) {
+            if (CONFIG.MEMBERS.includes(name)) {
+              let val = String(data.statuses[name]).trim();
+              if (val === 'IN' || val === '출근') {
+                attendanceStates[name] = 'IN';
+              } else {
+                attendanceStates[name] = 'OUT';
+              }
+            }
+          }
+        }
+
+        if (data && data.notices) {
+          noticeList = data.notices;
+        }
+      } catch (e) {
+        console.error("서버 데이터 동기화 중 오류:", e);
+      }
+    }
+
+    async function updateServerNotices(newList) {
+      noticeList = newList;
+      loadNotices();
+
+      try {
+        await fetch(CONFIG.ATTENDANCE_WEBAPP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: JSON.stringify({ type: 'UPDATE_NOTICES', notices: noticeList })
+        });
+      } catch (e) {
+        console.error("임시 공지 서버 저장 실패:", e);
+      }
+    }
+
+    function loadNotices() {
+      const container = document.getElementById('noticeListContainer');
+
+      if (!noticeList || noticeList.length === 0) {
+        container.innerHTML = '<div class="notice-empty">등록된 임시 공지가 없습니다.</div>';
+        return;
+      }
+
+      let html = '';
+      noticeList.forEach((item, index) => {
+        const newBadge = item.isNew ? '<span class="new-badge">NEW</span>' : '';
+        html += `
+          <div class="notice-item-row">
+            <div class="notice-content-wrap">
+              ${newBadge}
+              <span class="notice-text" title="${item.text}">${item.text}</span>
+            </div>
+            <button class="notice-btn btn-del-row" onclick="deleteNotice(${index})">삭제</button>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+    }
+
+    function addNewNotice() {
+      const input = document.getElementById('newNoticeInput');
+      const text = input.value.trim();
+
+      if (!text) {
+        showToast('⚠️ 공지 내용을 입력해주세요.');
+        return;
+      }
+
+      let currentNotices = [...noticeList];
+      currentNotices.forEach(item => item.isNew = false);
+      currentNotices.unshift({ text: text, isNew: true });
+
+      updateServerNotices(currentNotices);
+      input.value = '';
+      showToast('✅ 새로운 임시 공지가 최상단에 등록되었습니다.');
+    }
+
+    function deleteNotice(index) {
+      showCustomConfirm('해당 공지 내용을 삭제하시겠습니까?', function(confirmed) {
+        if (!confirmed) return;
+        let currentNotices = [...noticeList];
+        currentNotices.splice(index, 1);
+        updateServerNotices(currentNotices);
+        showToast('🗑️ 공지가 삭제되었습니다.');
+      });
+    }
+
+    function showCustomConfirm(message, onConfirm) {
+      const modal = document.getElementById('customModal');
+      const msgEl = document.getElementById('modalMsg');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+      const cancelBtn = document.getElementById('modalCancelBtn');
+
+      msgEl.innerText = message;
+      modal.style.display = 'flex';
+
+      const newConfirmBtn = confirmBtn.cloneNode(true);
+      const newCancelBtn = cancelBtn.cloneNode(true);
+      confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+      cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+      newConfirmBtn.onclick = function() {
+        modal.style.display = 'none';
+        onConfirm(true);
+      };
+      newCancelBtn.onclick = function() {
+        modal.style.display = 'none';
+        onConfirm(false);
+      };
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toastModal');
+      const msgEl = document.getElementById('toastMsg');
+      msgEl.innerText = message;
+      toast.style.display = 'flex';
+      setTimeout(() => { toast.style.display = 'none'; }, 1200);
+    }
+
+    function renderAttendanceGrid() {
+      const grid = document.getElementById('attendanceGrid');
+      grid.innerHTML = '';
+
+      CONFIG.MEMBERS.forEach(name => {
+        const currentState = attendanceStates[name] || 'OUT';
+        const nextActionLabel = (currentState === 'OUT') ? '출근' : '퇴근';
+        const btnClass = (currentState === 'OUT') ? 'state-in' : 'state-out';
+
+        const card = document.createElement('div');
+        card.className = 'member-card';
+        card.innerHTML = `
+          <span class="member-name">${name}</span>
+          <button id="btn-${name}" class="btn-toggle-att ${btnClass}" onclick="toggleAttendance('${name}')">${nextActionLabel}</button>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function toggleAttendance(name) {
+      const currentState = attendanceStates[name] || 'OUT';
+      const targetAction = (currentState === 'OUT') ? '출근' : '퇴근';
+      const promptMsg = `${name} 님을 [${targetAction}] 처리하시겠습니까?`;
+
+      showCustomConfirm(promptMsg, function(confirmed) {
+        if (!confirmed) return;
+
+        attendanceStates[name] = (currentState === 'OUT') ? 'IN' : 'OUT';
+        renderAttendanceGrid();
+
+        const payload = JSON.stringify({ name: name, type: targetAction });
+
+        fetch(CONFIG.ATTENDANCE_WEBAPP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: payload
+        })
+        .then(() => {
+          const timeStr = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+          showToast(`✅ ${name} 님 [${targetAction}] 기록되었습니다. (${timeStr})`);
+        })
+        .catch(err => {
+          console.error(err);
+          showToast('출퇴근 기록 실패. 인터넷 연결 상태를 확인해주세요.');
+        });
+      });
+    }
+
+    function handleAuthClick() { 
+      tokenClient.requestAccessToken({prompt: 'consent'}); 
+    }
+    
+    function handleSignoutClick() {
+      localStorage.removeItem('dashboard_access_token');
+      localStorage.removeItem('dashboard_token_expires');
+      localStorage.removeItem('dashboard_user_email');
+      
+      if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.disableAutoSelect();
+      }
+
+      if (accessToken) {
+        google.accounts.oauth2.revoke(accessToken, () => {
+          accessToken = null;
+          accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
+          document.getElementById('userStatus').innerText = '🔒 01 전직원 접근 가능';
+          document.getElementById('btnLogin').style.display = 'inline-block';
+          document.getElementById('btnLogout').style.display = 'none';
+          
+          document.getElementById('colDecoction').classList.add('locked');
+          document.getElementById('colDoctor').classList.add('locked');
+          document.getElementById('colAdmin').classList.add('locked');
+
+          loadRecentFiles();
+          showToast('로그아웃 되었습니다.');
+        });
+      } else {
+        accessToken = null;
+        accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
+        document.getElementById('userStatus').innerText = '🔒 01 전직원 접근 가능';
+        document.getElementById('btnLogin').style.display = 'inline-block';
+        document.getElementById('btnLogout').style.display = 'none';
+        
+        document.getElementById('colDecoction').classList.add('locked');
+        document.getElementById('colDoctor').classList.add('locked');
+        document.getElementById('colAdmin').classList.add('locked');
+
+        loadRecentFiles();
+        showToast('로그아웃 되었습니다.');
+      }
+    }
+
+    async function fetchUserEmail(token) {
+      try {
+        const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: `Bearer ${token}` } });
+        const data = await res.json();
+        return data.email ? data.email.toLowerCase() : '';
+      } catch (e) { return ''; }
+    }
+
+    function applyRoleByEmail(email) {
+      const statusEl = document.getElementById('userStatus');
+      accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
+
+      const elDecoction = document.getElementById('colDecoction');
+      const elDoctor = document.getElementById('colDoctor');
+      const elAdmin = document.getElementById('colAdmin');
+
+      elDecoction.classList.add('locked');
+      elDoctor.classList.add('locked');
+      elAdmin.classList.add('locked');
+
+      const isAdmin = CONFIG.ACCOUNTS.ADMIN.map(e => e.toLowerCase()).includes(email);
+      const isDoctor = CONFIG.ACCOUNTS.DOCTOR.map(e => e.toLowerCase()).includes(email);
+      const isDecoction = CONFIG.ACCOUNTS.DECOCTION.map(e => e.toLowerCase()).includes(email);
+
+      if (isAdmin) {
+        accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR, CONFIG.FOLDERS.ADMIN);
+        statusEl.innerText = `🔴 관리자`;
+        
+        elDecoction.classList.remove('locked');
+        elDoctor.classList.remove('locked');
+        elAdmin.classList.remove('locked');
+      } else if (isDoctor) {
+        accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR);
+        statusEl.innerText = `🔵 진료원장`;
+        
+        elDecoction.classList.remove('locked');
+        elDoctor.classList.remove('locked');
+      } else if (isDecoction) {
+        accessibleFolders.push(CONFIG.FOLDERS.DECOCTION);
+        statusEl.innerText = `🟡 탕전실`;
+        
+        elDecoction.classList.remove('locked');
+      }
+      loadRecentFiles();
+    }
+
+    async function loadRecentFiles() {
       const contentEl = document.getElementById('resultsContent');
       const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
       let allFiles = [];
 
       try {
         if (accessToken) {
-          // OAuth 로그인 상태: 허용된 폴더들의 직속 파일 병렬 조회 (권한 문제 방지)
+          // OAuth 로그인 상태: 허용된 폴더 직속 파일 병렬 조회
           const requests = accessibleFolders.map(folderId => {
             const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and modifiedTime > '${threeDaysAgo}' and trashed = false`;
             const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&supportsAllDrives=true&includeItemsFromAllDrives=true&fields=files(id,name,webViewLink,mimeType,modifiedTime)&_cb=${Date.now()}`;
@@ -19,7 +668,6 @@ async function loadRecentFiles() {
             if (res.files) allFiles = allFiles.concat(res.files);
           });
 
-          // 최근 수정시간순 정렬
           allFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
           allFiles = allFiles.slice(0, 10);
         } else {
@@ -66,3 +714,6 @@ async function loadRecentFiles() {
         contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 3일간 업데이트된 문서가 없습니다.</p>';
       }
     }
+  </script>
+</body>
+</html>
