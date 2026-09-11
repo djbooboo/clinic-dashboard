@@ -22,16 +22,20 @@
     .btn-logout { padding: 6px 14px; background: #2A2A2A; color: #E5E7EB; border: 1px solid #4B5563; border-radius: 5px; cursor: pointer; display: none; font-size: 12.5px; }
     .btn-logout:hover { background: #374151; }
     
-    /* 📐 상단 레이아웃 격자: 달력(마지막 컬럼)의 너비를 1.4fr로 확대 */
-    .top-layout-grid { display: grid; grid-template-columns: 1fr 0.9fr 0.9fr 1.4fr; gap: 12px; margin-bottom: 16px; align-items: stretch; }
+    /* 📐 상단 레이아웃 격자: 1열(임시공지), 2열(최근문서/출퇴근), 3열(달력) 3분할 */
+    .top-layout-grid { display: grid; grid-template-columns: 0.9fr 1.1fr 1.4fr; gap: 14px; margin-bottom: 16px; align-items: stretch; }
     
-    .notice-board-section { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; }
+    /* 2열 중앙 상하 배치 컨테이너 */
+    .mid-widgets-col { display: flex; flex-direction: column; gap: 12px; justify-content: space-between; }
+    
+    /* 📌 1열: 임시 공지 카드 (단독) */
+    .notice-board-section { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
     .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .section-title-group { display: flex; align-items: baseline; gap: 6px; }
     .notice-label { font-size: 13px; font-weight: bold; color: #FBBF24; }
     .section-desc { font-size: 11px; color: #D1D5DB; }
     
-    .notice-list-container { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; max-height: 380px; overflow-y: auto; }
+    .notice-list-container { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; flex-grow: 1; max-height: 420px; overflow-y: auto; }
     .notice-item-row { display: flex; justify-content: space-between; align-items: center; background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
     .notice-content-wrap { display: flex; align-items: center; gap: 6px; overflow: hidden; }
     .new-badge { background-color: #EF4444; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; animation: pulse 1.5s infinite; }
@@ -49,15 +53,17 @@
     .btn-save-row:hover { background-color: #1D4ED8; }
     .btn-del-row { background-color: #2A2A2A; color: #F87171; border: 1px solid #4B5563; font-size: 10.5px; padding: 3px 6px; }
 
-    .recent-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
-    .recent-results { max-height: 400px; overflow-y: auto; }
+    /* 📢 2열 상단: 최근 업데이트 문서 카드 */
+    .recent-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex: 1; }
+    .recent-results { max-height: 190px; overflow-y: auto; }
     .recent-results-list { list-style: none; }
-    .recent-results-list li { padding: 6px 4px; border-bottom: 1px solid #374151; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #E5E7EB; }
+    .recent-results-list li { padding: 5px 4px; border-bottom: 1px solid #374151; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #E5E7EB; }
     .recent-results-list a { color: #60A5FA; text-decoration: none; font-weight: 500; }
     .recent-results-list a:hover { text-decoration: underline; }
     .file-date { font-size: 11px; color: #9CA3AF; margin-left: 4px; }
     
-    .attendance-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+    /* ⏰ 2열 하단: 출퇴근 기록 카드 */
+    .attendance-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex: 1; }
     .attendance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; flex-grow: 1; align-content: center; }
     .member-card { background-color: #121212; border: 1px solid #374151; border-radius: 6px; padding: 6px 8px; display: flex; align-items: center; justify-content: space-between; }
     .member-name { font-size: 12px; font-weight: bold; color: #FFFFFF; white-space: nowrap; }
@@ -65,29 +71,29 @@
     .state-in { background-color: #064E3B; color: #34D399; border: 1px solid #059669; }
     .state-out { background-color: #7F1D1D; color: #FCA5A5; border: 1px solid #DC2626; }
 
-    /* 📅 달력 카드 확장 스타일 */
-    .calendar-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
-    .cal-header-nav { display: flex; align-items: center; gap: 4px; }
-    .cal-nav-btn { background: #2A2A2A; border: 1px solid #4B5563; color: #E5E7EB; border-radius: 4px; padding: 2px 6px; font-size: 11px; cursor: pointer; }
+    /* 📅 3열: 대형 확장 달력 카드 */
+    .calendar-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 14px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; height: 100%; }
+    .cal-header-nav { display: flex; align-items: center; gap: 6px; }
+    .cal-nav-btn { background: #2A2A2A; border: 1px solid #4B5563; color: #E5E7EB; border-radius: 4px; padding: 3px 8px; font-size: 12px; cursor: pointer; font-weight: bold; }
     .cal-nav-btn:hover { background: #374151; }
-    .cal-title-text { font-size: 13px; font-weight: bold; color: #FFFFFF; min-width: 80px; text-align: center; }
+    .cal-title-text { font-size: 15px; font-weight: bold; color: #FFFFFF; min-width: 100px; text-align: center; }
     
-    .cal-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 11px; table-layout: fixed; }
-    .cal-table th { color: #9CA3AF; padding: 4px 2px; text-align: center; font-weight: 600; font-size: 11px; border-bottom: 1px solid #374151; }
+    .cal-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; table-layout: fixed; flex-grow: 1; }
+    .cal-table th { color: #9CA3AF; padding: 6px 2px; text-align: center; font-weight: bold; font-size: 12px; border-bottom: 1px solid #374151; }
     .cal-table th.sun { color: #F87171; }
     .cal-table th.sat { color: #60A5FA; }
     
-    /* 🔍 날짜 셀 높이를 58px로 확장하여 입력 내용이 다 잘 보이도록 변경 */
-    .cal-table td { height: 58px; border: 1px solid #2A2A2A; vertical-align: top; padding: 3px; cursor: pointer; transition: background 0.15s; overflow: hidden; }
+    /* 🔍 날짜 셀 높이 82px 유지 */
+    .cal-table td { height: 82px; border: 1px solid #2A2A2A; vertical-align: top; padding: 4px; cursor: pointer; transition: background 0.15s; overflow: hidden; }
     .cal-table td:hover { background-color: #2A2A2A; }
     .cal-table td.empty { background-color: transparent; cursor: default; border-color: transparent; }
-    .cal-date-num { font-size: 10.5px; font-weight: bold; color: #D1D5DB; line-height: 1; margin-bottom: 3px; }
+    .cal-date-num { font-size: 11.5px; font-weight: bold; color: #D1D5DB; line-height: 1; margin-bottom: 4px; }
     .cal-table td.is-today { background-color: #1E3A8A; border: 1px solid #3B82F6; }
     .cal-table td.is-today .cal-date-num { color: #93C5FD; }
     
-    /* 🏷️ 근무자 및 업무 태그 스타일 개선 */
-    .cal-worker-tag { font-size: 10px; color: #34D399; background: #064E3B; border-radius: 3px; padding: 2px 3px; margin-bottom: 2px; white-space: normal; word-break: break-all; display: block; line-height: 1.2; }
-    .cal-task-tag { font-size: 10px; color: #FDE047; background: #78350F; border-radius: 3px; padding: 2px 3px; white-space: normal; word-break: break-all; display: block; line-height: 1.2; }
+    /* 🏷️ 근무자 및 업무 태그 스타일 */
+    .cal-worker-tag { font-size: 10.5px; color: #34D399; background: #064E3B; border: 1px solid #059669; border-radius: 3px; padding: 2px 4px; margin-bottom: 3px; white-space: normal; word-break: break-all; display: block; line-height: 1.25; font-weight: 500; }
+    .cal-task-tag { font-size: 10.5px; color: #FDE047; background: #78350F; border: 1px solid #D97706; border-radius: 3px; padding: 2px 4px; white-space: normal; word-break: break-all; display: block; line-height: 1.25; font-weight: 500; }
     
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; display: none; }
     .modal-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 20px 24px; width: 340px; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
@@ -122,8 +128,8 @@
     .link-item a:hover { background-color: #374151; color: #FFFFFF; }
     .locked { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
 
-    @media (max-width: 1400px) {
-      .top-layout-grid { grid-template-columns: 1fr 1fr; }
+    @media (max-width: 1200px) {
+      .top-layout-grid { grid-template-columns: 1fr; }
       .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
@@ -159,7 +165,7 @@
 
   <div class="top-layout-grid">
     
-    <!-- 1. 📌 임시 공지 카드 -->
+    <!-- 📌 1열: 임시 공지 카드 (단독) -->
     <div class="notice-board-section">
       <div>
         <div class="section-header-row">
@@ -176,35 +182,38 @@
       </div>
     </div>
 
-    <!-- 2. 📢 최근 업데이트된 문서 카드 -->
-    <div class="recent-pane">
-      <div class="section-header-row" style="margin-bottom: 6px;">
-        <div class="section-title-group">
-          <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">📢 최근 업데이트 문서</span>
-          <span class="section-desc">최근 3일간 수정된 파일</span>
+    <!-- 2열: 최근 업데이트 문서 (상) + 출퇴근 기록 (하) -->
+    <div class="mid-widgets-col">
+      <!-- 📢 최근 업데이트된 문서 카드 (상) -->
+      <div class="recent-pane">
+        <div class="section-header-row" style="margin-bottom: 6px;">
+          <div class="section-title-group">
+            <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">📢 최근 업데이트 문서</span>
+            <span class="section-desc">최근 3일간 수정</span>
+          </div>
+        </div>
+        <div id="resultsContent" class="recent-results">
+          <p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 업데이트 문서를 불러오는 중입니다...</p>
         </div>
       </div>
-      <div id="resultsContent" class="recent-results">
-        <p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 업데이트 문서를 불러오는 중입니다...</p>
+
+      <!-- ⏰ 출퇴근 기록 카드 (하) -->
+      <div class="attendance-pane">
+        <div class="section-header-row" style="margin-bottom: 6px;">
+          <div class="section-title-group">
+            <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">⏰ 출퇴근 기록</span>
+            <span class="section-desc">클릭 시 교대 기록</span>
+          </div>
+        </div>
+        <div class="attendance-grid" id="attendanceGrid"></div>
       </div>
     </div>
 
-    <!-- 3. ⏰ 출퇴근 기록 카드 -->
-    <div class="attendance-pane">
-      <div class="section-header-row" style="margin-bottom: 6px;">
-        <div class="section-title-group">
-          <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">⏰ 출퇴근 기록</span>
-          <span class="section-desc">클릭 시 출/퇴근 교대 기록</span>
-        </div>
-      </div>
-      <div class="attendance-grid" id="attendanceGrid"></div>
-    </div>
-
-    <!-- 4. 📅 근무 & 업무 달력 카드 (확장 형태) -->
+    <!-- 📅 3열: 대형 확장 달력 -->
     <div class="calendar-pane">
       <div class="section-header-row">
         <div class="section-title-group">
-          <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">📅 근무 & 업무 달력</span>
+          <span style="font-size: 14px; font-weight: bold; color: #60A5FA;">📅 근무 & 업무 달력</span>
           <span class="section-desc">날짜 클릭 시 입력/수정</span>
         </div>
         <div class="cal-header-nav">
