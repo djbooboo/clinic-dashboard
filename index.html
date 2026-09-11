@@ -348,6 +348,33 @@
       await syncServerData();
       renderAttendanceGrid();
       loadNotices();
+
+      // 🔄 주기적 자동 새로고침 설정
+      // 1) 최근 문서: 5분(300,000ms)마다 자동 갱신
+      setInterval(() => {
+        if (!document.hidden) {
+          loadRecentFiles();
+        }
+      }, 5 * 60 * 1000);
+
+      // 2) 출퇴근 & 임시공지 데이터: 1분(60,000ms)마다 동기화
+      setInterval(async () => {
+        if (!document.hidden) {
+          await syncServerData();
+          renderAttendanceGrid();
+          loadNotices();
+        }
+      }, 60 * 1000);
+
+      // 3) 사용자가 다시 해당 화면(탭)으로 돌아왔을 때 즉시 전체 데이터 갱신
+      document.addEventListener('visibilitychange', async () => {
+        if (!document.hidden) {
+          loadRecentFiles();
+          await syncServerData();
+          renderAttendanceGrid();
+          loadNotices();
+        }
+      });
     };
 
     function initGoogleOneTap() {
