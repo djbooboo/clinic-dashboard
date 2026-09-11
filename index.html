@@ -35,7 +35,6 @@
     .notice-content-wrap { display: flex; align-items: center; gap: 6px; overflow: hidden; }
     .new-badge { background-color: #EF4444; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; animation: pulse 1.5s infinite; }
     
-    /* 💛 오늘 수정된 파일용 [오늘] 뱃지 스타일 */
     .today-badge { background-color: #D97706; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; margin-right: 4px; animation: pulse 1.5s infinite; }
     
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
@@ -285,10 +284,6 @@
       ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyvLSeRmv-dExUjuiDrFGoFQQeEnZIWCRvL_nRITravpe_QTM3KV1hPitC7L2sxEuYw/exec',
       MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
       
-      /*
-        📌 [최근 업데이트된 문서에서 제외할 파일 ID 설정]
-        문서 주소(URL)에서 /d/ 와 /edit 사이에 있는 문자열이 파일 ID입니다.
-      */
       EXCLUDE_FILE_IDS: [
         '1ZsSm2XH8quFJ8Q3lgs9hq1zjLd5xavGnvhWx3xUSNEo',
         '1GHiMHhcsJtPRw0euHWe3ILSjCViXl8SOeRmCKykBNFo',
@@ -360,9 +355,7 @@
         initGoogleOneTap();
       }
 
-      await syncServerData();
-      renderAttendanceGrid();
-      loadNotices();
+      await refreshAllData();
 
       // 🔄 주기적 자동 새로고침 설정 (최근 문서: 5분, 출퇴근/공지: 1분)
       setInterval(() => {
@@ -379,13 +372,18 @@
 
       document.addEventListener('visibilitychange', async () => {
         if (!document.hidden) {
-          loadRecentFiles();
-          await syncServerData();
-          renderAttendanceGrid();
-          loadNotices();
+          await refreshAllData();
         }
       });
     };
+
+    // 🔄 전체 데이터를 한 번에 새로고침하는 함수
+    async function refreshAllData() {
+      await syncServerData();
+      renderAttendanceGrid();
+      loadNotices();
+      await loadRecentFiles();
+    }
 
     function initGoogleOneTap() {
       google.accounts.id.initialize({
@@ -422,7 +420,8 @@
 
     async function syncServerData() {
       try {
-        const res = await fetch(CONFIG.ATTENDANCE_WEBAPP_URL);
+        // 캐시 방지를 위해 타임스탬프 파라미터 추가
+        const res = await fetch(`${CONFIG.ATTENDANCE_WEBAPP_URL}?_cb=${Date.now()}`);
         const data = await res.json();
         
         if (data && data.statuses) {
@@ -457,6 +456,13 @@
           headers: { 'Content-Type': 'text/plain;charset=utf-8' },
           body: JSON.stringify({ type: 'UPDATE_NOTICES', notices: noticeList })
         });
+        
+        // 입력 후 서버 반영을 보장하기 위해 1초 뒤 서버 데이터 동기화
+        setTimeout(async () => {
+          await syncServerData();
+          loadNotices();
+        }, 1000);
+
       } catch (e) {
         console.error("임시 공지 서버 저장 실패:", e);
       }
@@ -573,6 +579,7 @@
       showCustomConfirm(promptMsg, function(confirmed) {
         if (!confirmed) return;
 
+        // 화면 UI 즉시 변경
         attendanceStates[name] = (currentState === 'OUT') ? 'IN' : 'OUT';
         renderAttendanceGrid();
 
@@ -587,6 +594,11 @@
         .then(() => {
           const timeStr = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
           showToast(`✅ ${name} 님 [${targetAction}] 기록되었습니다. (${timeStr})`);
+          
+          // 🔄 구글 앱스 스크립트 전송 반영 시간을 고려해 1초 후 전체 새로고침
+          setTimeout(async () => {
+            await refreshAllData();
+          }, 1200);
         })
         .catch(err => {
           console.error(err);
@@ -689,7 +701,6 @@
       const contentEl = document.getElementById('resultsContent');
       const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
       
-      // 오늘 0시 0분 0초 날짜 객체 생성
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
@@ -697,7 +708,6 @@
 
       try {
         if (accessToken) {
-          // OAuth 로그인 상태
           const requests = accessibleFolders.map(folderId => {
             const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and modifiedTime > '${threeDaysAgo}' and trashed = false`;
             const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&supportsAllDrives=true&includeItemsFromAllDrives=true&fields=files(id,name,webViewLink,mimeType,modifiedTime)&_cb=${Date.now()}`;
@@ -711,7 +721,6 @@
             if (res.files) allFiles = allFiles.concat(res.files);
           });
         } else {
-          // 비로그인 상태
           const requests = accessibleFolders.map(folderId => {
             const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and modifiedTime > '${threeDaysAgo}' and trashed = false`;
             const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&fields=files(id,name,webViewLink,mimeType,modifiedTime)&key=${CONFIG.API_KEY}&_cb=${Date.now()}`;
@@ -724,12 +733,10 @@
           });
         }
 
-        // 🚫 CONFIG.EXCLUDE_FILE_IDS 제외 필터링
         if (CONFIG.EXCLUDE_FILE_IDS && CONFIG.EXCLUDE_FILE_IDS.length > 0) {
           allFiles = allFiles.filter(file => !CONFIG.EXCLUDE_FILE_IDS.includes(file.id));
         }
 
-        // 최근 수정시간순 정렬 및 상위 10개 추출
         allFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
         allFiles = allFiles.slice(0, 10);
 
@@ -739,7 +746,6 @@
             const dateObj = new Date(file.modifiedTime);
             const dateStr = `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
             
-            // 오늘 수정되었는지 판별
             const isToday = dateObj >= todayStart;
             const todayBadge = isToday ? '<span class="today-badge">오늘</span>' : '';
 
