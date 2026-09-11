@@ -280,6 +280,18 @@
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
       ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyvLSeRmv-dExUjuiDrFGoFQQeEnZIWCRvL_nRITravpe_QTM3KV1hPitC7L2sxEuYw/exec',
       MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
+      
+      /*
+        📌 [최근 업데이트된 문서에서 제외할 파일 ID 설정]
+        문서 주소(URL)에서 /d/ 와 /edit 사이에 있는 문자열이 파일 ID입니다.
+        예: https://docs.google.com/spreadsheets/d/1DszbN7mLi7BCin_2k_B4fxuMQ3emfLfYhcuNe6cR0uw/edit
+        여기서 파일 ID는 '1DszbN7mLi7BCin_2k_B4fxuMQ3emfLfYhcuNe6cR0uw' 입니다.
+        
+        제외하고 싶은 문서가 더 생기면 아래 배열에 작은따옴표('파일ID')로 추가하고 쉼표(,)로 구분해 주세요.
+      */
+      EXCLUDE_FILE_IDS: ['1ZsSm2XH8quFJ8Q3lgs9hq1zjLd5xavGnvhWx3xUSNEo', '1GHiMHhcsJtPRw0euHWe3ILSjCViXl8SOeRmCKykBNFo', '1DszbN7mLi7BCin_2k_B4fxuMQ3emfLfYhcuNe6cR0uw']
+        ,
+
       ACCOUNTS: {
         DECOCTION: ['samepsl89@gmail.com', 'alexkkansu@gmail.com'],
         DOCTOR: ['crammy55@naver.com'],
@@ -695,9 +707,6 @@
           results.forEach(res => {
             if (res.files) allFiles = allFiles.concat(res.files);
           });
-
-          allFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
-          allFiles = allFiles.slice(0, 10);
         } else {
           // 비로그인 상태: 공용 폴더 병렬 조회
           const requests = accessibleFolders.map(folderId => {
@@ -710,10 +719,16 @@
           results.forEach(res => {
             if (res.files) allFiles = allFiles.concat(res.files);
           });
-
-          allFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
-          allFiles = allFiles.slice(0, 10);
         }
+
+        // 🚫 CONFIG.EXCLUDE_FILE_IDS 배열에 입력된 제외 파일 ID 필터링
+        if (CONFIG.EXCLUDE_FILE_IDS && CONFIG.EXCLUDE_FILE_IDS.length > 0) {
+          allFiles = allFiles.filter(file => !CONFIG.EXCLUDE_FILE_IDS.includes(file.id));
+        }
+
+        // 최근 수정시간순 정렬 및 상위 10개 추출
+        allFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
+        allFiles = allFiles.slice(0, 10);
 
         if (allFiles.length > 0) {
           let html = '<ul class="recent-results-list">';
