@@ -93,7 +93,7 @@
     .cal-table td.is-today { background-color: #EFF6FF; border: 2px solid #3B82F6; }
     .cal-table td.is-today .cal-date-num { color: #1D4ED8; }
     
-    /* 🏷️ 달력 근무자, 업무 태그 (가독성 개선: 글꼴 두께를 가늘게 및 줄간격/자간 조정) */
+    /* 🏷️ 달력 근무자, 업무 태그 */
     .cal-worker-tag { font-size: 10.5px; color: #046C4E; background: #D1FAE5; border: 1px solid #A7F3D0; border-radius: 3px; padding: 1.5px 4px; margin-bottom: 3px; white-space: normal; word-break: break-all; display: block; line-height: 1.3; font-weight: 500; letter-spacing: -0.2px; }
     .cal-task-tag { font-size: 10.5px; color: #B45309; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 3px; padding: 1.5px 4px; white-space: normal; word-break: break-all; display: block; line-height: 1.3; font-weight: 400; letter-spacing: -0.2px; }
     
@@ -949,9 +949,10 @@
             if (res.files) allFiles = allFiles.concat(res.files);
           });
         } else {
+          // 비로그인(API Key) 요청 시에도 supportsAllDrives 파라미터 적용 및 타임스탬프 캐시방지
           const requests = accessibleFolders.map(folderId => {
             const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and modifiedTime > '${threeDaysAgo}' and trashed = false`;
-            const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&fields=files(id,name,webViewLink,mimeType,modifiedTime)&key=${CONFIG.API_KEY}&_cb=${Date.now()}`;
+            const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&supportsAllDrives=true&includeItemsFromAllDrives=true&fields=files(id,name,webViewLink,mimeType,modifiedTime)&key=${CONFIG.API_KEY}&_cb=${Date.now()}`;
             return fetch(url).then(r => r.json()).catch(() => ({ files: [] }));
           });
 
