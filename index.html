@@ -22,8 +22,8 @@
     .btn-logout { padding: 6px 14px; background: #2A2A2A; color: #E5E7EB; border: 1px solid #4B5563; border-radius: 5px; cursor: pointer; display: none; font-size: 12.5px; }
     .btn-logout:hover { background: #374151; }
     
-    /* 📐 상단 레이아웃 격자: 1열(임시공지), 2열(최근문서/출퇴근), 3열(달력) 3분할 */
-    .top-layout-grid { display: grid; grid-template-columns: 0.9fr 1.1fr 1.4fr; gap: 14px; margin-bottom: 16px; align-items: stretch; }
+    /* 📐 상단 레이아웃 격자: 2열 슬림화(0.85fr), 3열 달력 대폭 확장(1.8fr - 3번째 탕전실 컬럼 위치에 맞춤) */
+    .top-layout-grid { display: grid; grid-template-columns: 1fr 0.85fr 1.8fr; gap: 12px; margin-bottom: 16px; align-items: stretch; }
     
     /* 2열 중앙 상하 배치 컨테이너 */
     .mid-widgets-col { display: flex; flex-direction: column; gap: 12px; justify-content: space-between; }
@@ -53,21 +53,21 @@
     .btn-save-row:hover { background-color: #1D4ED8; }
     .btn-del-row { background-color: #2A2A2A; color: #F87171; border: 1px solid #4B5563; font-size: 10.5px; padding: 3px 6px; }
 
-    /* 📢 2열 상단: 최근 업데이트 문서 카드 */
+    /* 📢 2열 상단: 최근 업데이트 문서 카드 (슬림) */
     .recent-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex: 1; }
     .recent-results { max-height: 190px; overflow-y: auto; }
     .recent-results-list { list-style: none; }
-    .recent-results-list li { padding: 5px 4px; border-bottom: 1px solid #374151; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #E5E7EB; }
+    .recent-results-list li { padding: 5px 4px; border-bottom: 1px solid #374151; display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: #E5E7EB; }
     .recent-results-list a { color: #60A5FA; text-decoration: none; font-weight: 500; }
     .recent-results-list a:hover { text-decoration: underline; }
-    .file-date { font-size: 11px; color: #9CA3AF; margin-left: 4px; }
+    .file-date { font-size: 10.5px; color: #9CA3AF; margin-left: 4px; }
     
-    /* ⏰ 2열 하단: 출퇴근 기록 카드 */
+    /* ⏰ 2열 하단: 출퇴근 기록 카드 (슬림) */
     .attendance-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex: 1; }
     .attendance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; flex-grow: 1; align-content: center; }
-    .member-card { background-color: #121212; border: 1px solid #374151; border-radius: 6px; padding: 6px 8px; display: flex; align-items: center; justify-content: space-between; }
-    .member-name { font-size: 12px; font-weight: bold; color: #FFFFFF; white-space: nowrap; }
-    .btn-toggle-att { padding: 4px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; white-space: nowrap; }
+    .member-card { background-color: #121212; border: 1px solid #374151; border-radius: 6px; padding: 5px 6px; display: flex; align-items: center; justify-content: space-between; }
+    .member-name { font-size: 11.5px; font-weight: bold; color: #FFFFFF; white-space: nowrap; }
+    .btn-toggle-att { padding: 3px 6px; font-size: 10.5px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; white-space: nowrap; }
     .state-in { background-color: #064E3B; color: #34D399; border: 1px solid #059669; }
     .state-out { background-color: #7F1D1D; color: #FCA5A5; border: 1px solid #DC2626; }
 
@@ -182,7 +182,7 @@
       </div>
     </div>
 
-    <!-- 2열: 최근 업데이트 문서 (상) + 출퇴근 기록 (하) -->
+    <!-- 2열: 최근 업데이트 문서 (상) + 출퇴근 기록 (하) [슬림화] -->
     <div class="mid-widgets-col">
       <!-- 📢 최근 업데이트된 문서 카드 (상) -->
       <div class="recent-pane">
@@ -209,7 +209,7 @@
       </div>
     </div>
 
-    <!-- 📅 3열: 대형 확장 달력 -->
+    <!-- 📅 3열: 대형 확장 달력 (하단 탕전실 위치 기준 시작) -->
     <div class="calendar-pane">
       <div class="section-header-row">
         <div class="section-title-group">
