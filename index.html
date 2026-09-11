@@ -22,58 +22,79 @@
     .btn-logout { padding: 6px 14px; background: #2A2A2A; color: #E5E7EB; border: 1px solid #4B5563; border-radius: 5px; cursor: pointer; display: none; font-size: 12.5px; }
     .btn-logout:hover { background: #374151; }
     
-    .top-layout-grid { display: grid; grid-template-columns: 1fr 1fr 1.2fr; gap: 14px; margin-bottom: 16px; align-items: stretch; }
+    /* 상단 레이아웃 4분할 격자 */
+    .top-layout-grid { display: grid; grid-template-columns: 1.1fr 0.9fr 1fr 1fr; gap: 12px; margin-bottom: 16px; align-items: stretch; }
     
-    .notice-board-section { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; }
+    .notice-board-section { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; }
     .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .section-title-group { display: flex; align-items: baseline; gap: 6px; }
-    .notice-label { font-size: 13.5px; font-weight: bold; color: #FBBF24; }
+    .notice-label { font-size: 13px; font-weight: bold; color: #FBBF24; }
     .section-desc { font-size: 11px; color: #D1D5DB; }
     
-    .notice-list-container { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; max-height: 105px; overflow-y: auto; }
+    .notice-list-container { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; max-height: 120px; overflow-y: auto; }
     .notice-item-row { display: flex; justify-content: space-between; align-items: center; background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
     .notice-content-wrap { display: flex; align-items: center; gap: 6px; overflow: hidden; }
     .new-badge { background-color: #EF4444; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; animation: pulse 1.5s infinite; }
-    
     .today-badge { background-color: #D97706; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; margin-right: 4px; animation: pulse 1.5s infinite; }
-    
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
     .notice-text { color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
-    
     .notice-empty { color: #9CA3AF; font-size: 11.5px; text-align: center; padding: 10px 0; }
     
     .notice-input-area { display: flex; gap: 6px; align-items: center; border-top: 1px solid #374151; padding-top: 8px; }
-    .notice-input { flex-grow: 1; border: 1px solid #4B5563; border-radius: 4px; padding: 5px 8px; font-size: 12.5px; color: #FFFFFF; background-color: #121212; outline: none; }
+    .notice-input { flex-grow: 1; border: 1px solid #4B5563; border-radius: 4px; padding: 5px 8px; font-size: 12px; color: #FFFFFF; background-color: #121212; outline: none; }
     .notice-input::placeholder { color: #9CA3AF; }
-    .notice-input:focus { background-color: #1E1E1E; border-color: #3B82F6; box-shadow: 0 0 0 2px rgba(59,130,246,0.3); }
-    .notice-btn { padding: 5px 10px; font-size: 11.5px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; white-space: nowrap; }
+    .notice-input:focus { background-color: #1E1E1E; border-color: #3B82F6; }
+    .notice-btn { padding: 5px 9px; font-size: 11px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; white-space: nowrap; }
     .btn-save-row { background-color: #2563EB; color: #FFF; }
     .btn-save-row:hover { background-color: #1D4ED8; }
     .btn-del-row { background-color: #2A2A2A; color: #F87171; border: 1px solid #4B5563; font-size: 10.5px; padding: 3px 6px; }
-    .btn-del-row:hover { background-color: #451A03; }
 
-    .recent-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
-    .recent-results { max-height: 130px; overflow-y: auto; }
+    .recent-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+    .recent-results { max-height: 145px; overflow-y: auto; }
     .recent-results-list { list-style: none; }
-    .recent-results-list li { padding: 5px 6px; border-bottom: 1px solid #374151; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #E5E7EB; }
+    .recent-results-list li { padding: 5px 4px; border-bottom: 1px solid #374151; display: flex; align-items: center; justify-content: space-between; font-size: 12px; color: #E5E7EB; }
     .recent-results-list a { color: #60A5FA; text-decoration: none; font-weight: 500; }
     .recent-results-list a:hover { text-decoration: underline; }
-    .file-date { font-size: 11px; color: #9CA3AF; margin-left: 6px; }
+    .file-date { font-size: 11px; color: #9CA3AF; margin-left: 4px; }
     
-    .attendance-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+    .attendance-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
     .attendance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; flex-grow: 1; align-content: center; }
-    .member-card { background-color: #121212; border: 1px solid #374151; border-radius: 6px; padding: 6px 10px; display: flex; align-items: center; justify-content: space-between; }
-    
-    .member-name { font-size: 12.5px; font-weight: bold; color: #FFFFFF; white-space: nowrap; }
-    .btn-toggle-att { padding: 3px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; white-space: nowrap; }
+    .member-card { background-color: #121212; border: 1px solid #374151; border-radius: 6px; padding: 5px 8px; display: flex; align-items: center; justify-content: space-between; }
+    .member-name { font-size: 12px; font-weight: bold; color: #FFFFFF; white-space: nowrap; }
+    .btn-toggle-att { padding: 3px 7px; font-size: 11px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; white-space: nowrap; }
     .state-in { background-color: #064E3B; color: #34D399; border: 1px solid #059669; }
     .state-out { background-color: #7F1D1D; color: #FCA5A5; border: 1px solid #DC2626; }
+
+    /* 📅 달력 카드 전용 스타일 */
+    .calendar-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+    .cal-header-nav { display: flex; align-items: center; gap: 4px; }
+    .cal-nav-btn { background: #2A2A2A; border: 1px solid #4B5563; color: #E5E7EB; border-radius: 4px; padding: 2px 6px; font-size: 11px; cursor: pointer; }
+    .cal-nav-btn:hover { background: #374151; }
+    .cal-title-text { font-size: 12.5px; font-weight: bold; color: #FFFFFF; min-width: 75px; text-align: center; }
     
+    .cal-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 11px; table-layout: fixed; }
+    .cal-table th { color: #9CA3AF; padding: 2px; text-align: center; font-weight: 600; font-size: 10px; border-bottom: 1px solid #374151; }
+    .cal-table th.sun { color: #F87171; }
+    .cal-table th.sat { color: #60A5FA; }
+    .cal-table td { height: 26px; border: 1px solid #2A2A2A; vertical-align: top; padding: 2px; cursor: pointer; transition: background 0.15s; }
+    .cal-table td:hover { background-color: #2A2A2A; }
+    .cal-table td.empty { background-color: transparent; cursor: default; border-color: transparent; }
+    .cal-date-num { font-size: 10px; font-weight: bold; color: #D1D5DB; line-height: 1; margin-bottom: 2px; }
+    .cal-table td.is-today { background-color: #1E3A8A; border: 1px solid #3B82F6; }
+    .cal-table td.is-today .cal-date-num { color: #93C5FD; }
+    .cal-worker-tag { font-size: 9.5px; color: #34D399; background: #064E3B; border-radius: 2px; padding: 0 2px; margin-bottom: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    .cal-task-tag { font-size: 9.5px; color: #FDE047; background: #78350F; border-radius: 2px; padding: 0 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+    
+    /* 팝업 모달 스타일 */
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; display: none; }
-    .modal-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 20px 24px; width: 320px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-    .modal-msg { font-size: 14px; color: #FFFFFF; margin-bottom: 16px; line-height: 1.4; }
-    .modal-btn-group { display: flex; gap: 8px; justify-content: center; }
-    .modal-btn { padding: 6px 16px; font-size: 13px; font-weight: bold; border-radius: 5px; border: none; cursor: pointer; }
+    .modal-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 20px 24px; width: 340px; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    .modal-msg { font-size: 14px; color: #FFFFFF; margin-bottom: 12px; line-height: 1.4; font-weight: bold; }
+    .modal-input-group { margin-bottom: 10px; }
+    .modal-label { font-size: 11.5px; color: #D1D5DB; margin-bottom: 4px; display: block; }
+    .modal-field { width: 100%; border: 1px solid #4B5563; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; color: #FFFFFF; background-color: #121212; outline: none; }
+    .modal-field:focus { border-color: #3B82F6; }
+    .modal-btn-group { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+    .modal-btn { padding: 6px 14px; font-size: 12px; font-weight: bold; border-radius: 5px; border: none; cursor: pointer; }
     .modal-btn-confirm { background-color: #2563EB; color: #FFF; }
     .modal-btn-cancel { background-color: #374151; color: #E5E7EB; }
     
@@ -98,17 +119,19 @@
     .link-item a:hover { background-color: #374151; color: #FFFFFF; }
     .locked { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
 
-    @media (max-width: 1200px) {
-      .top-layout-grid { grid-template-columns: 1fr; }
+    @media (max-width: 1400px) {
+      .top-layout-grid { grid-template-columns: 1fr 1fr; }
       .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
     }
   </style>
 </head>
 <body>
 
+  <!-- 공통 커스텀 알림/확인 모달 -->
   <div id="customModal" class="modal-overlay">
     <div class="modal-box">
       <div id="modalMsg" class="modal-msg">메시지 내용</div>
+      <div id="modalCustomBody"></div>
       <div class="modal-btn-group">
         <button id="modalConfirmBtn" class="modal-btn modal-btn-confirm">확인</button>
         <button id="modalCancelBtn" class="modal-btn modal-btn-cancel">취소</button>
@@ -116,6 +139,7 @@
     </div>
   </div>
 
+  <!-- 토스트 알림 메시지 -->
   <div id="toastModal" class="toast-overlay">
     <div id="toastMsg" class="toast-box">완료 메시지</div>
   </div>
@@ -132,9 +156,10 @@
     </div>
   </div>
 
+  <!-- 상단 레이아웃 4분할 격자 -->
   <div class="top-layout-grid">
     
-    <!-- 📌 임시 공지 카드 -->
+    <!-- 1. 📌 임시 공지 카드 -->
     <div class="notice-board-section">
       <div>
         <div class="section-header-row">
@@ -151,11 +176,11 @@
       </div>
     </div>
 
-    <!-- 📢 최근 업데이트된 문서 카드 -->
+    <!-- 2. 📢 최근 업데이트된 문서 카드 -->
     <div class="recent-pane">
-      <div class="section-header-row" style="margin-bottom: 8px;">
+      <div class="section-header-row" style="margin-bottom: 6px;">
         <div class="section-title-group">
-          <span style="font-size: 13.5px; font-weight: bold; color: #60A5FA;">📢 최근 업데이트된 문서</span>
+          <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">📢 최근 업데이트 문서</span>
           <span class="section-desc">최근 3일간 수정된 파일</span>
         </div>
       </div>
@@ -164,15 +189,45 @@
       </div>
     </div>
 
-    <!-- ⏰ 출퇴근 기록 카드 -->
+    <!-- 3. ⏰ 출퇴근 기록 카드 -->
     <div class="attendance-pane">
-      <div class="section-header-row" style="margin-bottom: 8px;">
+      <div class="section-header-row" style="margin-bottom: 6px;">
         <div class="section-title-group">
-          <span style="font-size: 13.5px; font-weight: bold; color: #60A5FA;">⏰ 출퇴근 기록</span>
+          <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">⏰ 출퇴근 기록</span>
           <span class="section-desc">클릭 시 출/퇴근 교대 기록</span>
         </div>
       </div>
       <div class="attendance-grid" id="attendanceGrid"></div>
+    </div>
+
+    <!-- 4. 📅 근무 & 업무 달력 카드 (신규 추가) -->
+    <div class="calendar-pane">
+      <div class="section-header-row">
+        <div class="section-title-group">
+          <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">📅 근무 & 업무 달력</span>
+          <span class="section-desc">날짜 클릭 시 입력/수정</span>
+        </div>
+        <div class="cal-header-nav">
+          <button class="cal-nav-btn" onclick="moveCalendarMonth(-1)">◀</button>
+          <span id="calTitle" class="cal-title-text">2026년 3월</span>
+          <button class="cal-nav-btn" onclick="moveCalendarMonth(1)">▶</button>
+          <button class="cal-nav-btn" onclick="resetCalendarToToday()">오늘</button>
+        </div>
+      </div>
+      <table class="cal-table">
+        <thead>
+          <tr>
+            <th class="sun">일</th>
+            <th>월</th>
+            <th>화</th>
+            <th>수</th>
+            <th>목</th>
+            <th>금</th>
+            <th class="sat">토</th>
+          </tr>
+        </thead>
+        <tbody id="calTbody"></tbody>
+      </table>
     </div>
 
   </div>
@@ -281,7 +336,8 @@
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
-      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyvLSeRmv-dExUjuiDrFGoFQQeEnZIWCRvL_nRITravpe_QTM3KV1hPitC7L2sxEuYw/exec',
+      // 🔗 새 웹앱 배포 ID 적용
+      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbx0CKD9mhHhZmRJK4ukDZ0iB-MLOER-g2XHq-Ggkmm63aYbFFFbuGd7k6d2b2_FSGv1JQ/exec',
       MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
       
       EXCLUDE_FILE_IDS: [
@@ -309,11 +365,16 @@
     let accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
     let attendanceStates = {};
     let noticeList = [];
+    let calendarData = {}; // 📅 서버에서 받아올 달력 데이터 저장소
+
+    // 📅 달력 상태 변수
+    let calCurrentDate = new Date();
 
     window.onload = async function() {
       CONFIG.MEMBERS.forEach(name => { attendanceStates[name] = 'OUT'; });
       renderAttendanceGrid();
       loadNotices();
+      renderCalendar();
 
       tokenClient = google.accounts.oauth2.initTokenClient({
         client_id: CONFIG.CLIENT_ID,
@@ -357,7 +418,7 @@
 
       await refreshAllData();
 
-      // 🔄 주기적 자동 새로고침 설정 (최근 문서: 5분, 출퇴근/공지: 1분)
+      // 🔄 자동 새로고침 설정 (최근 문서: 5분, 출퇴근/공지/달력: 1분)
       setInterval(() => {
         if (!document.hidden) loadRecentFiles();
       }, 5 * 60 * 1000);
@@ -367,6 +428,7 @@
           await syncServerData();
           renderAttendanceGrid();
           loadNotices();
+          renderCalendar();
         }
       }, 60 * 1000);
 
@@ -382,6 +444,7 @@
       await syncServerData();
       renderAttendanceGrid();
       loadNotices();
+      renderCalendar();
       await loadRecentFiles();
     }
 
@@ -420,7 +483,6 @@
 
     async function syncServerData() {
       try {
-        // 캐시 방지를 위해 타임스탬프 파라미터 추가
         const res = await fetch(`${CONFIG.ATTENDANCE_WEBAPP_URL}?_cb=${Date.now()}`);
         const data = await res.json();
         
@@ -440,9 +502,137 @@
         if (data && data.notices) {
           noticeList = data.notices;
         }
+
+        if (data && data.calendar) {
+          calendarData = data.calendar;
+        }
       } catch (e) {
         console.error("서버 데이터 동기화 중 오류:", e);
       }
+    }
+
+    /* 📅 달력 UI 렌더링 및 조작 함수 */
+    function renderCalendar() {
+      const year = calCurrentDate.getFullYear();
+      const month = calCurrentDate.getMonth(); // 0-based
+
+      document.getElementById('calTitle').innerText = `${year}년 ${month + 1}월`;
+
+      const firstDay = new Date(year, month, 1).getDay(); // 시작 요일 (0: 일요일)
+      const lastDate = new Date(year, month + 1, 0).getDate(); // 해당 월의 마지막 날짜
+
+      const today = new Date();
+      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+
+      const tbody = document.getElementById('calTbody');
+      tbody.innerHTML = '';
+
+      let dayCount = 1;
+      for (let i = 0; i < 6; i++) { // 최대 6주
+        const tr = document.createElement('tr');
+        let hasDateInRow = false;
+
+        for (let j = 0; j < 7; j++) {
+          const td = document.createElement('td');
+
+          if ((i === 0 && j < firstDay) || dayCount > lastDate) {
+            td.className = 'empty';
+          } else {
+            hasDateInRow = true;
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayCount).padStart(2, '0')}`;
+            const isToday = (dateStr === todayStr);
+
+            if (isToday) td.classList.add('is-today');
+
+            let innerHtml = `<div class="cal-date-num">${dayCount}</div>`;
+
+            // 서버에서 받아온 달력 일정이 존재할 경우 요약 태그 렌더링
+            if (calendarData && calendarData[dateStr]) {
+              const item = calendarData[dateStr];
+              if (item.worker) {
+                innerHtml += `<span class="cal-worker-tag" title="근무자: ${item.worker}">👤 ${item.worker}</span>`;
+              }
+              if (item.task) {
+                innerHtml += `<span class="cal-task-tag" title="업무: ${item.task}">📋 ${item.task}</span>`;
+              }
+            }
+
+            td.innerHTML = innerHtml;
+            const targetDateKey = dateStr;
+            const targetDayNum = dayCount;
+            td.onclick = () => openCalendarEditModal(targetDateKey, targetDayNum);
+
+            dayCount++;
+          }
+          tr.appendChild(td);
+        }
+        if (hasDateInRow) tbody.appendChild(tr);
+      }
+    }
+
+    function moveCalendarMonth(delta) {
+      calCurrentDate.setMonth(calCurrentDate.getMonth() + delta);
+      renderCalendar();
+    }
+
+    function resetCalendarToToday() {
+      calCurrentDate = new Date();
+      renderCalendar();
+    }
+
+    /* 📅 달력 날짜 클릭 시 입력/수정 모달 팝업 */
+    function openCalendarEditModal(dateKey, dayNum) {
+      const year = calCurrentDate.getFullYear();
+      const month = calCurrentDate.getMonth() + 1;
+      const currentVal = calendarData[dateKey] || { worker: '', task: '' };
+
+      const bodyHtml = `
+        <div class="modal-input-group">
+          <label class="modal-label">👤 근무자 이름</label>
+          <input type="text" id="calInputWorker" class="modal-field" placeholder="예: 김선미, 박지희" value="${currentVal.worker || ''}">
+        </div>
+        <div class="modal-input-group">
+          <label class="modal-label">📋 일일 업무 내용</label>
+          <input type="text" id="calInputTask" class="modal-field" placeholder="예: 한약재 재고 조사, 소독" value="${currentVal.task || ''}">
+        </div>
+      `;
+
+      showCustomModal(`${year}년 ${month}월 ${dayNum}일 근무/업무 입력`, bodyHtml, async function(confirmed) {
+        if (!confirmed) return;
+
+        const worker = document.getElementById('calInputWorker').value.trim();
+        const task = document.getElementById('calInputTask').value.trim();
+
+        // 로컬 UI 임시 즉시 반영
+        calendarData[dateKey] = { worker: worker, task: task };
+        renderCalendar();
+
+        showToast('💾 달력 일정을 저장 중입니다...');
+
+        try {
+          await fetch(CONFIG.ATTENDANCE_WEBAPP_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify({
+              type: 'UPDATE_CALENDAR',
+              dateKey: dateKey,
+              worker: worker,
+              task: task
+            })
+          });
+
+          setTimeout(async () => {
+            await syncServerData();
+            renderCalendar();
+            showToast('✅ 일정 저장이 완료되었습니다.');
+          }, 1200);
+
+        } catch (e) {
+          console.error("달력 저장 오류:", e);
+          showToast('일정 저장 중 오류가 발생했습니다.');
+        }
+      });
     }
 
     async function updateServerNotices(newList) {
@@ -457,7 +647,6 @@
           body: JSON.stringify({ type: 'UPDATE_NOTICES', notices: noticeList })
         });
         
-        // 입력 후 서버 반영을 보장하기 위해 1초 뒤 서버 데이터 동기화
         setTimeout(async () => {
           await syncServerData();
           loadNotices();
@@ -521,12 +710,18 @@
     }
 
     function showCustomConfirm(message, onConfirm) {
+      showCustomModal(message, '', onConfirm);
+    }
+
+    function showCustomModal(titleMsg, customBodyHtml, onConfirm) {
       const modal = document.getElementById('customModal');
       const msgEl = document.getElementById('modalMsg');
+      const bodyEl = document.getElementById('modalCustomBody');
       const confirmBtn = document.getElementById('modalConfirmBtn');
       const cancelBtn = document.getElementById('modalCancelBtn');
 
-      msgEl.innerText = message;
+      msgEl.innerText = titleMsg;
+      bodyEl.innerHTML = customBodyHtml || '';
       modal.style.display = 'flex';
 
       const newConfirmBtn = confirmBtn.cloneNode(true);
@@ -579,7 +774,6 @@
       showCustomConfirm(promptMsg, function(confirmed) {
         if (!confirmed) return;
 
-        // 화면 UI 즉시 변경
         attendanceStates[name] = (currentState === 'OUT') ? 'IN' : 'OUT';
         renderAttendanceGrid();
 
@@ -595,7 +789,6 @@
           const timeStr = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
           showToast(`✅ ${name} 님 [${targetAction}] 기록되었습니다. (${timeStr})`);
           
-          // 🔄 구글 앱스 스크립트 전송 반영 시간을 고려해 1초 후 전체 새로고침
           setTimeout(async () => {
             await refreshAllData();
           }, 1200);
