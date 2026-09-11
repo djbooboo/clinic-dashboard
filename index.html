@@ -86,7 +86,7 @@
     .cal-table td.empty { background-color: #F9FAFB; cursor: default; border-color: transparent; }
     .cal-date-num { font-size: 12px; font-weight: bold; color: #374151; line-height: 1; margin-bottom: 4px; }
     
-    /* 🔴 공휴일 및 일요일 숫자 빨간색 처리 (텍스트 태그 없이 숫자만 빨간색) */
+    /* 🔴 공휴일 및 일요일 숫자 빨간색 처리 */
     .cal-table td.is-holiday .cal-date-num, .cal-table td.is-sun .cal-date-num { color: #DC2626 !important; }
     .cal-table td.is-sat .cal-date-num { color: #2563EB; }
     
@@ -221,7 +221,7 @@
         </div>
         <div class="cal-header-nav">
           <button class="cal-nav-btn" onclick="moveCalendarMonth(-1)">◀</button>
-          <span id="calTitle" class="cal-title-text">2026년 3월</span>
+          <span id="calTitle" class="cal-title-text">2026년 9월</span>
           <button class="cal-nav-btn" onclick="moveCalendarMonth(1)">▶</button>
           <button class="cal-nav-btn" onclick="resetCalendarToToday()">오늘</button>
         </div>
@@ -348,7 +348,7 @@
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
-      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbwi-3MvxwyVt05k-OYapq2Z5vubFB6BXCTvpeRvFQViJNpeEv5WhXvl7PZGfjE_yVhS6g/exec',
+      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyKr4JmS5ci8KUNmTR1LZIcY6rwOvvqE8D8Vgs8IDWvh8zy-vIzSfom2HW-guHZkxDzGw/exec',
       MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
       
       EXCLUDE_FILE_IDS: [
@@ -512,15 +512,19 @@
         }
 
         if (data && data.calendar) {
-          calendarData = {};
+          // 서버에서 받아온 달력 데이터 병합
           for (let k in data.calendar) {
             let item = data.calendar[k];
             let isHol = (item.isHoliday === true || String(item.isHoliday).toUpperCase() === 'TRUE' || item.isHoliday === 1 || String(item.isHoliday) === '1');
-            calendarData[k] = {
-              worker: item.worker || "",
-              task: item.task || "",
-              isHoliday: isHol
-            };
+            
+            // 만약 서버 데이터가 비어있지 않거나 로컬에 데이터가 없을 경우 갱신
+            if (!calendarData[k] || item.worker !== '' || item.task !== '' || isHol) {
+              calendarData[k] = {
+                worker: item.worker || "",
+                task: item.task || "",
+                isHoliday: isHol
+              };
+            }
           }
         }
       } catch (e) {
@@ -628,6 +632,7 @@
         const worker = document.getElementById('calInputWorker').value.trim();
         const task = document.getElementById('calInputTask').value.trim();
 
+        // 1. 화면 즉시 최신화 (로컬 데이터 보호)
         calendarData[dateKey] = { worker: worker, task: task, isHoliday: isHoliday };
         renderCalendar();
 
@@ -649,11 +654,19 @@
             body: JSON.stringify(payloadData)
           });
 
+          // 2. 저장 대기 후 백그라운드 동기화 (로컬 데이터 우선 보존)
           setTimeout(async () => {
+            let savedLocalVal = Object.assign({}, calendarData[dateKey]);
             await syncServerData();
+            
+            // 만약 서버 동기화 시 비어있는 옛 데이터가 반환되면 로컬값 강제 보수
+            if (savedLocalVal && (savedLocalVal.worker || savedLocalVal.task || savedLocalVal.isHoliday)) {
+              calendarData[dateKey] = savedLocalVal;
+            }
+            
             renderCalendar();
             showToast('✅ 일정 저장이 완료되었습니다.');
-          }, 1500);
+          }, 2500);
 
         } catch (e) {
           console.error("달력 저장 오류:", e);
