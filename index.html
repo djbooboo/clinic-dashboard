@@ -34,6 +34,10 @@
     .notice-item-row { display: flex; justify-content: space-between; align-items: center; background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
     .notice-content-wrap { display: flex; align-items: center; gap: 6px; overflow: hidden; }
     .new-badge { background-color: #EF4444; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; animation: pulse 1.5s infinite; }
+    
+    /* 💛 오늘 수정된 파일용 [오늘] 뱃지 스타일 */
+    .today-badge { background-color: #D97706; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; margin-right: 4px; animation: pulse 1.5s infinite; }
+    
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
     .notice-text { color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
     
@@ -284,13 +288,12 @@
       /*
         📌 [최근 업데이트된 문서에서 제외할 파일 ID 설정]
         문서 주소(URL)에서 /d/ 와 /edit 사이에 있는 문자열이 파일 ID입니다.
-        예: https://docs.google.com/spreadsheets/d/1DszbN7mLi7BCin_2k_B4fxuMQ3emfLfYhcuNe6cR0uw/edit
-        여기서 파일 ID는 '1DszbN7mLi7BCin_2k_B4fxuMQ3emfLfYhcuNe6cR0uw' 입니다.
-        
-        제외하고 싶은 문서가 더 생기면 아래 배열에 작은따옴표('파일ID')로 추가하고 쉼표(,)로 구분해 주세요.
       */
-      EXCLUDE_FILE_IDS: ['1ZsSm2XH8quFJ8Q3lgs9hq1zjLd5xavGnvhWx3xUSNEo', '1GHiMHhcsJtPRw0euHWe3ILSjCViXl8SOeRmCKykBNFo', '1DszbN7mLi7BCin_2k_B4fxuMQ3emfLfYhcuNe6cR0uw']
-        ,
+      EXCLUDE_FILE_IDS: [
+        '1ZsSm2XH8quFJ8Q3lgs9hq1zjLd5xavGnvhWx3xUSNEo',
+        '1GHiMHhcsJtPRw0euHWe3ILSjCViXl8SOeRmCKykBNFo',
+        '1DszbN7mLi7BCin_2k_B4fxuMQ3emfLfYhcuNe6cR0uw'
+      ],
 
       ACCOUNTS: {
         DECOCTION: ['samepsl89@gmail.com', 'alexkkansu@gmail.com'],
@@ -361,15 +364,11 @@
       renderAttendanceGrid();
       loadNotices();
 
-      // 🔄 주기적 자동 새로고침 설정
-      // 1) 최근 문서: 5분(300,000ms)마다 자동 갱신
+      // 🔄 주기적 자동 새로고침 설정 (최근 문서: 5분, 출퇴근/공지: 1분)
       setInterval(() => {
-        if (!document.hidden) {
-          loadRecentFiles();
-        }
+        if (!document.hidden) loadRecentFiles();
       }, 5 * 60 * 1000);
 
-      // 2) 출퇴근 & 임시공지 데이터: 1분(60,000ms)마다 동기화
       setInterval(async () => {
         if (!document.hidden) {
           await syncServerData();
@@ -378,7 +377,6 @@
         }
       }, 60 * 1000);
 
-      // 3) 사용자가 다시 해당 화면(탭)으로 돌아왔을 때 즉시 전체 데이터 갱신
       document.addEventListener('visibilitychange', async () => {
         if (!document.hidden) {
           loadRecentFiles();
@@ -690,11 +688,16 @@
     async function loadRecentFiles() {
       const contentEl = document.getElementById('resultsContent');
       const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+      
+      // 오늘 0시 0분 0초 날짜 객체 생성
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
       let allFiles = [];
 
       try {
         if (accessToken) {
-          // OAuth 로그인 상태: 허용된 폴더 직속 파일 병렬 조회
+          // OAuth 로그인 상태
           const requests = accessibleFolders.map(folderId => {
             const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and modifiedTime > '${threeDaysAgo}' and trashed = false`;
             const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&supportsAllDrives=true&includeItemsFromAllDrives=true&fields=files(id,name,webViewLink,mimeType,modifiedTime)&_cb=${Date.now()}`;
@@ -708,7 +711,7 @@
             if (res.files) allFiles = allFiles.concat(res.files);
           });
         } else {
-          // 비로그인 상태: 공용 폴더 병렬 조회
+          // 비로그인 상태
           const requests = accessibleFolders.map(folderId => {
             const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and modifiedTime > '${threeDaysAgo}' and trashed = false`;
             const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&fields=files(id,name,webViewLink,mimeType,modifiedTime)&key=${CONFIG.API_KEY}&_cb=${Date.now()}`;
@@ -721,7 +724,7 @@
           });
         }
 
-        // 🚫 CONFIG.EXCLUDE_FILE_IDS 배열에 입력된 제외 파일 ID 필터링
+        // 🚫 CONFIG.EXCLUDE_FILE_IDS 제외 필터링
         if (CONFIG.EXCLUDE_FILE_IDS && CONFIG.EXCLUDE_FILE_IDS.length > 0) {
           allFiles = allFiles.filter(file => !CONFIG.EXCLUDE_FILE_IDS.includes(file.id));
         }
@@ -736,6 +739,10 @@
             const dateObj = new Date(file.modifiedTime);
             const dateStr = `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
             
+            // 오늘 수정되었는지 판별
+            const isToday = dateObj >= todayStart;
+            const todayBadge = isToday ? '<span class="today-badge">오늘</span>' : '';
+
             let openUrl = file.webViewLink;
             if (file.mimeType === 'application/vnd.google-apps.document') {
               openUrl = `https://docs.google.com/document/d/${file.id}/edit`;
@@ -745,7 +752,7 @@
               openUrl = `https://docs.google.com/presentation/d/${file.id}/edit`;
             }
 
-            html += `<li><span>📄 ${file.name} <span class="file-date">(${dateStr} 수정)</span></span> <a href="${openUrl}" target="_blank" rel="noopener noreferrer">열기 ↗</a></li>`;
+            html += `<li><span>${todayBadge}📄 ${file.name} <span class="file-date">(${dateStr} 수정)</span></span> <a href="${openUrl}" target="_blank" rel="noopener noreferrer">열기 ↗</a></li>`;
           });
           html += '</ul>';
           contentEl.innerHTML = html;
