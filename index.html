@@ -7,11 +7,11 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-12 21:50:00
+    * 작성일시: 2026-09-12 21:55:00
     * 주요내용: 
-      1. 멤버 순서 '선윤수주희지'로 교체
-      2. 뱃지 텍스트 띄어쓰기 제거 (1일전 등) 및 뱃지 폭 통일
-      3. 임시공지에도 '오늘', '1일전' 형식 뱃지 적용
+      1. 선윤수주희지 순서 반영
+      2. 날짜/공지 뱃지 띄어쓰기 제거 및 폭 통일 (오늘, 1일전)
+      3. 임시공지 뱃지 시스템 적용 완료
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -45,7 +45,6 @@
     .notice-item-row { display: flex; justify-content: space-between; align-items: center; background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
     .notice-content-wrap { display: flex; align-items: center; gap: 6px; overflow: hidden; }
     
-    /* 뱃지 통일 폭 스타일 */
     .date-badge-today, .date-badge-1day, .date-badge-old { font-size: 10px; font-weight: bold; padding: 2px 0; border-radius: 4px; display: inline-block; flex-shrink: 0; text-align: center; width: 42px; }
     .date-badge-today { background-color: #EF4444; color: #FFFFFF; }
     .date-badge-1day  { background-color: #3B82F6; color: #FFFFFF; }
@@ -371,14 +370,13 @@
   <script>
     /* 
      * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-12 21:50:00
+     * 작성일시: 2026-09-12 21:55:00
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
       ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbzt_qNVOnMkcrNHOJFE9sTiRAjzq9TCfG3Ea8K_fQxSCvbpOEDiNWzJUjMXiBmE-3WoXw/exec',
       
-      // 요청하신 순서: 선윤수주희지 (김선미, 이윤영, 이수정, 홍주란, 김희정, 박지희)
       MEMBERS: ['김선미', '이윤영', '이수정', '홍주란', '김희정', '박지희'],
       
       MEMBER_SHORT: {
