@@ -7,8 +7,9 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-12 20:50:23
+    * 작성일시: 2026-09-12 21:05:50
     * 주요내용: 구글 드라이브 연동, 출퇴근 기록, 임시 공지, 근무 달력 동기화
+    * UI 변경: DESK 근무자(🖥️), 근무 OFF(🌴) 아이콘 반영
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -98,7 +99,7 @@
     .cal-table td.is-today .cal-date-num { color: #1D4ED8; }
     
     .cal-slot-inline { display: inline-flex; align-items: center; gap: 1px; font-size: 8.5px; font-weight: bold; background: #F3F4F6; padding: 0.5px 2px; border-radius: 2px; border: 1px solid #E5E7EB; }
-    .cal-slot-label { color: #6B7280; font-size: 8px; margin-right: 0.5px; }
+    .cal-slot-label { font-size: 8.5px; margin-right: 0.5px; line-height: 1; }
     .cal-task-tag { font-size: 9.5px; color: #B45309; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 3px; padding: 1px 3px; white-space: normal; word-break: break-all; display: block; line-height: 1.2; font-weight: 400; margin-top: 2px; text-align: right; }
 
     .badge-sun { background-color: #EC4899; color: #FFF; box-shadow: 0 1px 2px rgba(236,72,153,0.4); } 
@@ -361,7 +362,7 @@
   <script>
     /* 
      * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-12 20:50:23
+     * 작성일시: 2026-09-12 21:05:50
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
@@ -530,7 +531,7 @@
 
     /* 
      * 서버 데이터 동기화
-     * 작성일시: 2026-09-12 20:50:23
+     * 작성일시: 2026-09-12 21:05:50
      */
     async function syncServerData() {
       try {
@@ -639,11 +640,12 @@
               let mornStr = item.morningWorker || "";
               let aftStr = item.afternoonWorker || "";
 
+              // 아이콘 반영: DESK(🖥️), OFF(🌴)
               if (mornStr) {
-                innerHtml += `<span class="cal-slot-inline" title="오전: ${mornStr}"><span class="cal-slot-label">전</span>${renderMemberBadgesHtml(mornStr)}</span>`;
+                innerHtml += `<span class="cal-slot-inline" title="DESK 근무: ${mornStr}"><span class="cal-slot-label">🖥️</span>${renderMemberBadgesHtml(mornStr)}</span>`;
               }
               if (aftStr) {
-                innerHtml += `<span class="cal-slot-inline" title="오후: ${aftStr}"><span class="cal-slot-label">후</span>${renderMemberBadgesHtml(aftStr)}</span>`;
+                innerHtml += `<span class="cal-slot-inline" title="근무 OFF: ${aftStr}"><span class="cal-slot-label">🌴</span>${renderMemberBadgesHtml(aftStr)}</span>`;
               }
             }
             innerHtml += `</div>`;
@@ -708,12 +710,12 @@
         </div>
 
         <div class="modal-input-group">
-          <label class="modal-label">☀️ 오전 근무자 선택</label>
+          <label class="modal-label">☀️ DESK 근무자 선택</label>
           <div id="mornBadgeGroup" class="modal-badge-container">${badgeOptionsHtml}</div>
         </div>
 
         <div class="modal-input-group" style="margin-top: 10px;">
-          <label class="modal-label">🌙 오후 근무자 선택</label>
+          <label class="modal-label">🌙 근무 OFF 선택</label>
           <div id="aftBadgeGroup" class="modal-badge-container">${badgeOptionsAftHtml}</div>
         </div>
 
