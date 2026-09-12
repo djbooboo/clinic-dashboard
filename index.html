@@ -7,23 +7,23 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-12 22:45:00
+    * 작성일시: 2026-09-12 22:50:00
     * 주요내용: 
-      1. 최신 성공 버전 유지 (TODAY 뱃지 및 최신 웹 앱 ID)
-      2. 출퇴근 기록 직원 이름 앞에 달력과 동일한 미니 뱃지 아이콘 적용
-      3. 가나다순 정렬 유지
+      1. 최신 성공 버전 유지 (TODAY 뱃지, 최신 웹 앱 ID, 가나다순 정렬)
+      2. 출퇴근 기록 미니 뱃지 아이콘 적용 유지
+      3. 상단 레이아웃 공백 제거 및 문서/출퇴근/달력/임시공지 높이 최적화
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     
-    body { background-color: #121212; color: #F3F4F6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px 20px; font-size: 13px; }
+    body { background-color: #121212; color: #F3F4F6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 16px 20px; font-size: 13px; }
     
-    .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
+    .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; }
     .brand-group { display: flex; align-items: flex-end; gap: 16px; }
-    .header-logo { height: 90px; width: auto; display: block; filter: invert(1) grayscale(100%) brightness(200%); }
-    .title { font-size: 34px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px; line-height: 1; margin-bottom: 4px; }
+    .header-logo { height: 80px; width: auto; display: block; filter: invert(1) grayscale(100%) brightness(200%); }
+    .title { font-size: 32px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px; line-height: 1; margin-bottom: 2px; }
     
     .auth-btn-group { display: flex; gap: 10px; align-items: center; }
     .role-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #2A2A2A; border: 1px solid #4B5563; color: #E5E7EB; }
@@ -32,23 +32,23 @@
     .btn-logout { padding: 6px 14px; background: #2A2A2A; color: #E5E7EB; border: 1px solid #4B5563; border-radius: 5px; cursor: pointer; display: none; font-size: 12.5px; }
     .btn-logout:hover { background: #374151; }
     
-    .top-layout-grid { display: grid; grid-template-columns: 1fr 0.85fr 1.8fr; gap: 12px; margin-bottom: 16px; align-items: stretch; }
-    .mid-widgets-col { display: flex; flex-direction: column; gap: 12px; justify-content: space-between; }
+    .top-layout-grid { display: grid; grid-template-columns: 1fr 0.9fr 1.8fr; gap: 12px; margin-bottom: 12px; align-items: stretch; }
+    .mid-widgets-col { display: flex; flex-direction: column; gap: 10px; justify-content: space-between; }
     
-    .notice-board-section { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-    .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .notice-board-section { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 10px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+    .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
     .section-title-group { display: flex; align-items: baseline; gap: 6px; }
     .notice-label { font-size: 13px; font-weight: bold; color: #FBBF24; }
     .section-desc { font-size: 11px; color: #D1D5DB; }
     
-    .notice-list-container { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; flex-grow: 1; max-height: 420px; overflow-y: auto; }
-    .notice-item-row { display: flex; justify-content: space-between; align-items: center; background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
+    .notice-list-container { display: flex; flex-direction: column; gap: 4px; margin-bottom: 6px; flex-grow: 1; max-height: 380px; overflow-y: auto; }
+    .notice-item-row { display: flex; justify-content: space-between; align-items: center; background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 4px 8px; font-size: 12px; }
     .notice-content-wrap { display: flex; align-items: center; gap: 6px; overflow: hidden; }
     
     .date-badge { 
       font-size: 9.5px !important; 
       font-weight: bold !important; 
-      padding: 2.5px 0 !important; 
+      padding: 2px 0 !important; 
       border-radius: 4px !important; 
       display: inline-block !important; 
       flex-shrink: 0 !important; 
@@ -61,54 +61,54 @@
     .badge-1day  { background-color: #3B82F6 !important; color: #FFFFFF !important; }
     .badge-old   { background-color: #4B5563 !important; color: #E5E7EB !important; }
 
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
     .notice-text { color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
     .notice-empty { color: #9CA3AF; font-size: 11.5px; text-align: center; padding: 10px 0; }
     
-    .notice-input-area { display: flex; gap: 6px; align-items: center; border-top: 1px solid #374151; padding-top: 8px; }
-    .notice-input { flex-grow: 1; border: 1px solid #4B5563; border-radius: 4px; padding: 5px 8px; font-size: 12px; color: #FFFFFF; background-color: #121212; outline: none; }
+    .notice-input-area { display: flex; gap: 6px; align-items: center; border-top: 1px solid #374151; padding-top: 6px; }
+    .notice-input { flex-grow: 1; border: 1px solid #4B5563; border-radius: 4px; padding: 4px 8px; font-size: 12px; color: #FFFFFF; background-color: #121212; outline: none; }
     .notice-input::placeholder { color: #9CA3AF; }
     .notice-input:focus { background-color: #1E1E1E; border-color: #3B82F6; }
-    .notice-btn { padding: 5px 9px; font-size: 11px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; white-space: nowrap; }
+    .notice-btn { padding: 4px 8px; font-size: 11px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; white-space: nowrap; }
     .btn-save-row { background-color: #2563EB; color: #FFF; }
     .btn-save-row:hover { background-color: #1D4ED8; }
-    .btn-del-row { background-color: #2A2A2A; color: #F87171; border: 1px solid #4B5563; font-size: 10.5px; padding: 3px 6px; }
+    .btn-del-row { background-color: #2A2A2A; color: #F87171; border: 1px solid #4B5563; font-size: 10px; padding: 2px 5px; }
 
-    .recent-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex: 1; }
-    .recent-results { max-height: 150px; overflow-y: auto; }
-    .recent-results-list { list-style: none; }
-    .recent-results-list li { padding: 4px 4px; border-bottom: 1px solid #374151; display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: #E5E7EB; }
+    .recent-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 10px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+    .recent-results { max-height: 140px; overflow-y: auto; }
+    .recent-results-list { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+    .recent-results-list li { padding: 3px 2px; border-bottom: 1px solid #2A2A2A; display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: #E5E7EB; }
+    .recent-results-list li:last-child { border-bottom: none; }
     .recent-results-list a { color: #60A5FA; text-decoration: none; font-weight: 500; }
     .recent-results-list a:hover { text-decoration: underline; }
     .file-date { font-size: 10px; color: #9CA3AF; margin-left: 4px; }
     
-    .attendance-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex: 1; }
-    .attendance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; flex-grow: 1; align-content: center; }
-    .member-card { background-color: #121212; border: 1px solid #374151; border-radius: 6px; padding: 5px 6px; display: flex; align-items: center; justify-content: space-between; }
+    .attendance-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 10px 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; }
+    .attendance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px; margin-top: 4px; }
+    .member-card { background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 3px 6px; display: flex; align-items: center; justify-content: space-between; }
     
-    .member-info-wrap { display: flex; align-items: center; gap: 6px; }
+    .member-info-wrap { display: flex; align-items: center; gap: 5px; }
     .member-name { font-size: 11.5px; font-weight: bold; color: #FFFFFF; white-space: nowrap; }
     
-    .btn-toggle-att { padding: 3px 6px; font-size: 10.5px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; white-space: nowrap; }
+    .btn-toggle-att { padding: 2px 6px; font-size: 10px; font-weight: bold; border-radius: 3px; cursor: pointer; border: none; white-space: nowrap; }
     .state-in { background-color: #064E3B; color: #34D399; border: 1px solid #059669; }
     .state-out { background-color: #7F1D1D; color: #FCA5A5; border: 1px solid #DC2626; }
 
-    .calendar-pane { background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; flex-direction: column; height: 100%; color: #111827; }
+    .calendar-pane { background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 10px 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; flex-direction: column; height: 100%; color: #111827; }
     .cal-header-nav { display: flex; align-items: center; gap: 6px; }
-    .cal-nav-btn { background: #FFFFFF; border: 1px solid #D1D5DB; color: #374151; border-radius: 4px; padding: 3px 8px; font-size: 12px; cursor: pointer; font-weight: bold; }
+    .cal-nav-btn { background: #FFFFFF; border: 1px solid #D1D5DB; color: #374151; border-radius: 4px; padding: 2px 6px; font-size: 11px; cursor: pointer; font-weight: bold; }
     .cal-nav-btn:hover { background: #F3F4F6; }
-    .cal-title-text { font-size: 15px; font-weight: bold; color: #111827; min-width: 100px; text-align: center; }
+    .cal-title-text { font-size: 14px; font-weight: bold; color: #111827; min-width: 90px; text-align: center; }
     
-    .cal-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 12px; table-layout: fixed; flex-grow: 1; }
-    .cal-table th { color: #4B5563; padding: 4px 2px; text-align: center; font-weight: bold; font-size: 12px; border-bottom: 2px solid #E5E7EB; background-color: #F3F4F6; }
+    .cal-table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 12px; table-layout: fixed; flex-grow: 1; }
+    .cal-table th { color: #4B5563; padding: 3px 2px; text-align: center; font-weight: bold; font-size: 11.5px; border-bottom: 2px solid #E5E7EB; background-color: #F3F4F6; }
     .cal-table th.sun { color: #DC2626; }
     .cal-table th.sat { color: #2563EB; }
     
-    .cal-table td { height: 74px; border: 1px solid #E5E7EB; background-color: #FFFFFF; vertical-align: top; padding: 3px; cursor: pointer; transition: background 0.15s; overflow: hidden; position: relative; }
+    .cal-table td { height: 58px; border: 1px solid #E5E7EB; background-color: #FFFFFF; vertical-align: top; padding: 2px; cursor: pointer; transition: background 0.15s; overflow: hidden; position: relative; }
     .cal-table td:hover { background-color: #F3F4F6; }
     .cal-table td.empty { background-color: #F9FAFB; cursor: default; border-color: transparent; }
     
-    .cal-cell-header { display: flex; align-items: center; justify-content: flex-end; gap: 2px; margin-bottom: 2px; flex-wrap: wrap; }
+    .cal-cell-header { display: flex; align-items: center; justify-content: flex-end; gap: 2px; margin-bottom: 1px; flex-wrap: wrap; }
     .cal-date-num { font-size: 11px; font-weight: bold; color: #374151; line-height: 1; margin-right: auto; }
     
     .cal-table td.is-sun .cal-date-num { color: #DC2626; }
@@ -118,11 +118,11 @@
     .cal-table td.is-today { background-color: #EFF6FF; border: 2px solid #3B82F6; }
     .cal-table td.is-today .cal-date-num { color: #1D4ED8; }
     
-    .cal-slot-inline { display: inline-flex; align-items: center; gap: 1px; font-size: 8.5px; font-weight: bold; background: #F3F4F6; padding: 0.5px 2px; border-radius: 2px; border: 1px solid #E5E7EB; }
-    .cal-slot-label { font-size: 8.5px; margin-right: 0.5px; line-height: 1; }
+    .cal-slot-inline { display: inline-flex; align-items: center; gap: 1px; font-size: 8px; font-weight: bold; background: #F3F4F6; padding: 0.5px 2px; border-radius: 2px; border: 1px solid #E5E7EB; }
+    .cal-slot-label { font-size: 8px; margin-right: 0.5px; line-height: 1; }
     
-    .cal-task-tag { font-size: 9px; color: #FFFFFF; background: #1E3A8A; border: 1px solid #3B82F6; border-radius: 3px; padding: 1px 3px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.15; font-weight: 500; margin: 1px auto; text-align: center; width: 100%; }
-    .cal-special-tag { font-size: 9px; color: #FFFFFF; background: #DC2626; border: 1px solid #B91C1C; border-radius: 3px; padding: 1px 3px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.15; font-weight: bold; position: absolute; bottom: 2px; left: 2px; right: 2px; text-align: center; }
+    .cal-task-tag { font-size: 8.5px; color: #FFFFFF; background: #1E3A8A; border: 1px solid #3B82F6; border-radius: 2px; padding: 0.5px 2px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.1; font-weight: 500; margin: 1px auto; text-align: center; width: 100%; }
+    .cal-special-tag { font-size: 8.5px; color: #FFFFFF; background: #DC2626; border: 1px solid #B91C1C; border-radius: 2px; padding: 0.5px 2px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.1; font-weight: bold; position: absolute; bottom: 2px; left: 2px; right: 2px; text-align: center; }
 
     .badge-sun { background-color: #06B6D4; color: #FFF; box-shadow: 0 1px 2px rgba(6,182,212,0.4); } 
     .badge-yun { background-color: #F59E0B; color: #FFF; box-shadow: 0 1px 2px rgba(245,158,11,0.4); } 
@@ -131,8 +131,7 @@
     .badge-hee { background-color: #8B5CF6; color: #FFF; box-shadow: 0 1px 2px rgba(139,92,246,0.4); } 
     .badge-ji  { background-color: #10B981; color: #FFF; box-shadow: 0 1px 2px rgba(16,185,129,0.4); } 
 
-    /* 출퇴근 카드 전용 미니 뱃지 크기 (달력과 동일) */
-    .mini-badge { display: inline-flex; width: 16px; height: 16px; border-radius: 50%; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; flex-shrink: 0; }
+    .mini-badge { display: inline-flex; width: 14px; height: 14px; border-radius: 50%; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; flex-shrink: 0; }
 
     .modal-badge-container { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
     .select-badge { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: bold; cursor: pointer; border: 2px solid #4B5563; opacity: 0.25; filter: grayscale(80%); transition: all 0.2s; user-select: none; }
@@ -160,11 +159,11 @@
     .toast-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1100; display: none; }
     .toast-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 16px 24px; text-align: center; font-size: 14px; color: #FFFFFF; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
     
-    .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
-    .column { background-color: #1E1E1E; border-radius: 8px; padding: 12px; border: 1px solid #374151; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-    .column-header { padding: 5px 10px; border-radius: 4px; font-size: 14px; font-weight: 700; margin-bottom: 10px; display: inline-block; width: 100%; }
+    .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 12px; }
+    .column { background-color: #1E1E1E; border-radius: 8px; padding: 10px 12px; border: 1px solid #374151; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    .column-header { padding: 5px 8px; border-radius: 4px; font-size: 13.5px; font-weight: 700; margin-bottom: 8px; display: inline-block; width: 100%; }
     .column-header a { color: inherit; text-decoration: none; display: flex; justify-content: space-between; align-items: center; }
-    .column-subtext { font-size: 10.5px; font-weight: normal; color: #D1D5DB; margin-top: 2px; display: block; }
+    .column-subtext { font-size: 10px; font-weight: normal; color: #D1D5DB; margin-top: 2px; display: block; }
     
     .bg-blue { background-color: #1E3A8A; color: #93C5FD; }
     .bg-green { background-color: #064E3B; color: #6EE7B7; }
@@ -172,9 +171,8 @@
     .bg-purple { background-color: #581C87; color: #D8B4FE; }
     .bg-yellow { background-color: #78350F; color: #FDE047; }
     
-    .link-list { list-style: none; }
-    .link-item { margin-bottom: 3px; }
-    .link-item a { display: flex; align-items: center; gap: 6px; padding: 5px 6px; color: #E5E7EB; text-decoration: none; font-size: 12px; border-radius: 4px; }
+    .link-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .link-item a { display: flex; align-items: center; gap: 6px; padding: 4px 6px; color: #E5E7EB; text-decoration: none; font-size: 11.5px; border-radius: 4px; }
     .link-item a:hover { background-color: #374151; color: #FFFFFF; }
     .locked { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
 
@@ -233,20 +231,20 @@
 
     <div class="mid-widgets-col">
       <div class="recent-pane">
-        <div class="section-header-row" style="margin-bottom: 6px;">
-          <div class="section-title-group" style="display: flex; align-items: center; gap: 8px;">
+        <div class="section-header-row" style="margin-bottom: 4px;">
+          <div class="section-title-group" style="display: flex; align-items: center; gap: 6px;">
             <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">📢 최근 업데이트 문서</span>
-            <button onclick="loadRecentFiles()" style="background: none; border: none; cursor: pointer; font-size: 12px; filter: grayscale(100%); transition: filter 0.2s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(100%)'" title="즉시 새로고침">🔄</button>
+            <button onclick="loadRecentFiles()" style="background: none; border: none; cursor: pointer; font-size: 11px; filter: grayscale(100%); transition: filter 0.2s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(100%)'" title="즉시 새로고침">🔄</button>
             <span class="section-desc">최신 5건</span>
           </div>
         </div>
         <div id="resultsContent" class="recent-results">
-          <p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최신 데이터를 불러오는 중...</p>
+          <p style="color:#9CA3AF; padding:2px 0; font-size:11.5px;">최신 데이터를 불러오는 중...</p>
         </div>
       </div>
 
       <div class="attendance-pane">
-        <div class="section-header-row" style="margin-bottom: 6px;">
+        <div class="section-header-row" style="margin-bottom: 2px;">
           <div class="section-title-group">
             <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">⏰ 출퇴근 기록</span>
             <span class="section-desc">클릭 시 교대 기록</span>
@@ -259,7 +257,7 @@
     <div class="calendar-pane">
       <div class="section-header-row">
         <div class="section-title-group">
-          <span style="font-size: 14px; font-weight: bold; color: #1D4ED8;">📅 근무 & 업무 달력</span>
+          <span style="font-size: 13.5px; font-weight: bold; color: #1D4ED8;">📅 근무 & 업무 달력</span>
           <span class="section-desc" style="color: #6B7280;">날짜 클릭 시 입력/수정</span>
         </div>
         <div class="cal-header-nav">
@@ -292,9 +290,9 @@
       <div class="column-header bg-blue">
         <a href="https://drive.google.com/drive/folders/1w2C4X7dtGdOdLnBkkGLqWW18C3z5HSQG?usp=sharing" target="_blank">
           <span>🏥 접수 / 치료</span>
-          <span style="font-size: 11px;">↗</span>
+          <span style="font-size: 10px;">↗</span>
         </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
+        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동</span>
       </div>
       <ul class="link-list">
         <li class="link-item"><a href="https://docs.google.com/document/d/1_JetPI2A6iw_0WccOxRhg7_Pv3ve54WfOZLOu5osWvw/edit?usp=sharing" target="_blank">📢 전체 공지 사항</a></li>
@@ -314,9 +312,9 @@
       <div class="column-header bg-green">
         <a href="https://drive.google.com/drive/folders/1qFpt6Q4TAP9Ko1LdsJ5e3lW4MZlTy58D?usp=sharing" target="_blank">
           <span>📜 매뉴얼</span>
-          <span style="font-size: 11px;">↗</span>
+          <span style="font-size: 10px;">↗</span>
         </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
+        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동</span>
       </div>
       <ul class="link-list">
         <li class="link-item"><a href="https://docs.google.com/document/d/1DH3-Yk87V5O7E_XTp0aqlJ-wrvFsQ7LckNARUcUE3UI/edit?usp=sharing" target="_blank">📖 업무 대시보드 사용법</a></li>
@@ -339,9 +337,9 @@
       <div class="column-header bg-teal">
         <a href="https://drive.google.com/drive/folders/1sYdNudJ3Y1wWMhrvIM39M4hmKLryo9NY?usp=sharing" target="_blank">
           <span>🍶 탕전실</span>
-          <span style="font-size: 11px;">↗</span>
+          <span style="font-size: 10px;">↗</span>
         </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
+        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동</span>
       </div>
       <ul class="link-list">
         <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1GHiMHhcsJtPRw0euHWe3ILSjCViXl8SOeRmCKykBNFo/edit?usp=sharing" target="_blank">📅 탕전 스케줄(홍박진영 외_입력금지)</a></li>
@@ -355,9 +353,9 @@
       <div class="column-header bg-purple">
         <a href="https://drive.google.com/drive/folders/1caciuhYkxjhIC3zQi6b4ZPLI4huSNFz_?usp=sharing" target="_blank">
           <span>🩺 진료</span>
-          <span style="font-size: 11px;">↗</span>
+          <span style="font-size: 10px;">↗</span>
         </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
+        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동</span>
       </div>
       <ul class="link-list">
         <li class="link-item"><a href="https://docs.google.com/document/d/1HATTWrOuyAAYbZhnhOsPbDaunzaIcouQm6Y3PXOhlJc/edit?usp=sharing" target="_blank">📢 진료진 공지</a></li>
@@ -371,9 +369,9 @@
       <div class="column-header bg-yellow">
         <a href="https://drive.google.com/drive/folders/1HE5f_uSjP8v-lSeO5yTgherYXjt24_yX?usp=sharing" target="_blank">
           <span>💰 경영</span>
-          <span style="font-size: 11px;">↗</span>
+          <span style="font-size: 10px;">↗</span>
         </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
+        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동</span>
       </div>
       <ul class="link-list">
         <li class="link-item"><a href="https://docs.google.com/document/d/14KpBGM7Ow-CYR-CsTDBMJoyTFkjoXyhPlHUWqTp0u6c/edit?usp=sharing" target="_blank">💵 급여 계산 및 명세서 작성</a></li>
@@ -385,7 +383,7 @@
   <script>
     /* 
      * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-12 22:45:00
+     * 작성일시: 2026-09-12 22:50:00
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
@@ -1135,7 +1133,7 @@
 
     async function loadRecentFiles() {
       const contentEl = document.getElementById('resultsContent');
-      contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최신 데이터를 불러오는 중...</p>';
+      contentEl.innerHTML = '<p style="color:#9CA3AF; padding:2px 0; font-size:11.5px;">최신 데이터를 불러오는 중...</p>';
       
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -1219,11 +1217,11 @@
           html += '</ul>';
           contentEl.innerHTML = html;
         } else {
-          contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 업데이트된 문서가 없습니다.</p>';
+          contentEl.innerHTML = '<p style="color:#9CA3AF; padding:2px 0; font-size:11.5px;">최근 업데이트된 문서가 없습니다.</p>';
         }
       } catch (err) {
         console.error("최근 파일 로드 오류:", err);
-        contentEl.innerHTML = '<p style="color:#F87171; padding:4px 0; font-size:12px;">목록을 불러올 수 없습니다. 구글 로그인을 확인하세요.</p>';
+        contentEl.innerHTML = '<p style="color:#F87171; padding:2px 0; font-size:11.5px;">목록을 불러올 수 없습니다. 구글 로그인을 확인하세요.</p>';
       }
     }
   </script>
