@@ -7,8 +7,10 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-12 21:32:00
-    * 주요내용: 달력 레이아웃 왜곡 현상 수정 완료, 스페셜 이벤트 및 여러 줄 입력 반영
+    * 작성일시: 2026-09-12 21:42:00
+    * 주요내용: 
+      1. 최근 업데이트 문서 5개로 축소 및 달력 크기 컴팩트 조율
+      2. 수정일 기준 '오늘', '1일 전', '2일 전' 색상별 뱃지 추가
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -42,7 +44,12 @@
     .notice-item-row { display: flex; justify-content: space-between; align-items: center; background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
     .notice-content-wrap { display: flex; align-items: center; gap: 6px; overflow: hidden; }
     .new-badge { background-color: #EF4444; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; animation: pulse 1.5s infinite; }
-    .today-badge { background-color: #D97706; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; margin-right: 4px; animation: pulse 1.5s infinite; }
+    
+    /* 날짜별 수정 뱃지 스타일 */
+    .date-badge-today { background-color: #EF4444; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; }
+    .date-badge-1day { background-color: #3B82F6; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; }
+    .date-badge-old { background-color: #4B5563; color: #E5E7EB; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; }
+
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
     .notice-text { color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
     .notice-empty { color: #9CA3AF; font-size: 11.5px; text-align: center; padding: 10px 0; }
@@ -57,12 +64,12 @@
     .btn-del-row { background-color: #2A2A2A; color: #F87171; border: 1px solid #4B5563; font-size: 10.5px; padding: 3px 6px; }
 
     .recent-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex: 1; }
-    .recent-results { max-height: 190px; overflow-y: auto; }
+    .recent-results { max-height: 150px; overflow-y: auto; }
     .recent-results-list { list-style: none; }
-    .recent-results-list li { padding: 5px 4px; border-bottom: 1px solid #374151; display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: #E5E7EB; }
+    .recent-results-list li { padding: 4px 4px; border-bottom: 1px solid #374151; display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: #E5E7EB; }
     .recent-results-list a { color: #60A5FA; text-decoration: none; font-weight: 500; }
     .recent-results-list a:hover { text-decoration: underline; }
-    .file-date { font-size: 10.5px; color: #9CA3AF; margin-left: 4px; }
+    .file-date { font-size: 10px; color: #9CA3AF; margin-left: 4px; }
     
     .attendance-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex: 1; }
     .attendance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; flex-grow: 1; align-content: center; }
@@ -72,18 +79,19 @@
     .state-in { background-color: #064E3B; color: #34D399; border: 1px solid #059669; }
     .state-out { background-color: #7F1D1D; color: #FCA5A5; border: 1px solid #DC2626; }
 
-    .calendar-pane { background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 14px 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; flex-direction: column; height: 100%; color: #111827; }
+    /* 달력 높이 컴팩트 조율 */
+    .calendar-pane { background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; flex-direction: column; height: 100%; color: #111827; }
     .cal-header-nav { display: flex; align-items: center; gap: 6px; }
     .cal-nav-btn { background: #FFFFFF; border: 1px solid #D1D5DB; color: #374151; border-radius: 4px; padding: 3px 8px; font-size: 12px; cursor: pointer; font-weight: bold; }
     .cal-nav-btn:hover { background: #F3F4F6; }
     .cal-title-text { font-size: 15px; font-weight: bold; color: #111827; min-width: 100px; text-align: center; }
     
-    .cal-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; table-layout: fixed; flex-grow: 1; }
-    .cal-table th { color: #4B5563; padding: 6px 2px; text-align: center; font-weight: bold; font-size: 12px; border-bottom: 2px solid #E5E7EB; background-color: #F3F4F6; }
+    .cal-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 12px; table-layout: fixed; flex-grow: 1; }
+    .cal-table th { color: #4B5563; padding: 4px 2px; text-align: center; font-weight: bold; font-size: 12px; border-bottom: 2px solid #E5E7EB; background-color: #F3F4F6; }
     .cal-table th.sun { color: #DC2626; }
     .cal-table th.sat { color: #2563EB; }
     
-    .cal-table td { height: 96px; border: 1px solid #E5E7EB; background-color: #FFFFFF; vertical-align: top; padding: 3px; cursor: pointer; transition: background 0.15s; overflow: hidden; position: relative; }
+    .cal-table td { height: 74px; border: 1px solid #E5E7EB; background-color: #FFFFFF; vertical-align: top; padding: 3px; cursor: pointer; transition: background 0.15s; overflow: hidden; position: relative; }
     .cal-table td:hover { background-color: #F3F4F6; }
     .cal-table td.empty { background-color: #F9FAFB; cursor: default; border-color: transparent; }
     
@@ -100,8 +108,8 @@
     .cal-slot-inline { display: inline-flex; align-items: center; gap: 1px; font-size: 8.5px; font-weight: bold; background: #F3F4F6; padding: 0.5px 2px; border-radius: 2px; border: 1px solid #E5E7EB; }
     .cal-slot-label { font-size: 8.5px; margin-right: 0.5px; line-height: 1; }
     
-    .cal-task-tag { font-size: 9.5px; color: #FFFFFF; background: #1E3A8A; border: 1px solid #3B82F6; border-radius: 3px; padding: 2px 4px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.2; font-weight: 500; margin: 2px auto; text-align: center; width: 100%; }
-    .cal-special-tag { font-size: 10px; color: #FFFFFF; background: #DC2626; border: 1px solid #B91C1C; border-radius: 3px; padding: 2px 4px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.2; font-weight: bold; position: absolute; bottom: 3px; left: 3px; right: 3px; text-align: center; }
+    .cal-task-tag { font-size: 9px; color: #FFFFFF; background: #1E3A8A; border: 1px solid #3B82F6; border-radius: 3px; padding: 1px 3px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.15; font-weight: 500; margin: 1px auto; text-align: center; width: 100%; }
+    .cal-special-tag { font-size: 9px; color: #FFFFFF; background: #DC2626; border: 1px solid #B91C1C; border-radius: 3px; padding: 1px 3px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.15; font-weight: bold; position: absolute; bottom: 2px; left: 2px; right: 2px; text-align: center; }
 
     .badge-sun { background-color: #06B6D4; color: #FFF; box-shadow: 0 1px 2px rgba(6,182,212,0.4); } 
     .badge-ji  { background-color: #10B981; color: #FFF; box-shadow: 0 1px 2px rgba(16,185,129,0.4); } 
@@ -215,7 +223,7 @@
           <div class="section-title-group" style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">📢 최근 업데이트 문서</span>
             <button onclick="loadRecentFiles()" style="background: none; border: none; cursor: pointer; font-size: 12px; filter: grayscale(100%); transition: filter 0.2s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(100%)'" title="즉시 새로고침">🔄</button>
-            <span class="section-desc">최신 업데이트 10건</span>
+            <span class="section-desc">최신 5건</span>
           </div>
         </div>
         <div id="resultsContent" class="recent-results">
@@ -363,7 +371,7 @@
   <script>
     /* 
      * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-12 21:32:00
+     * 작성일시: 2026-09-12 21:42:00
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
@@ -532,7 +540,7 @@
 
     /* 
      * 서버 데이터 동기화
-     * 작성일시: 2026-09-12 21:32:00
+     * 작성일시: 2026-09-12 21:42:00
      */
     async function syncServerData() {
       try {
@@ -1095,6 +1103,7 @@
       
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
 
       let allFiles = [];
 
@@ -1142,7 +1151,8 @@
           }
         }
         
-        allFiles = uniqueFiles.slice(0, 10);
+        // 최대 5개로 축소
+        allFiles = uniqueFiles.slice(0, 5);
 
         if (allFiles.length > 0) {
           let html = '<ul class="recent-results-list">';
@@ -1150,8 +1160,16 @@
             const dateObj = new Date(file.modifiedTime);
             const dateStr = `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
             
-            const isToday = dateObj >= todayStart;
-            const todayBadge = isToday ? '<span class="today-badge">오늘</span>' : '';
+            // 뱃지 계산 로직 (오늘 / 1일전 / X일전)
+            let badgeHtml = '';
+            if (dateObj >= todayStart) {
+              badgeHtml = '<span class="date-badge-today">오늘</span>';
+            } else if (dateObj >= yesterdayStart) {
+              badgeHtml = '<span class="date-badge-1day">1일 전</span>';
+            } else {
+              const diffDays = Math.floor((todayStart - new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate())) / (1000 * 60 * 60 * 24));
+              badgeHtml = `<span class="date-badge-old">${diffDays}일 전</span>`;
+            }
 
             let openUrl = file.webViewLink;
             if (file.mimeType === 'application/vnd.google-apps.document') {
@@ -1162,7 +1180,7 @@
               openUrl = `https://docs.google.com/presentation/d/${file.id}/edit`;
             }
 
-            html += `<li><span>${todayBadge}📄 ${file.name} <span class="file-date">(${dateStr} 수정)</span></span> <a href="${openUrl}" target="_blank" rel="noopener noreferrer">열기 ↗</a></li>`;
+            html += `<li><span style="display:flex; align-items:center; gap:6px; overflow:hidden;">${badgeHtml}<span style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${file.name}">📄 ${file.name}</span><span class="file-date">(${dateStr})</span></span> <a href="${openUrl}" target="_blank" rel="noopener noreferrer">열기 ↗</a></li>`;
           });
           html += '</ul>';
           contentEl.innerHTML = html;
