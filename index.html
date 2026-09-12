@@ -7,7 +7,7 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일자: 2026-09-12
+    * 작성일시: 2026-09-12 20:50:23
     * 주요내용: 구글 드라이브 연동, 출퇴근 기록, 임시 공지, 근무 달력 동기화
     ====================================================
   -->
@@ -360,13 +360,13 @@
 
   <script>
     /* 
-     * 대시보드 환경 설정
-     * 작성일자: 2026-09-12
+     * 대시보드 스크립트 설정
+     * 작성일시: 2026-09-12 20:50:23
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
-      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbw0R8eUpFYYDBZi6iRH8RD22RGx7fAEJTbyq7gVAbtEq8fX-grjrfwqoVWYuBzYAtGILA/exec',
+      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbzlwIShRGBMbUVEek94i_fUZL9sDMeLKSPwSMGb17fZUtzG7xvrKjqzVZdEWKHCGDU36w/exec',
       MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
       
       MEMBER_SHORT: {
@@ -528,6 +528,10 @@
       }
     }
 
+    /* 
+     * 서버 데이터 동기화
+     * 작성일시: 2026-09-12 20:50:23
+     */
     async function syncServerData() {
       try {
         const res = await fetch(`${CONFIG.ATTENDANCE_WEBAPP_URL}?_cb=${Date.now()}`);
