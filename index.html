@@ -199,9 +199,8 @@
         <div class="section-header-row" style="margin-bottom: 6px;">
           <div class="section-title-group" style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">📢 최근 업데이트 문서</span>
-            <!-- 수동 새로고침 버튼 유지 -->
             <button onclick="loadRecentFiles()" style="background: none; border: none; cursor: pointer; font-size: 12px; filter: grayscale(100%); transition: filter 0.2s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(100%)'" title="즉시 새로고침">🔄</button>
-            <span class="section-desc">최신 업데이트 10건</span> <!-- 3일간 수정 텍스트 변경 -->
+            <span class="section-desc">최신 업데이트 10건</span>
           </div>
         </div>
         <div id="resultsContent" class="recent-results">
@@ -956,7 +955,7 @@
       loadRecentFiles();
     }
 
-    // 완전히 해결된 최근 업데이트 문서 불러오기 로직
+    // CORS 에러 완벽 해결 버전 (커스텀 헤더 제거)
     async function loadRecentFiles() {
       const contentEl = document.getElementById('resultsContent');
       contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최신 데이터를 불러오는 중...</p>';
@@ -968,27 +967,18 @@
 
       try {
         const timestamp = new Date().getTime();
-        
-        const fetchOptions = {
-          cache: 'no-store',
-          headers: {
-            'Cache-Control': 'no-cache, no-store, must-revalidate',
-            'Pragma': 'no-cache',
-            'Expires': '0'
-          }
-        };
-
-        if (accessToken) {
-          fetchOptions.headers['Authorization'] = `Bearer ${accessToken}`;
-        }
 
         const requests = accessibleFolders.map(folderId => {
           const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`;
           
-          // 해결 1, 3: 공유 드라이브 파라미터 복구 및 URL 띄어쓰기(%20) 인코딩 처리 완벽 적용
           let url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime%20desc&pageSize=15&fields=files(id,name,webViewLink,mimeType,modifiedTime)&supportsAllDrives=true&includeItemsFromAllDrives=true&_t=${timestamp}`;
           
-          if (!accessToken) {
+          let fetchOptions = {};
+          if (accessToken) {
+            // 로그인 상태에서는 인증 헤더만 간단하게 전달 (CORS 프리플라이트 유발 최소화)
+            fetchOptions.headers = { 'Authorization': `Bearer ${accessToken}` };
+          } else {
+            // 비로그인 상태에서는 API 키를 파라미터로 첨부
             url += `&key=${CONFIG.API_KEY}`;
           }
 
@@ -1010,8 +1000,6 @@
           allFiles = allFiles.filter(file => !CONFIG.EXCLUDE_FILE_IDS.includes(file.id));
         }
 
-        // 해결 2: 3일이 지나면 목록이 완전히 사라져 '버그'처럼 보이는 현상을 방지하기 위해 
-        // 3일 필터를 과감히 제거하고 '날짜 상관없이 무조건 최신순 10개'를 보여주도록 수정
         allFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
         
         const uniqueFiles = [];
