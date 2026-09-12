@@ -850,4 +850,295 @@
       const text = input.value.trim();
 
       if (!text) {
-        showToast
+        showToast('⚠️ 공지 내용을 입력해주세요.');
+        return;
+      }
+
+      let currentNotices = [...noticeList];
+      currentNotices.forEach(item => item.isNew = false);
+      currentNotices.unshift({ text: text, isNew: true });
+
+      updateServerNotices(currentNotices);
+      input.value = '';
+      showToast('✅ 새로운 임시 공지가 최상단에 등록되었습니다.');
+    }
+
+    function deleteNotice(index) {
+      showCustomConfirm('해당 공지 내용을 삭제하시겠습니까?', function(confirmed) {
+        if (!confirmed) return;
+        let currentNotices = [...noticeList];
+        currentNotices.splice(index, 1);
+        updateServerNotices(currentNotices);
+        showToast('🗑️ 공지가 삭제되었습니다.');
+      });
+    }
+
+    function showCustomConfirm(message, onConfirm) {
+      showCustomModal(message, '', onConfirm);
+    }
+
+    function showCustomModal(titleMsg, customBodyHtml, onConfirm) {
+      const modal = document.getElementById('customModal');
+      const msgEl = document.getElementById('modalMsg');
+      const bodyEl = document.getElementById('modalCustomBody');
+      const confirmBtn = document.getElementById('modalConfirmBtn');
+      const cancelBtn = document.getElementById('modalCancelBtn');
+
+      msgEl.innerText = titleMsg;
+      bodyEl.innerHTML = customBodyHtml || '';
+      modal.style.display = 'flex';
+
+      const newConfirmBtn = confirmBtn.cloneNode(true);
+      const newCancelBtn = cancelBtn.cloneNode(true);
+      confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+      cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+      newConfirmBtn.onclick = function() {
+        modal.style.display = 'none';
+        onConfirm(true);
+      };
+      newCancelBtn.onclick = function() {
+        modal.style.display = 'none';
+        onConfirm(false);
+      };
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toastModal');
+      const msgEl = document.getElementById('toastMsg');
+      msgEl.innerText = message;
+      toast.style.display = 'flex';
+      setTimeout(() => { toast.style.display = 'none'; }, 1200);
+    }
+
+    function renderAttendanceGrid() {
+      const grid = document.getElementById('attendanceGrid');
+      grid.innerHTML = '';
+
+      CONFIG.MEMBERS.forEach(name => {
+        const currentState = attendanceStates[name] || 'OUT';
+        const nextActionLabel = (currentState === 'OUT') ? '출근' : '퇴근';
+        const btnClass = (currentState === 'OUT') ? 'state-in' : 'state-out';
+
+        const card = document.createElement('div');
+        card.className = 'member-card';
+        card.innerHTML = `
+          <span class="member-name">${name}</span>
+          <button id="btn-${name}" class="btn-toggle-att ${btnClass}" onclick="toggleAttendance('${name}')">${nextActionLabel}</button>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function toggleAttendance(name) {
+      const currentState = attendanceStates[name] || 'OUT';
+      const targetAction = (currentState === 'OUT') ? '출근' : '퇴근';
+      const promptMsg = `${name} 님을 [${targetAction}] 처리하시겠습니까?`;
+
+      showCustomConfirm(promptMsg, function(confirmed) {
+        if (!confirmed) return;
+
+        attendanceStates[name] = (currentState === 'OUT') ? 'IN' : 'OUT';
+        renderAttendanceGrid();
+
+        const payload = JSON.stringify({ name: name, type: targetAction });
+
+        fetch(CONFIG.ATTENDANCE_WEBAPP_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+          body: payload
+        })
+        .then(() => {
+          const timeStr = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
+          showToast(`✅ ${name} 님 [${targetAction}] 기록되었습니다. (${timeStr})`);
+          
+          setTimeout(async () => {
+            await refreshAllData();
+          }, 1200);
+        })
+        .catch(err => {
+          console.error(err);
+          showToast('출퇴근 기록 실패. 인터넷 연결 상태를 확인해주세요.');
+        });
+      });
+    }
+
+    function handleAuthClick() { 
+      tokenClient.requestAccessToken({prompt: 'consent'}); 
+    }
+    
+    function handleSignoutClick() {
+      localStorage.removeItem('dashboard_access_token');
+      localStorage.removeItem('dashboard_token_expires');
+      localStorage.removeItem('dashboard_user_email');
+      
+      if (window.google && google.accounts && google.accounts.id) {
+        google.accounts.id.disableAutoSelect();
+      }
+
+      if (accessToken) {
+        google.accounts.oauth2.revoke(accessToken, () => {
+          accessToken = null;
+          accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
+          document.getElementById('userStatus').innerText = '🔒 01 전직원 접근 가능';
+          document.getElementById('btnLogin').style.display = 'inline-block';
+          document.getElementById('btnLogout').style.display = 'none';
+          
+          document.getElementById('colDecoction').classList.add('locked');
+          document.getElementById('colDoctor').classList.add('locked');
+          document.getElementById('colAdmin').classList.add('locked');
+
+          loadRecentFiles();
+          showToast('로그아웃 되었습니다.');
+        });
+      } else {
+        accessToken = null;
+        accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
+        document.getElementById('userStatus').innerText = '🔒 01 전직원 접근 가능';
+        document.getElementById('btnLogin').style.display = 'inline-block';
+        document.getElementById('btnLogout').style.display = 'none';
+        
+        document.getElementById('colDecoction').classList.add('locked');
+        document.getElementById('colDoctor').classList.add('locked');
+        document.getElementById('colAdmin').classList.add('locked');
+
+        loadRecentFiles();
+        showToast('로그아웃 되었습니다.');
+      }
+    }
+
+    async function fetchUserEmail(token) {
+      try {
+        const res = await fetch('[https://www.googleapis.com/oauth2/v2/userinfo](https://www.googleapis.com/oauth2/v2/userinfo)', { headers: { Authorization: `Bearer ${token}` } });
+        const data = await res.json();
+        return data.email ? data.email.toLowerCase() : '';
+      } catch (e) { return ''; }
+    }
+
+    function applyRoleByEmail(email) {
+      const statusEl = document.getElementById('userStatus');
+      accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
+
+      const elDecoction = document.getElementById('colDecoction');
+      const elDoctor = document.getElementById('colDoctor');
+      const elAdmin = document.getElementById('colAdmin');
+
+      elDecoction.classList.add('locked');
+      elDoctor.classList.add('locked');
+      elAdmin.classList.add('locked');
+
+      const isAdmin = CONFIG.ACCOUNTS.ADMIN.map(e => e.toLowerCase()).includes(email);
+      const isDoctor = CONFIG.ACCOUNTS.DOCTOR.map(e => e.toLowerCase()).includes(email);
+      const isDecoction = CONFIG.ACCOUNTS.DECOCTION.map(e => e.toLowerCase()).includes(email);
+
+      if (isAdmin) {
+        accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR, CONFIG.FOLDERS.ADMIN);
+        statusEl.innerText = `🔴 관리자`;
+        
+        elDecoction.classList.remove('locked');
+        elDoctor.classList.remove('locked');
+        elAdmin.classList.remove('locked');
+      } else if (isDoctor) {
+        accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR);
+        statusEl.innerText = `🔵 진료원장`;
+        
+        elDecoction.classList.remove('locked');
+        elDoctor.classList.remove('locked');
+      } else if (isDecoction) {
+        accessibleFolders.push(CONFIG.FOLDERS.DECOCTION);
+        statusEl.innerText = `🟡 탕전실`;
+        
+        elDecoction.classList.remove('locked');
+      }
+      loadRecentFiles();
+    }
+
+    async function loadRecentFiles() {
+      const contentEl = document.getElementById('resultsContent');
+      contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최신 데이터를 불러오는 중...</p>';
+      
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      let allFiles = [];
+
+      try {
+        const timestamp = new Date().getTime();
+
+        const requests = accessibleFolders.map(folderId => {
+          const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`;
+          
+          let url = `[https://www.googleapis.com/drive/v3/files?q=$](https://www.googleapis.com/drive/v3/files?q=$){encodeURIComponent(query)}&orderBy=modifiedTime%20desc&pageSize=15&fields=files(id,name,webViewLink,mimeType,modifiedTime)&supportsAllDrives=true&includeItemsFromAllDrives=true&_t=${timestamp}`;
+          
+          let fetchOptions = {};
+          if (accessToken) {
+            fetchOptions.headers = { 'Authorization': `Bearer ${accessToken}` };
+          } else {
+            url += `&key=${CONFIG.API_KEY}`;
+          }
+
+          return fetch(url, fetchOptions)
+            .then(r => r.json())
+            .then(data => data.files || [])
+            .catch(err => {
+              console.error(`Folder ${folderId} fetch error:`, err);
+              return [];
+            });
+        });
+
+        const results = await Promise.all(requests);
+        results.forEach(files => {
+          allFiles = allFiles.concat(files);
+        });
+
+        if (CONFIG.EXCLUDE_FILE_IDS && CONFIG.EXCLUDE_FILE_IDS.length > 0) {
+          allFiles = allFiles.filter(file => !CONFIG.EXCLUDE_FILE_IDS.includes(file.id));
+        }
+
+        allFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
+        
+        const uniqueFiles = [];
+        const fileIds = new Set();
+        for (const file of allFiles) {
+          if (!fileIds.has(file.id)) {
+            fileIds.add(file.id);
+            uniqueFiles.push(file);
+          }
+        }
+        
+        allFiles = uniqueFiles.slice(0, 10);
+
+        if (allFiles.length > 0) {
+          let html = '<ul class="recent-results-list">';
+          allFiles.forEach(file => {
+            const dateObj = new Date(file.modifiedTime);
+            const dateStr = `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
+            
+            const isToday = dateObj >= todayStart;
+            const todayBadge = isToday ? '<span class="today-badge">오늘</span>' : '';
+
+            let openUrl = file.webViewLink;
+            if (file.mimeType === 'application/vnd.google-apps.document') {
+              openUrl = `[https://docs.google.com/document/d/$](https://docs.google.com/document/d/$){file.id}/edit`;
+            } else if (file.mimeType === 'application/vnd.google-apps.spreadsheet') {
+              openUrl = `[https://docs.google.com/spreadsheets/d/$](https://docs.google.com/spreadsheets/d/$){file.id}/edit`;
+            } else if (file.mimeType === 'application/vnd.google-apps.presentation') {
+              openUrl = `[https://docs.google.com/presentation/d/$](https://docs.google.com/presentation/d/$){file.id}/edit`;
+            }
+
+            html += `<li><span>${todayBadge}📄 ${file.name} <span class="file-date">(${dateStr} 수정)</span></span> <a href="${openUrl}" target="_blank" rel="noopener noreferrer">열기 ↗</a></li>`;
+          });
+          html += '</ul>';
+          contentEl.innerHTML = html;
+        } else {
+          contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 업데이트된 문서가 없습니다.</p>';
+        }
+      } catch (err) {
+        console.error("최근 파일 로드 오류:", err);
+        contentEl.innerHTML = '<p style="color:#F87171; padding:4px 0; font-size:12px;">목록을 불러올 수 없습니다. 구글 로그인을 확인하세요.</p>';
+      }
+    }
+  </script>
+</body>
+</html>
