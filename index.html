@@ -88,7 +88,8 @@
     
     /* 🔴 공휴일 및 일요일 숫자 빨간색 처리 */
     .cal-table td.is-holiday .cal-date-num, .cal-table td.is-sun .cal-date-num { color: #DC2626 !important; }
-    .cal-table td.is-sat .cal-date-num { color: #2563EB; }
+    /* 🔵 반일 근무 및 토요일 숫자 파란색 처리 */
+    .cal-table td.is-halfday .cal-date-num, .cal-table td.is-sat .cal-date-num { color: #2563EB !important; }
     
     .cal-table td.is-today { background-color: #EFF6FF; border: 2px solid #3B82F6; }
     .cal-table td.is-today .cal-date-num { color: #1D4ED8; }
@@ -104,9 +105,9 @@
     .modal-label { font-size: 11.5px; color: #D1D5DB; margin-bottom: 4px; display: block; }
     .modal-field { width: 100%; border: 1px solid #4B5563; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; color: #FFFFFF; background-color: #121212; outline: none; }
     .modal-field:focus { border-color: #3B82F6; }
-    .modal-checkbox-group { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .modal-checkbox-group { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
     .modal-checkbox-group input { width: 16px; height: 16px; cursor: pointer; }
-    .modal-checkbox-group label { font-size: 12px; color: #FCA5A5; font-weight: bold; cursor: pointer; }
+    .modal-checkbox-group label { font-size: 12px; cursor: pointer; font-weight: bold; }
     .modal-btn-group { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
     .modal-btn { padding: 6px 14px; font-size: 12px; font-weight: bold; border-radius: 5px; border: none; cursor: pointer; }
     .modal-btn-confirm { background-color: #2563EB; color: #FFF; }
@@ -428,7 +429,6 @@
 
       await refreshAllData();
 
-      // 토큰 및 최근 수정 문서 자동 갱신 (5분마다)
       setInterval(async () => {
         if (!document.hidden) {
           await checkAndRefreshToken();
@@ -436,7 +436,6 @@
         }
       }, 5 * 60 * 1000);
 
-      // 달력 및 출퇴근 기록 동기화 (1분마다)
       setInterval(async () => {
         if (!document.hidden) {
           await syncServerData();
@@ -453,10 +452,9 @@
       });
     };
 
-    // 토큰 만료 여부 확인 후 백그라운드 자동 갱신
     async function checkAndRefreshToken() {
       const savedExpires = localStorage.getItem('dashboard_token_expires');
-      if (savedExpires && Date.now() > parseInt(savedExpires) - 300000) { // 만료 5분 전 갱신
+      if (savedExpires && Date.now() > parseInt(savedExpires) - 300000) {
         if (tokenClient) {
           tokenClient.requestAccessToken({ prompt: 'none' });
         }
@@ -530,12 +528,14 @@
           for (let k in data.calendar) {
             let item = data.calendar[k];
             let isHol = (item.isHoliday === true || String(item.isHoliday).toUpperCase() === 'TRUE' || item.isHoliday === 1 || String(item.isHoliday) === '1');
+            let isHalf = (item.isHalfDay === true || String(item.isHalfDay).toUpperCase() === 'TRUE' || item.isHalfDay === 1 || String(item.isHalfDay) === '1');
             
-            if (!calendarData[k] || item.worker !== '' || item.task !== '' || isHol) {
+            if (!calendarData[k] || item.worker !== '' || item.task !== '' || isHol || isHalf) {
               calendarData[k] = {
                 worker: item.worker || "",
                 task: item.task || "",
-                isHoliday: isHol
+                isHoliday: isHol,
+                isHalfDay: isHalf
               };
             }
           }
@@ -587,6 +587,9 @@
               if (item.isHoliday) {
                 td.classList.add('is-holiday');
               }
+              if (item.isHalfDay) {
+                td.classList.add('is-halfday');
+              }
               if (item.worker) {
                 innerHtml += `<span class="cal-worker-tag" title="근무자: ${item.worker}">👤 ${item.worker}</span>`;
               }
@@ -621,14 +624,18 @@
     function openCalendarEditModal(dateKey, dayNum) {
       const year = calCurrentDate.getFullYear();
       const month = calCurrentDate.getMonth() + 1;
-      const currentVal = calendarData[dateKey] || { worker: '', task: '', isHoliday: false };
+      const currentVal = calendarData[dateKey] || { worker: '', task: '', isHoliday: false, isHalfDay: false };
 
       const bodyHtml = `
         <div class="modal-checkbox-group">
-          <input type="checkbox" id="calInputHoliday" ${currentVal.isHoliday ? 'checked' : ''}>
-          <label for="calInputHoliday">🔴 공휴일/휴무일로 지정 (숫자 빨간색)</label>
+          <input type="checkbox" id="calInputHoliday" ${currentVal.isHoliday ? 'checked' : ''} onchange="if(this.checked) document.getElementById('calInputHalfDay').checked = false;">
+          <label for="calInputHoliday" style="color:#FCA5A5;">🔴 휴무일로 지정 (빨간색)</label>
         </div>
-        <div class="modal-input-group">
+        <div class="modal-checkbox-group">
+          <input type="checkbox" id="calInputHalfDay" ${currentVal.isHalfDay ? 'checked' : ''} onchange="if(this.checked) document.getElementById('calInputHoliday').checked = false;">
+          <label for="calInputHalfDay" style="color:#60A5FA;">🔵 반일 근무로 지정 (파란색)</label>
+        </div>
+        <div class="modal-input-group" style="margin-top: 10px;">
           <label class="modal-label">👤 근무자 이름</label>
           <input type="text" id="calInputWorker" class="modal-field" placeholder="예: 김선미, 박지희" value="${currentVal.worker || ''}">
         </div>
@@ -642,10 +649,11 @@
         if (!confirmed) return;
 
         const isHoliday = document.getElementById('calInputHoliday').checked;
+        const isHalfDay = document.getElementById('calInputHalfDay').checked;
         const worker = document.getElementById('calInputWorker').value.trim();
         const task = document.getElementById('calInputTask').value.trim();
 
-        calendarData[dateKey] = { worker: worker, task: task, isHoliday: isHoliday };
+        calendarData[dateKey] = { worker: worker, task: task, isHoliday: isHoliday, isHalfDay: isHalfDay };
         renderCalendar();
 
         showToast('💾 달력 일정을 저장 중입니다...');
@@ -656,7 +664,8 @@
             dateKey: dateKey,
             worker: worker,
             task: task,
-            isHoliday: isHoliday
+            isHoliday: isHoliday,
+            isHalfDay: isHalfDay
           };
 
           await fetch(CONFIG.ATTENDANCE_WEBAPP_URL, {
@@ -670,7 +679,7 @@
             let savedLocalVal = Object.assign({}, calendarData[dateKey]);
             await syncServerData();
             
-            if (savedLocalVal && (savedLocalVal.worker || savedLocalVal.task || savedLocalVal.isHoliday)) {
+            if (savedLocalVal && (savedLocalVal.worker || savedLocalVal.task || savedLocalVal.isHoliday || savedLocalVal.isHalfDay)) {
               calendarData[dateKey] = savedLocalVal;
             }
             
@@ -940,7 +949,6 @@
       loadRecentFiles();
     }
 
-    // 최근 업데이트 문서 최신화 로직 (캐시 우회 및 실시간 정렬)
     async function loadRecentFiles() {
       const contentEl = document.getElementById('resultsContent');
       const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
@@ -987,7 +995,6 @@
           allFiles = allFiles.filter(file => !CONFIG.EXCLUDE_FILE_IDS.includes(file.id));
         }
 
-        // 수정 시간 기준 내림차순 정렬
         allFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
         allFiles = allFiles.slice(0, 10);
 
