@@ -954,7 +954,7 @@
       loadRecentFiles();
     }
 
-    // 최근 업데이트 문서 불러오기 로직 (구글 API URL 호환성 보장)
+    // 최근 업데이트 문서 불러오기 로직 (구글 API URL 호환성 보장 버전)
     async function loadRecentFiles() {
       const contentEl = document.getElementById('resultsContent');
       const threeDaysAgoTime = Date.now() - 3 * 24 * 60 * 60 * 1000;
@@ -1002,7 +1002,7 @@
         }
 
         // 최근 3일 이내 파일 필터링
-        allFiles = allFiles.filter(file => new Date(file.modifiedTime).getTime() >= threeDaysAgoTime);
+        allFiles = allFiles.filter(file => file.modifiedTime && new Date(file.modifiedTime).getTime() >= threeDaysAgoTime);
 
         // 최신순 정렬
         allFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
