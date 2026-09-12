@@ -197,8 +197,10 @@
     <div class="mid-widgets-col">
       <div class="recent-pane">
         <div class="section-header-row" style="margin-bottom: 6px;">
-          <div class="section-title-group">
+          <div class="section-title-group" style="display: flex; align-items: center; gap: 8px;">
             <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">📢 최근 업데이트 문서</span>
+            <!-- 수동 새로고침 버튼 추가 -->
+            <button onclick="loadRecentFiles()" style="background: none; border: none; cursor: pointer; font-size: 12px; filter: grayscale(100%); transition: filter 0.2s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(100%)'" title="즉시 새로고침">🔄</button>
             <span class="section-desc">최근 3일간 수정</span>
           </div>
         </div>
@@ -954,28 +956,39 @@
       loadRecentFiles();
     }
 
-    // 최근 업데이트 문서 불러오기 로직 (구글 API URL 호환성 보장 버전)
+    // 강력한 캐시 회피 처리가 적용된 최신 문서 불러오기 로직
     async function loadRecentFiles() {
       const contentEl = document.getElementById('resultsContent');
-      const threeDaysAgoTime = Date.now() - 3 * 24 * 60 * 60 * 1000;
+      contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최신 데이터를 불러오는 중...</p>';
       
+      const threeDaysAgoTime = Date.now() - 3 * 24 * 60 * 60 * 1000;
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
       let allFiles = [];
 
       try {
-        const timestamp = Date.now();
+        const timestamp = new Date().getTime();
+        
+        // 구글 엣지 서버 캐시를 강력하게 무시하는 헤더 적용
+        const fetchOptions = {
+          cache: 'no-store',
+          headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+          }
+        };
+
         if (accessToken) {
+          fetchOptions.headers['Authorization'] = `Bearer ${accessToken}`;
           const requests = accessibleFolders.map(folderId => {
             const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`;
-            const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&fields=files(id,name,webViewLink,mimeType,modifiedTime)&_cb=${timestamp}`;
-            return fetch(url, { 
-              headers: { Authorization: `Bearer ${accessToken}` },
-              cache: 'no-store'
-            })
-            .then(r => r.json())
-            .catch(() => ({ files: [] }));
+            // _cb 대신 _t 타임스탬프 부여 & pageSize 15로 증가
+            const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=15&fields=files(id,name,webViewLink,mimeType,modifiedTime)&_t=${timestamp}`;
+            return fetch(url, fetchOptions)
+              .then(r => r.json())
+              .catch(() => ({ files: [] }));
           });
 
           const results = await Promise.all(requests);
@@ -985,8 +998,8 @@
         } else {
           const requests = accessibleFolders.map(folderId => {
             const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`;
-            const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&fields=files(id,name,webViewLink,mimeType,modifiedTime)&key=${CONFIG.API_KEY}&_cb=${timestamp}`;
-            return fetch(url, { cache: 'no-store' })
+            const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=15&fields=files(id,name,webViewLink,mimeType,modifiedTime)&key=${CONFIG.API_KEY}&_t=${timestamp}`;
+            return fetch(url, fetchOptions)
               .then(r => r.json())
               .catch(() => ({ files: [] }));
           });
@@ -997,16 +1010,28 @@
           });
         }
 
+        // 예외 제외 파일 필터링
         if (CONFIG.EXCLUDE_FILE_IDS && CONFIG.EXCLUDE_FILE_IDS.length > 0) {
           allFiles = allFiles.filter(file => !CONFIG.EXCLUDE_FILE_IDS.includes(file.id));
         }
 
-        // 최근 3일 이내 파일 필터링
+        // 최근 3일 이내에 수정된 파일만 확실히 필터링
         allFiles = allFiles.filter(file => file.modifiedTime && new Date(file.modifiedTime).getTime() >= threeDaysAgoTime);
 
-        // 최신순 정렬
+        // 정렬 시 동일 파일(교차 폴더 등) 중복 방지를 위한 Set 사용
         allFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
-        allFiles = allFiles.slice(0, 10);
+        
+        const uniqueFiles = [];
+        const fileIds = new Set();
+        for (const file of allFiles) {
+          if (!fileIds.has(file.id)) {
+            fileIds.add(file.id);
+            uniqueFiles.push(file);
+          }
+        }
+        
+        // 최종 중복 제거된 최신 파일 10개만 추출
+        allFiles = uniqueFiles.slice(0, 10);
 
         if (allFiles.length > 0) {
           let html = '<ul class="recent-results-list">';
@@ -1035,7 +1060,7 @@
         }
       } catch (err) {
         console.error("최근 파일 로드 오류:", err);
-        contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 3일간 업데이트된 문서가 없습니다.</p>';
+        contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">문서 갱신 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.</p>';
       }
     }
   </script>
