@@ -1,1160 +1,181 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>다정부부한의원 업무 대시보드</title>
-  <!-- 
-    ====================================================
-    * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-12 21:05:50
-    * 주요내용: 구글 드라이브 연동, 출퇴근 기록, 임시 공지, 근무 달력 동기화
-    * UI 변경: DESK 근무자(🖥️), 근무 OFF(🌴) 아이콘 반영
-    ====================================================
-  -->
-  <script src="https://accounts.google.com/gsi/client" async defer></script>
-  <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    body { background-color: #121212; color: #F3F4F6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 24px 20px; font-size: 13px; }
-    
-    .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 16px; }
-    .brand-group { display: flex; align-items: flex-end; gap: 16px; }
-    .header-logo { height: 90px; width: auto; display: block; filter: invert(1) grayscale(100%) brightness(200%); }
-    .title { font-size: 34px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px; line-height: 1; margin-bottom: 4px; }
-    
-    .auth-btn-group { display: flex; gap: 10px; align-items: center; }
-    .role-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #2A2A2A; border: 1px solid #4B5563; color: #E5E7EB; }
-    .btn-login { padding: 6px 14px; background: #2563EB; color: #FFF; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 12.5px; }
-    .btn-login:hover { background: #1D4ED8; }
-    .btn-logout { padding: 6px 14px; background: #2A2A2A; color: #E5E7EB; border: 1px solid #4B5563; border-radius: 5px; cursor: pointer; display: none; font-size: 12.5px; }
-    .btn-logout:hover { background: #374151; }
-    
-    .top-layout-grid { display: grid; grid-template-columns: 1fr 0.85fr 1.8fr; gap: 12px; margin-bottom: 16px; align-items: stretch; }
-    .mid-widgets-col { display: flex; flex-direction: column; gap: 12px; justify-content: space-between; }
-    
-    .notice-board-section { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-    .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-    .section-title-group { display: flex; align-items: baseline; gap: 6px; }
-    .notice-label { font-size: 13px; font-weight: bold; color: #FBBF24; }
-    .section-desc { font-size: 11px; color: #D1D5DB; }
-    
-    .notice-list-container { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; flex-grow: 1; max-height: 420px; overflow-y: auto; }
-    .notice-item-row { display: flex; justify-content: space-between; align-items: center; background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
-    .notice-content-wrap { display: flex; align-items: center; gap: 6px; overflow: hidden; }
-    .new-badge { background-color: #EF4444; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; animation: pulse 1.5s infinite; }
-    .today-badge { background-color: #D97706; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; margin-right: 4px; animation: pulse 1.5s infinite; }
-    @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
-    .notice-text { color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
-    .notice-empty { color: #9CA3AF; font-size: 11.5px; text-align: center; padding: 10px 0; }
-    
-    .notice-input-area { display: flex; gap: 6px; align-items: center; border-top: 1px solid #374151; padding-top: 8px; }
-    .notice-input { flex-grow: 1; border: 1px solid #4B5563; border-radius: 4px; padding: 5px 8px; font-size: 12px; color: #FFFFFF; background-color: #121212; outline: none; }
-    .notice-input::placeholder { color: #9CA3AF; }
-    .notice-input:focus { background-color: #1E1E1E; border-color: #3B82F6; }
-    .notice-btn { padding: 5px 9px; font-size: 11px; font-weight: bold; border-radius: 4px; border: none; cursor: pointer; white-space: nowrap; }
-    .btn-save-row { background-color: #2563EB; color: #FFF; }
-    .btn-save-row:hover { background-color: #1D4ED8; }
-    .btn-del-row { background-color: #2A2A2A; color: #F87171; border: 1px solid #4B5563; font-size: 10.5px; padding: 3px 6px; }
+/**
+ * ====================================================
+ * 파일명: Code.gs (다정부부한의원 업무 대시보드 백엔드)
+ * 작성일시: 2026-09-12 21:25:00
+ * 주요 기능: 
+ *  1. Status 시트 출퇴근 데이터 조회 및 저장
+ *  2. Notices 시트 실시간 임시 공지 저장 및 불러오기
+ *  3. Calendar 시트 근무/업무/스페셜 이벤트 정규화 저장 및 조회
+ * ====================================================
+ */
 
-    .recent-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex: 1; }
-    .recent-results { max-height: 190px; overflow-y: auto; }
-    .recent-results-list { list-style: none; }
-    .recent-results-list li { padding: 5px 4px; border-bottom: 1px solid #374151; display: flex; align-items: center; justify-content: space-between; font-size: 11.5px; color: #E5E7EB; }
-    .recent-results-list a { color: #60A5FA; text-decoration: none; font-weight: 500; }
-    .recent-results-list a:hover { text-decoration: underline; }
-    .file-date { font-size: 10.5px; color: #9CA3AF; margin-left: 4px; }
-    
-    .attendance-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex: 1; }
-    .attendance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; flex-grow: 1; align-content: center; }
-    .member-card { background-color: #121212; border: 1px solid #374151; border-radius: 6px; padding: 5px 6px; display: flex; align-items: center; justify-content: space-between; }
-    .member-name { font-size: 11.5px; font-weight: bold; color: #FFFFFF; white-space: nowrap; }
-    .btn-toggle-att { padding: 3px 6px; font-size: 10.5px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; white-space: nowrap; }
-    .state-in { background-color: #064E3B; color: #34D399; border: 1px solid #059669; }
-    .state-out { background-color: #7F1D1D; color: #FCA5A5; border: 1px solid #DC2626; }
-
-    .calendar-pane { background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 14px 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; flex-direction: column; height: 100%; color: #111827; }
-    .cal-header-nav { display: flex; align-items: center; gap: 6px; }
-    .cal-nav-btn { background: #FFFFFF; border: 1px solid #D1D5DB; color: #374151; border-radius: 4px; padding: 3px 8px; font-size: 12px; cursor: pointer; font-weight: bold; }
-    .cal-nav-btn:hover { background: #F3F4F6; }
-    .cal-title-text { font-size: 15px; font-weight: bold; color: #111827; min-width: 100px; text-align: center; }
-    
-    .cal-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 12px; table-layout: fixed; flex-grow: 1; }
-    .cal-table th { color: #4B5563; padding: 6px 2px; text-align: center; font-weight: bold; font-size: 12px; border-bottom: 2px solid #E5E7EB; background-color: #F3F4F6; }
-    .cal-table th.sun { color: #DC2626; }
-    .cal-table th.sat { color: #2563EB; }
-    
-    .cal-table td { height: 86px; border: 1px solid #E5E7EB; background-color: #FFFFFF; vertical-align: top; padding: 3px; cursor: pointer; transition: background 0.15s; overflow: hidden; }
-    .cal-table td:hover { background-color: #F3F4F6; }
-    .cal-table td.empty { background-color: #F9FAFB; cursor: default; border-color: transparent; }
-    
-    .cal-cell-header { display: flex; align-items: center; justify-content: flex-end; gap: 2px; margin-bottom: 2px; flex-wrap: wrap; }
-    .cal-date-num { font-size: 11px; font-weight: bold; color: #374151; line-height: 1; margin-right: auto; }
-    
-    .cal-table td.is-sun .cal-date-num { color: #DC2626; }
-    .cal-table td.is-sat .cal-date-num { color: #2563EB; }
-    .cal-table td.is-halfday .cal-date-num { color: #2563EB !important; }
-    .cal-table td.is-holiday .cal-date-num { color: #DC2626 !important; }
-    .cal-table td.is-today { background-color: #EFF6FF; border: 2px solid #3B82F6; }
-    .cal-table td.is-today .cal-date-num { color: #1D4ED8; }
-    
-    .cal-slot-inline { display: inline-flex; align-items: center; gap: 1px; font-size: 8.5px; font-weight: bold; background: #F3F4F6; padding: 0.5px 2px; border-radius: 2px; border: 1px solid #E5E7EB; }
-    .cal-slot-label { font-size: 8.5px; margin-right: 0.5px; line-height: 1; }
-    .cal-task-tag { font-size: 9.5px; color: #B45309; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 3px; padding: 1px 3px; white-space: normal; word-break: break-all; display: block; line-height: 1.2; font-weight: 400; margin-top: 2px; text-align: right; }
-
-    .badge-sun { background-color: #EC4899; color: #FFF; box-shadow: 0 1px 2px rgba(236,72,153,0.4); } 
-    .badge-ji  { background-color: #10B981; color: #FFF; box-shadow: 0 1px 2px rgba(16,185,129,0.4); } 
-    .badge-yun { background-color: #F59E0B; color: #FFF; box-shadow: 0 1px 2px rgba(245,158,11,0.4); } 
-    .badge-hee { background-color: #8B5CF6; color: #FFF; box-shadow: 0 1px 2px rgba(139,92,246,0.4); } 
-    .badge-soo { background-color: #3B82F6; color: #FFF; box-shadow: 0 1px 2px rgba(59,130,246,0.4); } 
-    .badge-joo { background-color: #EF4444; color: #FFF; box-shadow: 0 1px 2px rgba(239,68,68,0.4); } 
-
-    .mini-badge { display: inline-flex; width: 13px; height: 13px; border-radius: 50%; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; flex-shrink: 0; }
-
-    .modal-badge-container { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
-    .select-badge { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: bold; cursor: pointer; border: 2px solid #4B5563; opacity: 0.25; filter: grayscale(80%); transition: all 0.2s; user-select: none; }
-    .select-badge:hover { opacity: 0.6; filter: grayscale(30%); }
-    .select-badge.selected { opacity: 1 !important; filter: none !important; border-color: #FFFFFF !important; transform: scale(1.12); box-shadow: 0 0 10px rgba(255,255,255,0.6); }
-
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; display: none; }
-    .modal-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 20px 24px; width: 360px; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-    .modal-msg { font-size: 14px; color: #FFFFFF; margin-bottom: 12px; line-height: 1.4; font-weight: bold; }
-    .modal-input-group { margin-bottom: 10px; }
-    .modal-label { font-size: 11.5px; color: #D1D5DB; margin-bottom: 4px; display: block; font-weight: bold; }
-    .modal-field { width: 100%; border: 1px solid #4B5563; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; color: #FFFFFF; background-color: #121212; outline: none; }
-    .modal-field:focus { border-color: #3B82F6; }
-    
-    .modal-inline-options { display: flex; gap: 16px; align-items: center; margin-bottom: 12px; background: #121212; padding: 8px 10px; border-radius: 6px; border: 1px solid #374151; }
-    .modal-checkbox-group { display: flex; align-items: center; gap: 6px; }
-    .modal-checkbox-group input { width: 15px; height: 15px; cursor: pointer; }
-    .modal-checkbox-group label { font-size: 11.5px; cursor: pointer; font-weight: bold; }
-
-    .modal-btn-group { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
-    .modal-btn { padding: 6px 14px; font-size: 12px; font-weight: bold; border-radius: 5px; border: none; cursor: pointer; }
-    .modal-btn-confirm { background-color: #2563EB; color: #FFF; }
-    .modal-btn-cancel { background-color: #374151; color: #E5E7EB; }
-    
-    .toast-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1100; display: none; }
-    .toast-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 16px 24px; text-align: center; font-size: 14px; color: #FFFFFF; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
-    
-    .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 16px; }
-    .column { background-color: #1E1E1E; border-radius: 8px; padding: 12px; border: 1px solid #374151; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
-    .column-header { padding: 5px 10px; border-radius: 4px; font-size: 14px; font-weight: 700; margin-bottom: 10px; display: inline-block; width: 100%; }
-    .column-header a { color: inherit; text-decoration: none; display: flex; justify-content: space-between; align-items: center; }
-    .column-subtext { font-size: 10.5px; font-weight: normal; color: #D1D5DB; margin-top: 2px; display: block; }
-    
-    .bg-blue { background-color: #1E3A8A; color: #93C5FD; }
-    .bg-green { background-color: #064E3B; color: #6EE7B7; }
-    .bg-teal { background-color: #134E4A; color: #5EEAD4; }
-    .bg-purple { background-color: #581C87; color: #D8B4FE; }
-    .bg-yellow { background-color: #78350F; color: #FDE047; }
-    
-    .link-list { list-style: none; }
-    .link-item { margin-bottom: 3px; }
-    .link-item a { display: flex; align-items: center; gap: 6px; padding: 5px 6px; color: #E5E7EB; text-decoration: none; font-size: 12px; border-radius: 4px; }
-    .link-item a:hover { background-color: #374151; color: #FFFFFF; }
-    .locked { opacity: 0.3; pointer-events: none; filter: grayscale(1); }
-
-    @media (max-width: 1200px) {
-      .top-layout-grid { grid-template-columns: 1fr; }
-      .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-  </style>
-</head>
-<body>
-
-  <div id="customModal" class="modal-overlay">
-    <div class="modal-box">
-      <div id="modalMsg" class="modal-msg">메시지 내용</div>
-      <div id="modalCustomBody"></div>
-      <div class="modal-btn-group">
-        <button id="modalConfirmBtn" class="modal-btn modal-btn-confirm">확인</button>
-        <button id="modalCancelBtn" class="modal-btn modal-btn-cancel">취소</button>
-      </div>
-    </div>
-  </div>
-
-  <div id="toastModal" class="toast-overlay">
-    <div id="toastMsg" class="toast-box">완료 메시지</div>
-  </div>
-
-  <div class="header">
-    <div class="brand-group">
-      <img src="logo.png" alt="다정부부한의원" class="header-logo">
-      <h1 class="title">업무 대시보드</h1>
-    </div>
-    <div class="auth-btn-group">
-      <span id="userStatus" class="role-badge">🔒 01 전직원 접근 가능</span>
-      <button id="btnLogin" class="btn-login" onclick="handleAuthClick()">구글 로그인</button>
-      <button id="btnLogout" class="btn-logout" onclick="handleSignoutClick()">로그아웃</button>
-    </div>
-  </div>
-
-  <div class="top-layout-grid">
-    
-    <div class="notice-board-section">
-      <div>
-        <div class="section-header-row">
-          <div class="section-title-group">
-            <span class="notice-label">📌 임시 공지</span>
-            <span class="section-desc">원내 실시간 메모 공간</span>
-          </div>
-        </div>
-        <div id="noticeListContainer" class="notice-list-container"></div>
-      </div>
-      <div class="notice-input-area">
-        <input type="text" id="newNoticeInput" class="notice-input" placeholder="새로운 임시 공지 입력...">
-        <button class="notice-btn btn-save-row" onclick="addNewNotice()">저장</button>
-      </div>
-    </div>
-
-    <div class="mid-widgets-col">
-      <div class="recent-pane">
-        <div class="section-header-row" style="margin-bottom: 6px;">
-          <div class="section-title-group" style="display: flex; align-items: center; gap: 8px;">
-            <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">📢 최근 업데이트 문서</span>
-            <button onclick="loadRecentFiles()" style="background: none; border: none; cursor: pointer; font-size: 12px; filter: grayscale(100%); transition: filter 0.2s;" onmouseover="this.style.filter='none'" onmouseout="this.style.filter='grayscale(100%)'" title="즉시 새로고침">🔄</button>
-            <span class="section-desc">최신 업데이트 10건</span>
-          </div>
-        </div>
-        <div id="resultsContent" class="recent-results">
-          <p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최신 데이터를 불러오는 중...</p>
-        </div>
-      </div>
-
-      <div class="attendance-pane">
-        <div class="section-header-row" style="margin-bottom: 6px;">
-          <div class="section-title-group">
-            <span style="font-size: 13px; font-weight: bold; color: #60A5FA;">⏰ 출퇴근 기록</span>
-            <span class="section-desc">클릭 시 교대 기록</span>
-          </div>
-        </div>
-        <div class="attendance-grid" id="attendanceGrid"></div>
-      </div>
-    </div>
-
-    <div class="calendar-pane">
-      <div class="section-header-row">
-        <div class="section-title-group">
-          <span style="font-size: 14px; font-weight: bold; color: #1D4ED8;">📅 근무 & 업무 달력</span>
-          <span class="section-desc" style="color: #6B7280;">날짜 클릭 시 입력/수정</span>
-        </div>
-        <div class="cal-header-nav">
-          <button class="cal-nav-btn" onclick="moveCalendarMonth(-1)">◀</button>
-          <span id="calTitle" class="cal-title-text">2026년 9월</span>
-          <button class="cal-nav-btn" onclick="moveCalendarMonth(1)">▶</button>
-          <button class="cal-nav-btn" onclick="resetCalendarToToday()">오늘</button>
-        </div>
-      </div>
-      <table class="cal-table">
-        <thead>
-          <tr>
-            <th class="sun">일</th>
-            <th>월</th>
-            <th>화</th>
-            <th>수</th>
-            <th>목</th>
-            <th>금</th>
-            <th class="sat">토</th>
-          </tr>
-        </thead>
-        <tbody id="calTbody"></tbody>
-      </table>
-    </div>
-
-  </div>
-
-  <div class="dashboard-grid">
-    <div class="column" id="colReception">
-      <div class="column-header bg-blue">
-        <a href="https://drive.google.com/drive/folders/1w2C4X7dtGdOdLnBkkGLqWW18C3z5HSQG?usp=sharing" target="_blank">
-          <span>🏥 접수 / 치료</span>
-          <span style="font-size: 11px;">↗</span>
-        </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
-      </div>
-      <ul class="link-list">
-        <li class="link-item"><a href="https://docs.google.com/document/d/1_JetPI2A6iw_0WccOxRhg7_Pv3ve54WfOZLOu5osWvw/edit?usp=sharing" target="_blank">📢 전체 공지 사항</a></li>
-        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1DszbN7mLi7BCin_2k_B4fxuMQ3emfLfYhcuNe6cR0uw/edit?usp=sharing" target="_blank">📋 처방 조제 일지</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1ccJVPXRdGn2dCb3uieWWpUwgVoUatSsgwCR4NppI_sM/edit?usp=sharing" target="_blank">💰 급여 관련 공지 사항</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1Tb7IIrIo9Di2ydio2AOcadQ2EIMyYbwrAxVDVCWXzRY/edit?usp=sharing" target="_blank">💻 한의맥 관련</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1qfvsEQM2JoY2Twkz09ni8yUtr_FLR39bsgKbgbDVPcE/edit?usp=sharing" target="_blank">🚗 자보 관련 자료</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1kGHYJiskVAVvq-kyZ5W5uDUdBWjSHoDslweRJqE45YQ/edit?usp=sharing" target="_blank">📝 한의원 작업 일지</a></li>
-        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/10kpCXQSA2lhrbvPle6ZpbupYHTElg1EwCRlIP-mmTPI/edit?usp=sharing" target="_blank">📅 연간 일정표</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1yP79XXA35h0dR-lHKH5WBsDxpq4zKTuuuAEScBRcinw/edit?usp=sharing" target="_blank">📋 근로능력평가 진단서 발급 방법</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1nbiAqkSsLphKycZR5egqJnOf1ChHjw_q5Sr1ggBLDpg/edit?usp=sharing" target="_blank">👶 난임사업 프로세스</a></li>
-        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1Tvi_kzA3XKsFE2jmrHOSmCLWEJEwHaLBmElL56MsIRg/edit?usp=sharing" target="_blank">🎓 법정의무교육</a></li>
-      </ul>
-    </div>
-
-    <div class="column" id="colManual">
-      <div class="column-header bg-green">
-        <a href="https://drive.google.com/drive/folders/1qFpt6Q4TAP9Ko1LdsJ5e3lW4MZlTy58D?usp=sharing" target="_blank">
-          <span>📜 매뉴얼</span>
-          <span style="font-size: 11px;">↗</span>
-        </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
-      </div>
-      <ul class="link-list">
-        <li class="link-item"><a href="https://docs.google.com/document/d/1DH3-Yk87V5O7E_XTp0aqlJ-wrvFsQ7LckNARUcUE3UI/edit?usp=sharing" target="_blank">📖 업무 대시보드 사용법</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1_iBcUIGZ_wpPLXuJa7iKiCKI67h-txshWyXSJ9Yaj4E/edit?usp=sharing" target="_blank">⚡ 치료실 기기 매뉴얼</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1VtILxAfSzcLN7xB3krELwz1e839_kUGRxepguLIHn9I/edit?usp=sharing" target="_blank">🖨️ 스캐너 사용법</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1N6O16DZboVkSp6WRkMNI09IEUjpFARNRDdE__HhKu5I/edit?usp=sharing" target="_blank">📠 FAX 사용법</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1SclAzFjX73qOkNt8gfIDSgYx4JVD5iHM7XyP9jIoqRM/edit?usp=sharing" target="_blank">💳 카드단말기 관련</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1QVb4FkcNvcdGV2dBUhLG49xNH8gwBDd7DQ9fB4nW5y8/edit?usp=sharing" target="_blank">📦 안전하게 택배 발송하기</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1psZ-QnxTu5s5ujJNeAR3Z_HL4P88GJAj-bify8szb2U/edit?usp=sharing" target="_blank">💊 공진단 매뉴얼</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1MD_7XjpLbnZBPB1YqZznNsUbkiGCwizSnjKHjRcqgso/edit?usp=sharing" target="_blank">🧹 ICT 청소 매뉴얼</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1ArijjS76BRt7KHOpmb7VweXek20ZFssSte5OlDRH9cE/edit?usp=sharing" target="_blank">🛠️ 기기구 관리 및 수리법</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/14l4L_4TjshMMJHta0OKBWfzZAbwJzOPHiZAL5VDSZHM/edit?usp=sharing" target="_blank">🔥 난방 설명서</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1sO977hK2ir0aClN5x6xEwRI26mphKtdG9CMlByihNL0/edit?usp=sharing" target="_blank">❄️ 에어컨 관련</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/19PDNhI9ljimpZfriqSrskKmnL-KqBaCFMzBQ65blIqA/edit?usp=sharing" target="_blank">⚡ 정전시 매뉴얼</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1yUmFgQDZw-kHSLFxaO-qtuObpKZPW70TU_jW9KQNcTU/edit?usp=sharing" target="_blank">☕ 커피머신</a></li>
-      </ul>
-    </div>
-
-    <div class="column locked" id="colDecoction">
-      <div class="column-header bg-teal">
-        <a href="https://drive.google.com/drive/folders/1sYdNudJ3Y1wWMhrvIM39M4hmKLryo9NY?usp=sharing" target="_blank">
-          <span>🍶 탕전실</span>
-          <span style="font-size: 11px;">↗</span>
-        </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
-      </div>
-      <ul class="link-list">
-        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1GHiMHhcsJtPRw0euHWe3ILSjCViXl8SOeRmCKykBNFo/edit?usp=sharing" target="_blank">📅 탕전 스케줄(홍박진영 외_입력금지)</a></li>
-        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1ZsSm2XH8quFJ8Q3lgs9hq1zjLd5xavGnvhWx3xUSNEo/edit?usp=sharing" target="_blank">📦 한약재 재고 관리</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1PWbsh2Y_XuyPYpz2dvb7fnBSKjgmHSzk44dwMFjPIq8/edit?usp=sharing" target="_blank">📖 탕전실 업무일지</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1mUL9vFPo7Yezb0wrXOgAa1R_6k-uwYim2tA7D7VAlw4/edit?usp=sharing" target="_blank">📜 탕전 매뉴얼</a></li>
-      </ul>
-    </div>
-
-    <div class="column locked" id="colDoctor">
-      <div class="column-header bg-purple">
-        <a href="https://drive.google.com/drive/folders/1caciuhYkxjhIC3zQi6b4ZPLI4huSNFz_?usp=sharing" target="_blank">
-          <span>🩺 진료</span>
-          <span style="font-size: 11px;">↗</span>
-        </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
-      </div>
-      <ul class="link-list">
-        <li class="link-item"><a href="https://docs.google.com/document/d/1HATTWrOuyAAYbZhnhOsPbDaunzaIcouQm6Y3PXOhlJc/edit?usp=sharing" target="_blank">📢 진료진 공지</a></li>
-        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1w2e4esHCPgNZATqvx8FmT_pcz4LYOpUVwbqLguKKH0o/edit?usp=sharing" target="_blank">💊 복약 설명 문구</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1zO9iIyPdefBfatrRV8VMSEI5LSoHtOWVrV3OcapRJs0/edit?usp=sharing" target="_blank">🩺 주요 질환 설명</a></li>
-        <li class="link-item"><a href="https://docs.google.com/document/d/1EX9KY80ugtWsvf1YPXd8xjURbGwN_0U3HFzcG7DkC3Y/edit?usp=sharing" target="_blank">🌿 탕전 방법과 약재-한의사</a></li>
-      </ul>
-    </div>
-
-    <div class="column locked" id="colAdmin">
-      <div class="column-header bg-yellow">
-        <a href="https://drive.google.com/drive/folders/1HE5f_uSjP8v-lSeO5yTgherYXjt24_yX?usp=sharing" target="_blank">
-          <span>💰 경영</span>
-          <span style="font-size: 11px;">↗</span>
-        </a>
-        <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동, 검색/제미나이 사용 가능</span>
-      </div>
-      <ul class="link-list">
-        <li class="link-item"><a href="https://docs.google.com/document/d/14KpBGM7Ow-CYR-CsTDBMJoyTFkjoXyhPlHUWqTp0u6c/edit?usp=sharing" target="_blank">💵 급여 계산 및 명세서 작성</a></li>
-        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/14JXATBgZ4A6SDRQW9HdVLsgUhzUDkPMaxH3P1wmj-KE/edit?usp=sharing" target="_blank">⏰ 근태기록</a></li>
-      </ul>
-    </div>
-  </div>
-
-  <script>
-    /* 
-     * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-12 21:05:50
-     */
-    const CONFIG = {
-      API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
-      CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
-      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbzlwIShRGBMbUVEek94i_fUZL9sDMeLKSPwSMGb17fZUtzG7xvrKjqzVZdEWKHCGDU36w/exec',
-      MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
-      
-      MEMBER_SHORT: {
-        '김선미': { char: '선', cls: 'badge-sun' },
-        '김희정': { char: '희', cls: 'badge-hee' },
-        '박지희': { char: '지', cls: 'badge-ji' },
-        '이수정': { char: '수', cls: 'badge-soo' },
-        '이윤영': { char: '윤', cls: 'badge-yun' },
-        '홍주란': { char: '주', cls: 'badge-joo' }
-      },
-      
-      EXCLUDE_FILE_IDS: [
-        '1ZsSm2XH8quFJ8Q3lgs9hq1zjLd5xavGnvhWx3xUSNEo',
-        '1GHiMHhcsJtPRw0euHWe3ILSjCViXl8SOeRmCKykBNFo',
-        '1DszbN7mLi7BCin_2k_B4fxuMQ3emfLfYhcuNe6cR0uw'
-      ],
-
-      ACCOUNTS: {
-        DECOCTION: ['samepsl89@gmail.com', 'alexkkansu@gmail.com'],
-        DOCTOR: ['crammy55@naver.com'],
-        ADMIN: ['amercury74@gmail.com', '247stillmoon@gmail.com']
-      },
-      FOLDERS: {
-        STAFF: '1w2C4X7dtGdOdLnBkkGLqWW18C3z5HSQG',
-        MANUAL: '1qFpt6Q4TAP9Ko1LdsJ5e3lW4MZlTy58D',
-        DECOCTION: '1sYdNudJ3Y1wWMhrvIM39M4hmKLryo9NY',
-        DOCTOR: '1caciuhYkxjhIC3zQi6b4ZPLI4huSNFz_',
-        ADMIN: '1HE5f_uSjP8v-lSeO5yTgherYXjt24_yX'
-      }
-    };
-
-    let tokenClient;
-    let accessToken = null;
-    let accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
-    let attendanceStates = {};
-    let noticeList = [];
-    let calendarData = {};
-
-    let calCurrentDate = new Date();
-
-    window.onload = async function() {
-      CONFIG.MEMBERS.forEach(name => { attendanceStates[name] = 'OUT'; });
-      renderAttendanceGrid();
-      loadNotices();
-      renderCalendar();
-
-      tokenClient = google.accounts.oauth2.initTokenClient({
-        client_id: CONFIG.CLIENT_ID,
-        scope: 'https://www.googleapis.com/auth/drive.readonly https://www.googleapis.com/auth/userinfo.email',
-        callback: async (tokenResponse) => {
-          if (tokenResponse.access_token) {
-            accessToken = tokenResponse.access_token;
-            
-            const expiresAt = Date.now() + 3500 * 1000;
-            localStorage.setItem('dashboard_access_token', accessToken);
-            localStorage.setItem('dashboard_token_expires', expiresAt.toString());
-
-            document.getElementById('btnLogin').style.display = 'none';
-            document.getElementById('btnLogout').style.display = 'inline-block';
-            
-            const userEmail = await fetchUserEmail(accessToken);
-            if (userEmail) {
-              localStorage.setItem('dashboard_user_email', userEmail);
-              applyRoleByEmail(userEmail);
-            }
-          }
-        },
-      });
-
-      const savedEmail = localStorage.getItem('dashboard_user_email');
-      const savedToken = localStorage.getItem('dashboard_access_token');
-      const savedExpires = localStorage.getItem('dashboard_token_expires');
-
-      if (savedEmail) {
-        document.getElementById('btnLogin').style.display = 'none';
-        document.getElementById('btnLogout').style.display = 'inline-block';
-        
-        if (savedToken && savedExpires && Date.now() < parseInt(savedExpires)) {
-          accessToken = savedToken;
-        }
-        applyRoleByEmail(savedEmail);
+function doGet(e) {
+  // [작성일시: 2026-09-12 21:25:00] 데이터 조회 및 웹 앱 JSON 반환
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  // 1. Status 시트 읽기
+  var statusSheet = ss.getSheetByName("Status") || ss.insertSheet("Status");
+  var statusRows = statusSheet.getDataRange().getValues();
+  var statuses = {};
+  for (var i = statusRows.length - 1; i >= 1; i--) {
+    var name = String(statusRows[i][1]).trim();
+    var timeStr = String(statusRows[i][2]).trim();
+    if (name && !statuses[name]) {
+      if (timeStr.indexOf('~') !== -1 && timeStr.split('~')[1].trim() !== '') {
+        statuses[name] = 'OUT';
       } else {
-        await loadRecentFiles();
-        initGoogleOneTap();
-      }
-
-      await refreshAllData();
-
-      setInterval(async () => {
-        if (!document.hidden) {
-          await checkAndRefreshToken();
-          await loadRecentFiles();
-        }
-      }, 5 * 60 * 1000);
-
-      setInterval(async () => {
-        if (!document.hidden) {
-          await syncServerData();
-          renderAttendanceGrid();
-          loadNotices();
-          renderCalendar();
-        }
-      }, 60 * 1000);
-
-      document.addEventListener('visibilitychange', async () => {
-        if (!document.hidden) {
-          await refreshAllData();
-        }
-      });
-    };
-
-    async function checkAndRefreshToken() {
-      const savedExpires = localStorage.getItem('dashboard_token_expires');
-      if (savedExpires && Date.now() > parseInt(savedExpires) - 300000) {
-        if (tokenClient) {
-          tokenClient.requestAccessToken({ prompt: 'none' });
-        }
+        statuses[name] = 'IN';
       }
     }
+  }
 
-    async function refreshAllData() {
-      await syncServerData();
-      renderAttendanceGrid();
-      loadNotices();
-      renderCalendar();
-      await loadRecentFiles();
+  // 2. Notices 시트 읽기
+  var noticeSheet = ss.getSheetByName("Notices") || ss.insertSheet("Notices");
+  var noticeVal = noticeSheet.getRange(1, 1).getValue();
+  var notices = [];
+  try {
+    if (noticeVal) notices = JSON.parse(noticeVal);
+  } catch(err) { notices = []; }
+
+  // 3. Calendar 시트 읽기 (스페셜 이벤트 열 추가 반영 - [작성일시: 2026-09-12 21:25:00])
+  var calSheet = ss.getSheetByName("Calendar") || ss.insertSheet("Calendar");
+  var calDisplayRows = calSheet.getDataRange().getDisplayValues();
+  var calRows = calSheet.getDataRange().getValues();
+  
+  var calendar = {};
+  for (var j = 0; j < calRows.length; j++) {
+    var rawDateStr = calDisplayRows[j][0] ? String(calDisplayRows[j][0]).trim() : "";
+    var dateKey = "";
+    
+    if (calRows[j][0] instanceof Date) {
+      dateKey = Utilities.formatDate(calRows[j][0], Session.getScriptTimeZone(), "yyyy-MM-dd");
+    } else {
+      dateKey = rawDateStr;
     }
 
-    function initGoogleOneTap() {
-      google.accounts.id.initialize({
-        client_id: CONFIG.CLIENT_ID,
-        callback: handleOneTapCallback,
-        auto_select: true
-      });
-      google.accounts.id.prompt();
-    }
-
-    async function handleOneTapCallback(response) {
-      try {
-        const base64Url = response.credential.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        
-        const payload = JSON.parse(jsonPayload);
-        const userEmail = payload.email ? payload.email.toLowerCase() : '';
-
-        if (userEmail) {
-          localStorage.setItem('dashboard_user_email', userEmail);
-          document.getElementById('btnLogin').style.display = 'none';
-          document.getElementById('btnLogout').style.display = 'inline-block';
-          applyRoleByEmail(userEmail);
-          
-          tokenClient.requestAccessToken({ prompt: 'none' });
-        }
-      } catch (e) {
-        console.error("One Tap 로그인 처리 오류:", e);
-      }
-    }
-
-    /* 
-     * 서버 데이터 동기화
-     * 작성일시: 2026-09-12 21:05:50
-     */
-    async function syncServerData() {
-      try {
-        const res = await fetch(`${CONFIG.ATTENDANCE_WEBAPP_URL}?_cb=${Date.now()}`);
-        const textData = await res.text();
-        const data = JSON.parse(textData);
-        
-        if (data && data.statuses) {
-          for (let name in data.statuses) {
-            if (CONFIG.MEMBERS.includes(name)) {
-              let val = String(data.statuses[name]).trim();
-              if (val === 'IN' || val === '출근') {
-                attendanceStates[name] = 'IN';
-              } else {
-                attendanceStates[name] = 'OUT';
-              }
-            }
-          }
-        }
-
-        if (data && data.notices) {
-          noticeList = data.notices;
-        }
-
-        if (data && data.calendar) {
-          for (let k in data.calendar) {
-            let item = data.calendar[k];
-            let isHol = (item.isHoliday === true || String(item.isHoliday).toUpperCase() === 'TRUE' || item.isHoliday === 1 || String(item.isHoliday) === '1');
-            let isHalf = (item.isHalfDay === true || String(item.isHalfDay).toUpperCase() === 'TRUE' || item.isHalfDay === 1 || String(item.isHalfDay) === '1');
-            
-            calendarData[k] = {
-              morningWorker: item.morningWorker !== undefined ? item.morningWorker : (item.worker || ""),
-              afternoonWorker: item.afternoonWorker !== undefined ? item.afternoonWorker : "",
-              task: item.task || "",
-              isHoliday: isHol,
-              isHalfDay: isHalf
-            };
-          }
-        }
-      } catch (e) {
-        console.error("서버 데이터 동기화 오류:", e);
-      }
-    }
-
-    function renderMemberBadgesHtml(workerStr) {
-      if (!workerStr) return '';
-      let names = workerStr.split(',').map(n => n.trim()).filter(n => n);
-      let html = '';
-      names.forEach(fullName => {
-        let info = CONFIG.MEMBER_SHORT[fullName];
-        if (!info) {
-          let foundKey = Object.keys(CONFIG.MEMBER_SHORT).find(k => k.includes(fullName) || CONFIG.MEMBER_SHORT[k].char === fullName);
-          if (foundKey) {
-            info = CONFIG.MEMBER_SHORT[foundKey];
-          } else {
-            info = { char: fullName.charAt(0), cls: 'badge-sun' };
-          }
-        }
-        html += `<span class="mini-badge ${info.cls}" title="${fullName}">${info.char}</span> `;
-      });
-      return html;
-    }
-
-    function renderCalendar() {
-      const year = calCurrentDate.getFullYear();
-      const month = calCurrentDate.getMonth();
-
-      document.getElementById('calTitle').innerText = `${year}년 ${month + 1}월`;
-
-      const firstDay = new Date(year, month, 1).getDay();
-      const lastDate = new Date(year, month + 1, 0).getDate();
-
-      const today = new Date();
-      const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-
-      const tbody = document.getElementById('calTbody');
-      tbody.innerHTML = '';
-
-      let dayCount = 1;
-      for (let i = 0; i < 6; i++) {
-        const tr = document.createElement('tr');
-        let hasDateInRow = false;
-
-        for (let j = 0; j < 7; j++) {
-          const td = document.createElement('td');
-
-          if ((i === 0 && j < firstDay) || dayCount > lastDate) {
-            td.className = 'empty';
-          } else {
-            hasDateInRow = true;
-            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayCount).padStart(2, '0')}`;
-            const isToday = (dateStr === todayStr);
-
-            if (j === 0) td.classList.add('is-sun');
-            if (j === 6) td.classList.add('is-sat');
-            if (isToday) td.classList.add('is-today');
-
-            let innerHtml = `<div class="cal-cell-header"><div class="cal-date-num">${dayCount}</div>`;
-
-            if (calendarData && calendarData[dateStr]) {
-              const item = calendarData[dateStr];
-              
-              if (item.isHoliday) td.classList.add('is-holiday');
-              if (item.isHalfDay) td.classList.add('is-halfday');
-
-              let mornStr = item.morningWorker || "";
-              let aftStr = item.afternoonWorker || "";
-
-              // 아이콘 반영: DESK(🖥️), OFF(🌴)
-              if (mornStr) {
-                innerHtml += `<span class="cal-slot-inline" title="DESK 근무: ${mornStr}"><span class="cal-slot-label">🖥️</span>${renderMemberBadgesHtml(mornStr)}</span>`;
-              }
-              if (aftStr) {
-                innerHtml += `<span class="cal-slot-inline" title="근무 OFF: ${aftStr}"><span class="cal-slot-label">🌴</span>${renderMemberBadgesHtml(aftStr)}</span>`;
-              }
-            }
-            innerHtml += `</div>`;
-
-            if (calendarData && calendarData[dateStr] && calendarData[dateStr].task) {
-              innerHtml += `<span class="cal-task-tag" title="업무: ${calendarData[dateStr].task}">📋 ${calendarData[dateStr].task}</span>`;
-            }
-
-            td.innerHTML = innerHtml;
-            const targetDateKey = dateStr;
-            const targetDayNum = dayCount;
-            td.onclick = () => openCalendarEditModal(targetDateKey, targetDayNum);
-
-            dayCount++;
-          }
-          tr.appendChild(td);
-        }
-        if (hasDateInRow) tbody.appendChild(tr);
-      }
-    }
-
-    function moveCalendarMonth(delta) {
-      calCurrentDate.setMonth(calCurrentDate.getMonth() + delta);
-      renderCalendar();
-    }
-
-    function resetCalendarToToday() {
-      calCurrentDate = new Date();
-      renderCalendar();
-    }
-
-    function openCalendarEditModal(dateKey, dayNum) {
-      const year = calCurrentDate.getFullYear();
-      const month = calCurrentDate.getMonth() + 1;
-      const currentVal = calendarData[dateKey] || { morningWorker: '', afternoonWorker: '', task: '', isHoliday: false, isHalfDay: false };
-
-      let currentMornList = currentVal.morningWorker ? currentVal.morningWorker.split(',').map(s => s.trim()) : [];
-      let currentAftList = currentVal.afternoonWorker ? currentVal.afternoonWorker.split(',').map(s => s.trim()) : [];
-
-      let badgeOptionsHtml = '';
-      CONFIG.MEMBERS.forEach(fullName => {
-        let info = CONFIG.MEMBER_SHORT[fullName];
-        badgeOptionsHtml += `<div class="select-badge ${info.cls}" data-name="${fullName}" onclick="toggleModalBadge(this)">${info.char}</div>`;
-      });
-
-      let badgeOptionsAftHtml = '';
-      CONFIG.MEMBERS.forEach(fullName => {
-        let info = CONFIG.MEMBER_SHORT[fullName];
-        badgeOptionsAftHtml += `<div class="select-badge ${info.cls}" data-name="${fullName}" onclick="toggleModalBadge(this)">${info.char}</div>`;
-      });
-
-      const bodyHtml = `
-        <div class="modal-inline-options">
-          <div class="modal-checkbox-group">
-            <input type="checkbox" id="calInputHoliday" ${currentVal.isHoliday ? 'checked' : ''} onchange="if(this.checked) document.getElementById('calInputHalfDay').checked = false;">
-            <label for="calInputHoliday" style="color:#FCA5A5;">🔴 휴무일</label>
-          </div>
-          <div class="modal-checkbox-group">
-            <input type="checkbox" id="calInputHalfDay" ${currentVal.isHalfDay ? 'checked' : ''} onchange="if(this.checked) document.getElementById('calInputHoliday').checked = false;">
-            <label for="calInputHalfDay" style="color:#60A5FA;">🔵 반일 근무</label>
-          </div>
-        </div>
-
-        <div class="modal-input-group">
-          <label class="modal-label">☀️ DESK 근무자 선택</label>
-          <div id="mornBadgeGroup" class="modal-badge-container">${badgeOptionsHtml}</div>
-        </div>
-
-        <div class="modal-input-group" style="margin-top: 10px;">
-          <label class="modal-label">🌙 근무 OFF 선택</label>
-          <div id="aftBadgeGroup" class="modal-badge-container">${badgeOptionsAftHtml}</div>
-        </div>
-
-        <div class="modal-input-group" style="margin-top: 12px;">
-          <label class="modal-label">📋 일일 업무 내용</label>
-          <input type="text" id="calInputTask" class="modal-field" placeholder="예: 한약재 재고 조사, 소독" value="${currentVal.task || ''}">
-        </div>
-      `;
-
-      showCustomModal(`${year}년 ${month}월 ${dayNum}일 근무/업무 입력`, bodyHtml, async function(confirmed) {
-        if (!confirmed) return;
-
-        const isHoliday = document.getElementById('calInputHoliday').checked;
-        const isHalfDay = document.getElementById('calInputHalfDay').checked;
-        
-        let mornSelected = [];
-        document.querySelectorAll('#mornBadgeGroup .select-badge.selected').forEach(el => {
-          mornSelected.push(el.getAttribute('data-name'));
-        });
-
-        let aftSelected = [];
-        document.querySelectorAll('#aftBadgeGroup .select-badge.selected').forEach(el => {
-          aftSelected.push(el.getAttribute('data-name'));
-        });
-
-        const morningWorker = mornSelected.join(', ');
-        const afternoonWorker = aftSelected.join(', ');
-        const task = document.getElementById('calInputTask').value.trim();
-
-        calendarData[dateKey] = { 
-          morningWorker: morningWorker, 
-          afternoonWorker: afternoonWorker, 
-          task: task, 
-          isHoliday: isHoliday, 
-          isHalfDay: isHalfDay 
-        };
-        renderCalendar();
-
-        showToast('💾 달력 일정을 저장 중입니다...');
-
-        try {
-          const payloadData = {
-            type: 'UPDATE_CALENDAR',
-            dateKey: dateKey,
-            morningWorker: morningWorker,
-            afternoonWorker: afternoonWorker,
-            worker: morningWorker,
-            task: task,
-            isHoliday: isHoliday,
-            isHalfDay: isHalfDay
-          };
-
-          await fetch(CONFIG.ATTENDANCE_WEBAPP_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(payloadData)
-          });
-
-          setTimeout(async () => {
-            let savedLocalVal = Object.assign({}, calendarData[dateKey]);
-            await syncServerData();
-            
-            if (savedLocalVal) {
-              calendarData[dateKey] = savedLocalVal;
-            }
-            
-            renderCalendar();
-            showToast('✅ 일정 저장이 완료되었습니다.');
-          }, 2000);
-
-        } catch (e) {
-          console.error("달력 저장 오류:", e);
-          showToast('일정 저장 중 오류가 발생했습니다.');
-        }
-      });
-
-      setTimeout(() => {
-        if (currentMornList.length > 0) {
-          document.querySelectorAll('#mornBadgeGroup .select-badge').forEach(badge => {
-            if (currentMornList.includes(badge.getAttribute('data-name'))) {
-              badge.classList.add('selected');
-            }
-          });
-        }
-        if (currentAftList.length > 0) {
-          document.querySelectorAll('#aftBadgeGroup .select-badge').forEach(badge => {
-            if (currentAftList.includes(badge.getAttribute('data-name'))) {
-              badge.classList.add('selected');
-            }
-          });
-        }
-      }, 50);
-    }
-
-    function toggleModalBadge(el) {
-      el.classList.toggle('selected');
-    }
-
-    async function updateServerNotices(newList) {
-      noticeList = newList;
-      loadNotices();
-
-      try {
-        await fetch(CONFIG.ATTENDANCE_WEBAPP_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: JSON.stringify({ type: 'UPDATE_NOTICES', notices: noticeList })
-        });
-        
-        setTimeout(async () => {
-          await syncServerData();
-          loadNotices();
-        }, 1000);
-
-      } catch (e) {
-        console.error("임시 공지 서버 저장 실패:", e);
-      }
-    }
-
-    function loadNotices() {
-      const container = document.getElementById('noticeListContainer');
-
-      if (!noticeList || noticeList.length === 0) {
-        container.innerHTML = '<div class="notice-empty">등록된 임시 공지가 없습니다.</div>';
-        return;
-      }
-
-      let html = '';
-      noticeList.forEach((item, index) => {
-        const newBadge = item.isNew ? '<span class="new-badge">NEW</span>' : '';
-        html += `
-          <div class="notice-item-row">
-            <div class="notice-content-wrap">
-              ${newBadge}
-              <span class="notice-text" title="${item.text}">${item.text}</span>
-            </div>
-            <button class="notice-btn btn-del-row" onclick="deleteNotice(${index})">삭제</button>
-          </div>
-        `;
-      });
-      container.innerHTML = html;
-    }
-
-    function addNewNotice() {
-      const input = document.getElementById('newNoticeInput');
-      const text = input.value.trim();
-
-      if (!text) {
-        showToast('⚠️ 공지 내용을 입력해주세요.');
-        return;
-      }
-
-      let currentNotices = [...noticeList];
-      currentNotices.forEach(item => item.isNew = false);
-      currentNotices.unshift({ text: text, isNew: true });
-
-      updateServerNotices(currentNotices);
-      input.value = '';
-      showToast('✅ 새로운 임시 공지가 최상단에 등록되었습니다.');
-    }
-
-    function deleteNotice(index) {
-      showCustomConfirm('해당 공지 내용을 삭제하시겠습니까?', function(confirmed) {
-        if (!confirmed) return;
-        let currentNotices = [...noticeList];
-        currentNotices.splice(index, 1);
-        updateServerNotices(currentNotices);
-        showToast('🗑️ 공지가 삭제되었습니다.');
-      });
-    }
-
-    function showCustomConfirm(message, onConfirm) {
-      showCustomModal(message, '', onConfirm);
-    }
-
-    function showCustomModal(titleMsg, customBodyHtml, onConfirm) {
-      const modal = document.getElementById('customModal');
-      const msgEl = document.getElementById('modalMsg');
-      const bodyEl = document.getElementById('modalCustomBody');
-      const confirmBtn = document.getElementById('modalConfirmBtn');
-      const cancelBtn = document.getElementById('modalCancelBtn');
-
-      msgEl.innerText = titleMsg;
-      bodyEl.innerHTML = customBodyHtml || '';
-      modal.style.display = 'flex';
-
-      const newConfirmBtn = confirmBtn.cloneNode(true);
-      const newCancelBtn = cancelBtn.cloneNode(true);
-      confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-      cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-
-      newConfirmBtn.onclick = function() {
-        modal.style.display = 'none';
-        onConfirm(true);
-      };
-      newCancelBtn.onclick = function() {
-        modal.style.display = 'none';
-        onConfirm(false);
+    if (dateKey && dateKey !== '일자Key' && dateKey !== '날짜Key' && dateKey !== '일자') {
+      calendar[dateKey] = {
+        morningWorker: calRows[j][1] ? String(calRows[j][1]) : "",
+        afternoonWorker: calRows[j][2] ? String(calRows[j][2]) : "",
+        worker: calRows[j][1] ? String(calRows[j][1]) : "",
+        task: calRows[j][3] ? String(calRows[j][3]) : "",
+        isHoliday: (calRows[j][4] === true || String(calRows[j][4]).toUpperCase() === 'TRUE'),
+        isHalfDay: (calRows[j][5] === true || String(calRows[j][5]).toUpperCase() === 'TRUE'),
+        specialEvent: calRows[j][6] ? String(calRows[j][6]) : ""
       };
     }
+  }
 
-    function showToast(message) {
-      const toast = document.getElementById('toastModal');
-      const msgEl = document.getElementById('toastMsg');
-      msgEl.innerText = message;
-      toast.style.display = 'flex';
-      setTimeout(() => { toast.style.display = 'none'; }, 1200);
-    }
+  var output = { statuses: statuses, notices: notices, calendar: calendar };
+  return ContentService.createTextOutput(JSON.stringify(output))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
-    function renderAttendanceGrid() {
-      const grid = document.getElementById('attendanceGrid');
-      grid.innerHTML = '';
+function doPost(e) {
+  // [작성일시: 2026-09-12 21:25:00] 데이터 입력 및 시트 저장 처리
+  try {
+    var data = JSON.parse(e.postData.contents);
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
 
-      CONFIG.MEMBERS.forEach(name => {
-        const currentState = attendanceStates[name] || 'OUT';
-        const nextActionLabel = (currentState === 'OUT') ? '출근' : '퇴근';
-        const btnClass = (currentState === 'OUT') ? 'state-in' : 'state-out';
-
-        const card = document.createElement('div');
-        card.className = 'member-card';
-        card.innerHTML = `
-          <span class="member-name">${name}</span>
-          <button id="btn-${name}" class="btn-toggle-att ${btnClass}" onclick="toggleAttendance('${name}')">${nextActionLabel}</button>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    function toggleAttendance(name) {
-      const currentState = attendanceStates[name] || 'OUT';
-      const targetAction = (currentState === 'OUT') ? '출근' : '퇴근';
-      const promptMsg = `${name} 님을 [${targetAction}] 처리하시겠습니까?`;
-
-      showCustomConfirm(promptMsg, function(confirmed) {
-        if (!confirmed) return;
-
-        attendanceStates[name] = (currentState === 'OUT') ? 'IN' : 'OUT';
-        renderAttendanceGrid();
-
-        const payload = JSON.stringify({ name: name, type: targetAction });
-
-        fetch(CONFIG.ATTENDANCE_WEBAPP_URL, {
-          method: 'POST',
-          mode: 'no-cors',
-          headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-          body: payload
-        })
-        .then(() => {
-          const timeStr = new Date().toLocaleTimeString('ko-KR', { hour: '2-digit', minute: '2-digit' });
-          showToast(`✅ ${name} 님 [${targetAction}] 기록되었습니다. (${timeStr})`);
-          
-          setTimeout(async () => {
-            await refreshAllData();
-          }, 1200);
-        })
-        .catch(err => {
-          console.error(err);
-          showToast('출퇴근 기록 실패. 인터넷 연결 상태를 확인해주세요.');
-        });
-      });
-    }
-
-    function handleAuthClick() { 
-      tokenClient.requestAccessToken({prompt: 'consent'}); 
-    }
-    
-    function handleSignoutClick() {
-      localStorage.removeItem('dashboard_access_token');
-      localStorage.removeItem('dashboard_token_expires');
-      localStorage.removeItem('dashboard_user_email');
-      
-      if (window.google && google.accounts && google.accounts.id) {
-        google.accounts.id.disableAutoSelect();
+    // 1. 출퇴근 데이터 기록
+    if (data.name && data.type) {
+      var statusSheet = ss.getSheetByName("Status") || ss.insertSheet("Status");
+      if (statusSheet.getLastRow() === 0) {
+        statusSheet.appendRow(["일자", "이름", "출퇴근시간", "근무시간"]);
       }
 
-      if (accessToken) {
-        google.accounts.oauth2.revoke(accessToken, () => {
-          accessToken = null;
-          accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
-          document.getElementById('userStatus').innerText = '🔒 01 전직원 접근 가능';
-          document.getElementById('btnLogin').style.display = 'inline-block';
-          document.getElementById('btnLogout').style.display = 'none';
-          
-          document.getElementById('colDecoction').classList.add('locked');
-          document.getElementById('colDoctor').classList.add('locked');
-          document.getElementById('colAdmin').classList.add('locked');
+      var now = new Date();
+      var days = ['일', '월', '화', '수', '목', '금', '토'];
+      var month = String(now.getMonth() + 1).padStart(2, '0');
+      var date = String(now.getDate()).padStart(2, '0');
+      var dateStr = month + '/' + date + ' (' + days[now.getDay()] + ')';
+      var timeNow = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
 
-          loadRecentFiles();
-          showToast('로그아웃 되었습니다.');
-        });
-      } else {
-        accessToken = null;
-        accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
-        document.getElementById('userStatus').innerText = '🔒 01 전직원 접근 가능';
-        document.getElementById('btnLogin').style.display = 'inline-block';
-        document.getElementById('btnLogout').style.display = 'none';
-        
-        document.getElementById('colDecoction').classList.add('locked');
-        document.getElementById('colDoctor').classList.add('locked');
-        document.getElementById('colAdmin').classList.add('locked');
+      if (data.type === '출근') {
+        statusSheet.appendRow([dateStr, data.name, timeNow + ' ~ ', '']);
+      } else if (data.type === '퇴근') {
+        var rows = statusSheet.getDataRange().getValues();
+        var targetRowIndex = -1;
+        var inTimeStr = '';
 
-        loadRecentFiles();
-        showToast('로그아웃 되었습니다.');
-      }
-    }
-
-    async function fetchUserEmail(token) {
-      try {
-        const res = await fetch('https://www.googleapis.com/oauth2/v2/userinfo', { headers: { Authorization: `Bearer ${token}` } });
-        const data = await res.json();
-        return data.email ? data.email.toLowerCase() : '';
-      } catch (e) { return ''; }
-    }
-
-    function applyRoleByEmail(email) {
-      const statusEl = document.getElementById('userStatus');
-      accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
-
-      const elDecoction = document.getElementById('colDecoction');
-      const elDoctor = document.getElementById('colDoctor');
-      const elAdmin = document.getElementById('colAdmin');
-
-      elDecoction.classList.add('locked');
-      elDoctor.classList.add('locked');
-      elAdmin.classList.add('locked');
-
-      const isAdmin = CONFIG.ACCOUNTS.ADMIN.map(e => e.toLowerCase()).includes(email);
-      const isDoctor = CONFIG.ACCOUNTS.DOCTOR.map(e => e.toLowerCase()).includes(email);
-      const isDecoction = CONFIG.ACCOUNTS.DECOCTION.map(e => e.toLowerCase()).includes(email);
-
-      if (isAdmin) {
-        accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR, CONFIG.FOLDERS.ADMIN);
-        statusEl.innerText = `🔴 관리자`;
-        
-        elDecoction.classList.remove('locked');
-        elDoctor.classList.remove('locked');
-        elAdmin.classList.remove('locked');
-      } else if (isDoctor) {
-        accessibleFolders.push(CONFIG.FOLDERS.DECOCTION, CONFIG.FOLDERS.DOCTOR);
-        statusEl.innerText = `🔵 진료원장`;
-        
-        elDecoction.classList.remove('locked');
-        elDoctor.classList.remove('locked');
-      } else if (isDecoction) {
-        accessibleFolders.push(CONFIG.FOLDERS.DECOCTION);
-        statusEl.innerText = `🟡 탕전실`;
-        
-        elDecoction.classList.remove('locked');
-      }
-      loadRecentFiles();
-    }
-
-    async function loadRecentFiles() {
-      const contentEl = document.getElementById('resultsContent');
-      contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최신 데이터를 불러오는 중...</p>';
-      
-      const now = new Date();
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-      let allFiles = [];
-
-      try {
-        const timestamp = new Date().getTime();
-
-        const requests = accessibleFolders.map(folderId => {
-          const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`;
-          
-          let url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime%20desc&pageSize=15&fields=files(id,name,webViewLink,mimeType,modifiedTime)&supportsAllDrives=true&includeItemsFromAllDrives=true&_t=${timestamp}`;
-          
-          let fetchOptions = {};
-          if (accessToken) {
-            fetchOptions.headers = { 'Authorization': `Bearer ${accessToken}` };
-          } else {
-            url += `&key=${CONFIG.API_KEY}`;
-          }
-
-          return fetch(url, fetchOptions)
-            .then(r => r.json())
-            .then(data => data.files || [])
-            .catch(err => {
-              console.error(`Folder ${folderId} fetch error:`, err);
-              return [];
-            });
-        });
-
-        const results = await Promise.all(requests);
-        results.forEach(files => {
-          allFiles = allFiles.concat(files);
-        });
-
-        if (CONFIG.EXCLUDE_FILE_IDS && CONFIG.EXCLUDE_FILE_IDS.length > 0) {
-          allFiles = allFiles.filter(file => !CONFIG.EXCLUDE_FILE_IDS.includes(file.id));
-        }
-
-        allFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
-        
-        const uniqueFiles = [];
-        const fileIds = new Set();
-        for (const file of allFiles) {
-          if (!fileIds.has(file.id)) {
-            fileIds.add(file.id);
-            uniqueFiles.push(file);
-          }
-        }
-        
-        allFiles = uniqueFiles.slice(0, 10);
-
-        if (allFiles.length > 0) {
-          let html = '<ul class="recent-results-list">';
-          allFiles.forEach(file => {
-            const dateObj = new Date(file.modifiedTime);
-            const dateStr = `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
-            
-            const isToday = dateObj >= todayStart;
-            const todayBadge = isToday ? '<span class="today-badge">오늘</span>' : '';
-
-            let openUrl = file.webViewLink;
-            if (file.mimeType === 'application/vnd.google-apps.document') {
-              openUrl = `https://docs.google.com/document/d/${file.id}/edit`;
-            } else if (file.mimeType === 'application/vnd.google-apps.spreadsheet') {
-              openUrl = `https://docs.google.com/spreadsheets/d/${file.id}/edit`;
-            } else if (file.mimeType === 'application/vnd.google-apps.presentation') {
-              openUrl = `https://docs.google.com/presentation/d/${file.id}/edit`;
+        for (var i = rows.length - 1; i >= 1; i--) {
+          if (rows[i][1] === data.name && String(rows[i][2]).indexOf('~') !== -1) {
+            var parts = String(rows[i][2]).split('~');
+            if (parts[1].trim() === '') {
+              targetRowIndex = i + 1;
+              inTimeStr = parts[0].trim();
+              break;
             }
+          }
+        }
 
-            html += `<li><span>${todayBadge}📄 ${file.name} <span class="file-date">(${dateStr} 수정)</span></span> <a href="${openUrl}" target="_blank" rel="noopener noreferrer">열기 ↗</a></li>`;
-          });
-          html += '</ul>';
-          contentEl.innerHTML = html;
+        if (targetRowIndex > 0) {
+          var fullTimeStr = inTimeStr + ' ~ ' + timeNow;
+          var workHours = '';
+          try {
+            var inParts = inTimeStr.split(':');
+            var inDate = new Date();
+            inDate.setHours(parseInt(inParts[0]), parseInt(inParts[1]), 0);
+            var diffMs = now.getTime() - inDate.getTime();
+            if (diffMs > 0) workHours = (diffMs / (1000 * 60 * 60)).toFixed(2);
+          } catch(err) {}
+
+          statusSheet.getRange(targetRowIndex, 3).setValue(fullTimeStr);
+          statusSheet.getRange(targetRowIndex, 4).setValue(workHours);
         } else {
-          contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최근 업데이트된 문서가 없습니다.</p>';
+          statusSheet.appendRow([dateStr, data.name, '~ ' + timeNow, '']);
         }
-      } catch (err) {
-        console.error("최근 파일 로드 오류:", err);
-        contentEl.innerHTML = '<p style="color:#F87171; padding:4px 0; font-size:12px;">목록을 불러올 수 없습니다. 구글 로그인을 확인하세요.</p>';
       }
     }
-  </script>
-</body>
-</html>
+
+    // 2. 임시 공지 사항 저장
+    if (data.type === 'UPDATE_NOTICES') {
+      var noticeSheet = ss.getSheetByName("Notices") || ss.insertSheet("Notices");
+      noticeSheet.clear();
+      noticeSheet.getRange(1, 1).setValue(JSON.stringify(data.notices));
+    }
+
+    // 3. 달력 저장 (스페셜 이벤트 포함 7개 열 저장 - [작성일시: 2026-09-12 21:25:00])
+    if (data.type === 'UPDATE_CALENDAR') {
+      var calSheet = ss.getSheetByName("Calendar") || ss.insertSheet("Calendar");
+      var calDisplayRows = calSheet.getDataRange().getDisplayValues();
+      var calRows = calSheet.getDataRange().getValues();
+      var targetRow = -1;
+      
+      for (var k = 0; k < calRows.length; k++) {
+        var dateStr = "";
+        if (calRows[k][0] instanceof Date) {
+          dateStr = Utilities.formatDate(calRows[k][0], Session.getScriptTimeZone(), "yyyy-MM-dd");
+        } else {
+          dateStr = calDisplayRows[k][0] ? String(calDisplayRows[k][0]).trim() : "";
+        }
+
+        if (dateStr === data.dateKey) {
+          targetRow = k + 1;
+          break;
+        }
+      }
+
+      var morn = data.morningWorker || "";
+      var aft = data.afternoonWorker || "";
+      var task = data.task || "";
+      var isHol = data.isHoliday === true;
+      var isHalf = data.isHalfDay === true;
+      var specialEvent = data.specialEvent || "";
+
+      var dateKeyText = "'" + data.dateKey;
+
+      if (targetRow > 0) {
+        calSheet.getRange(targetRow, 1, 1, 7).setValues([[dateKeyText, morn, aft, task, isHol, isHalf, specialEvent]]);
+      } else {
+        calSheet.appendRow([dateKeyText, morn, aft, task, isHol, isHalf, specialEvent]);
+      }
+    }
+
+    return ContentService.createTextOutput(JSON.stringify({status: "success"}))
+      .setMimeType(ContentService.MimeType.JSON);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({status: "error", message: err.toString()}))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
