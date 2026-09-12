@@ -7,13 +7,8 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-12 21:28:00
-    * 주요내용: 
-      1. 새로운 배포 ID 연동 완료
-      2. 김선미(선) 뱃지 색상 청록색 변경 (주와 구분)
-      3. 일일 업무 내용 여러 줄 입력(textarea) 및 삭제 버튼 추가
-      4. 달력 업무 내용 가독성 개선 및 가운데 정렬
-      5. 스페셜 이벤트 추가 (달력 최하단 중앙 배치, 강조 컬러)
+    * 작성일시: 2026-09-12 21:32:00
+    * 주요내용: 달력 레이아웃 왜곡 현상 수정 완료, 스페셜 이벤트 및 여러 줄 입력 반영
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -88,7 +83,7 @@
     .cal-table th.sun { color: #DC2626; }
     .cal-table th.sat { color: #2563EB; }
     
-    .cal-table td { height: 96px; border: 1px solid #E5E7EB; background-color: #FFFFFF; vertical-align: top; padding: 3px; cursor: pointer; transition: background 0.15s; overflow: hidden; display: flex; flex-direction: column; justify-content: space-between; }
+    .cal-table td { height: 96px; border: 1px solid #E5E7EB; background-color: #FFFFFF; vertical-align: top; padding: 3px; cursor: pointer; transition: background 0.15s; overflow: hidden; position: relative; }
     .cal-table td:hover { background-color: #F3F4F6; }
     .cal-table td.empty { background-color: #F9FAFB; cursor: default; border-color: transparent; }
     
@@ -106,7 +101,7 @@
     .cal-slot-label { font-size: 8.5px; margin-right: 0.5px; line-height: 1; }
     
     .cal-task-tag { font-size: 9.5px; color: #FFFFFF; background: #1E3A8A; border: 1px solid #3B82F6; border-radius: 3px; padding: 2px 4px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.2; font-weight: 500; margin: 2px auto; text-align: center; width: 100%; }
-    .cal-special-tag { font-size: 10px; color: #FFFFFF; background: #DC2626; border: 1px solid #B91C1C; border-radius: 3px; padding: 2px 4px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.2; font-weight: bold; margin-top: auto; text-align: center; width: 100%; animation: pulse 2s infinite; }
+    .cal-special-tag { font-size: 10px; color: #FFFFFF; background: #DC2626; border: 1px solid #B91C1C; border-radius: 3px; padding: 2px 4px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.2; font-weight: bold; position: absolute; bottom: 3px; left: 3px; right: 3px; text-align: center; }
 
     .badge-sun { background-color: #06B6D4; color: #FFF; box-shadow: 0 1px 2px rgba(6,182,212,0.4); } 
     .badge-ji  { background-color: #10B981; color: #FFF; box-shadow: 0 1px 2px rgba(16,185,129,0.4); } 
@@ -368,7 +363,7 @@
   <script>
     /* 
      * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-12 21:28:00
+     * 작성일시: 2026-09-12 21:32:00
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
@@ -536,8 +531,8 @@
     }
 
     /* 
-     * 서버 데이터 동기화 (스페셜 이벤트 포함)
-     * 작성일시: 2026-09-12 21:28:00
+     * 서버 데이터 동기화
+     * 작성일시: 2026-09-12 21:32:00
      */
     async function syncServerData() {
       try {
