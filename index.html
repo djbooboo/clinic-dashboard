@@ -7,10 +7,10 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-12 22:30:00
+    * 작성일시: 2026-09-12 22:35:00
     * 주요내용: 
-      1. '오늘' 뱃지를 'TODAY'로 변경하여 뱃지 간 크기/폭 완벽 고정
-      2. 최신 웹 앱 배포 ID 연동 유지
+      1. 새로운 웹 앱 배포 ID 연동 완료
+      2. TODAY 뱃지 적용으로 뱃지 폭 완벽 통일
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -44,7 +44,6 @@
     .notice-item-row { display: flex; justify-content: space-between; align-items: center; background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
     .notice-content-wrap { display: flex; align-items: center; gap: 6px; overflow: hidden; }
     
-    /* 🛠️ [핵심 수정] 뱃지 폭과 스타일 완벽 통일 */
     .date-badge { 
       font-size: 9.5px !important; 
       font-weight: bold !important; 
@@ -381,12 +380,13 @@
   <script>
     /* 
      * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-12 22:30:00
+     * 작성일시: 2026-09-12 22:35:00
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
-      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbxYiNVC--lDIBSU-atJIzF3IASVrWmbKgNkjjAocHjObQhBEA3sVi8xL-zkPzC7k8AYCg/exec',
+      // 새로 발급받은 웹 앱 주소 반영 완료
+      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbw3-bJ31tj9TEJ4ea9wzGLSdjDBeHun0RNS8QzQEhdT1tBL4OGnPBNuNrWynrkEO6J9Cw/exec',
       
       MEMBERS: ['김선미', '이윤영', '이수정', '홍주란', '김희정', '박지희'],
       
