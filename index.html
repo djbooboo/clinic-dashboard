@@ -22,11 +22,9 @@
     .btn-logout { padding: 6px 14px; background: #2A2A2A; color: #E5E7EB; border: 1px solid #4B5563; border-radius: 5px; cursor: pointer; display: none; font-size: 12.5px; }
     .btn-logout:hover { background: #374151; }
     
-    /* 📐 상단 레이아웃 격자 */
     .top-layout-grid { display: grid; grid-template-columns: 1fr 0.85fr 1.8fr; gap: 12px; margin-bottom: 16px; align-items: stretch; }
     .mid-widgets-col { display: flex; flex-direction: column; gap: 12px; justify-content: space-between; }
     
-    /* 📌 1열: 임시 공지 */
     .notice-board-section { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
     .section-header-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
     .section-title-group { display: flex; align-items: baseline; gap: 6px; }
@@ -51,7 +49,6 @@
     .btn-save-row:hover { background-color: #1D4ED8; }
     .btn-del-row { background-color: #2A2A2A; color: #F87171; border: 1px solid #4B5563; font-size: 10.5px; padding: 3px 6px; }
 
-    /* 📢 2열 상단: 최근 업데이트 문서 */
     .recent-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex: 1; }
     .recent-results { max-height: 190px; overflow-y: auto; }
     .recent-results-list { list-style: none; }
@@ -60,7 +57,6 @@
     .recent-results-list a:hover { text-decoration: underline; }
     .file-date { font-size: 10.5px; color: #9CA3AF; margin-left: 4px; }
     
-    /* ⏰ 2열 하단: 출퇴근 기록 */
     .attendance-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex: 1; }
     .attendance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; flex-grow: 1; align-content: center; }
     .member-card { background-color: #121212; border: 1px solid #374151; border-radius: 6px; padding: 5px 6px; display: flex; align-items: center; justify-content: space-between; }
@@ -69,7 +65,6 @@
     .state-in { background-color: #064E3B; color: #34D399; border: 1px solid #059669; }
     .state-out { background-color: #7F1D1D; color: #FCA5A5; border: 1px solid #DC2626; }
 
-    /* ☀️ 3열: 대형 밝은 테마 달력 */
     .calendar-pane { background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 14px 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; flex-direction: column; height: 100%; color: #111827; }
     .cal-header-nav { display: flex; align-items: center; gap: 6px; }
     .cal-nav-btn { background: #FFFFFF; border: 1px solid #D1D5DB; color: #374151; border-radius: 4px; padding: 3px 8px; font-size: 12px; cursor: pointer; font-weight: bold; }
@@ -99,7 +94,6 @@
     .cal-slot-label { color: #6B7280; font-size: 8px; margin-right: 0.5px; }
     .cal-task-tag { font-size: 9.5px; color: #B45309; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 3px; padding: 1px 3px; white-space: normal; word-break: break-all; display: block; line-height: 1.2; font-weight: 400; margin-top: 2px; text-align: right; }
 
-    /* 🟢 인원별 약자 배지 디자인 */
     .badge-sun { background-color: #EC4899; color: #FFF; box-shadow: 0 1px 2px rgba(236,72,153,0.4); } 
     .badge-ji  { background-color: #10B981; color: #FFF; box-shadow: 0 1px 2px rgba(16,185,129,0.4); } 
     .badge-yun { background-color: #F59E0B; color: #FFF; box-shadow: 0 1px 2px rgba(245,158,11,0.4); } 
@@ -190,7 +184,6 @@
 
   <div class="top-layout-grid">
     
-    <!-- 📌 1열: 임시 공지 -->
     <div class="notice-board-section">
       <div>
         <div class="section-header-row">
@@ -207,7 +200,6 @@
       </div>
     </div>
 
-    <!-- 2열: 최근 업데이트 문서 (상) + 출퇴근 기록 (하) -->
     <div class="mid-widgets-col">
       <div class="recent-pane">
         <div class="section-header-row" style="margin-bottom: 6px;">
@@ -233,7 +225,6 @@
       </div>
     </div>
 
-    <!-- ☀️ 3열: 대형 밝은 테마 달력 -->
     <div class="calendar-pane">
       <div class="section-header-row">
         <div class="section-title-group">
@@ -266,7 +257,6 @@
   </div>
 
   <div class="dashboard-grid">
-    <!-- 1. 접수 / 치료 -->
     <div class="column" id="colReception">
       <div class="column-header bg-blue">
         <a href="https://drive.google.com/drive/folders/1w2C4X7dtGdOdLnBkkGLqWW18C3z5HSQG?usp=sharing" target="_blank">
@@ -289,7 +279,6 @@
       </ul>
     </div>
 
-    <!-- 2. 매뉴얼 -->
     <div class="column" id="colManual">
       <div class="column-header bg-green">
         <a href="https://drive.google.com/drive/folders/1qFpt6Q4TAP9Ko1LdsJ5e3lW4MZlTy58D?usp=sharing" target="_blank">
@@ -315,7 +304,6 @@
       </ul>
     </div>
 
-    <!-- 3. 탕전실 -->
     <div class="column locked" id="colDecoction">
       <div class="column-header bg-teal">
         <a href="https://drive.google.com/drive/folders/1sYdNudJ3Y1wWMhrvIM39M4hmKLryo9NY?usp=sharing" target="_blank">
@@ -332,7 +320,6 @@
       </ul>
     </div>
 
-    <!-- 4. 진료 -->
     <div class="column locked" id="colDoctor">
       <div class="column-header bg-purple">
         <a href="https://drive.google.com/drive/folders/1caciuhYkxjhIC3zQi6b4ZPLI4huSNFz_?usp=sharing" target="_blank">
@@ -349,7 +336,6 @@
       </ul>
     </div>
 
-    <!-- 5. 경영 -->
     <div class="column locked" id="colAdmin">
       <div class="column-header bg-yellow">
         <a href="https://drive.google.com/drive/folders/1HE5f_uSjP8v-lSeO5yTgherYXjt24_yX?usp=sharing" target="_blank">
@@ -369,7 +355,7 @@
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
-      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyh65wNkyOMkGucP3iBQK_RPwnCKIBI8s43IkTivvqm6VMjU-PenRQVjlF-WsydG16RjA/exec',
+      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbz24Q2pS6DeDOZi1sR-o7UMmEEzUfwCHbZ9g938vW_JlHQZRtvzhRolN2Y78IRM6rMvOQ/exec',
       MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
       
       MEMBER_SHORT: {
@@ -534,7 +520,8 @@
     async function syncServerData() {
       try {
         const res = await fetch(`${CONFIG.ATTENDANCE_WEBAPP_URL}?_cb=${Date.now()}`);
-        const data = await res.json();
+        const textData = await res.text();
+        const data = JSON.parse(textData);
         
         if (data && data.statuses) {
           for (let name in data.statuses) {
@@ -569,7 +556,7 @@
           }
         }
       } catch (e) {
-        console.error("서버 데이터 동기화 중 오류:", e);
+        console.error("서버 데이터 동기화 오류:", e);
       }
     }
 
