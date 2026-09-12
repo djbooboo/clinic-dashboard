@@ -949,9 +949,10 @@
       loadRecentFiles();
     }
 
+    // 최근 업데이트 문서 최신화 로직 (실시간 수정 문서 즉시 반영 개선)
     async function loadRecentFiles() {
       const contentEl = document.getElementById('resultsContent');
-      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+      const threeDaysAgoTime = Date.now() - 3 * 24 * 60 * 60 * 1000;
       
       const now = new Date();
       const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -962,7 +963,8 @@
         const timestamp = Date.now();
         if (accessToken) {
           const requests = accessibleFolders.map(folderId => {
-            const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and modifiedTime > '${threeDaysAgo}' and trashed = false`;
+            // 💡 modifiedTime 쿼리 조건을 지우고 최근 파일 10개를 직접 가져옵니다.
+            const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`;
             const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&supportsAllDrives=true&includeItemsFromAllDrives=true&fields=files(id,name,webViewLink,mimeType,modifiedTime)&_cb=${timestamp}`;
             return fetch(url, { 
               headers: { Authorization: `Bearer ${accessToken}` },
@@ -978,7 +980,7 @@
           });
         } else {
           const requests = accessibleFolders.map(folderId => {
-            const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and modifiedTime > '${threeDaysAgo}' and trashed = false`;
+            const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`;
             const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&supportsAllDrives=true&includeItemsFromAllDrives=true&fields=files(id,name,webViewLink,mimeType,modifiedTime)&key=${CONFIG.API_KEY}&_cb=${timestamp}`;
             return fetch(url, { cache: 'no-store' })
               .then(r => r.json())
@@ -991,10 +993,15 @@
           });
         }
 
+        // 예외 제외 파일 필터링
         if (CONFIG.EXCLUDE_FILE_IDS && CONFIG.EXCLUDE_FILE_IDS.length > 0) {
           allFiles = allFiles.filter(file => !CONFIG.EXCLUDE_FILE_IDS.includes(file.id));
         }
 
+        // 최근 3일 이내에 수정된 파일만 스크립트에서 정확히 필터링
+        allFiles = allFiles.filter(file => new Date(file.modifiedTime).getTime() >= threeDaysAgoTime);
+
+        // 수정 시간 기준 최신순 내림차순 정렬
         allFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
         allFiles = allFiles.slice(0, 10);
 
