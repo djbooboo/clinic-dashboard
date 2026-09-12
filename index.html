@@ -86,10 +86,15 @@
     .cal-table td.empty { background-color: #F9FAFB; cursor: default; border-color: transparent; }
     .cal-date-num { font-size: 12px; font-weight: bold; color: #374151; line-height: 1; margin-bottom: 4px; }
     
-    /* 🔴 공휴일 및 일요일 숫자 빨간색 처리 */
-    .cal-table td.is-holiday .cal-date-num, .cal-table td.is-sun .cal-date-num { color: #DC2626 !important; }
-    /* 🔵 반일 근무 및 토요일 숫자 파란색 처리 */
-    .cal-table td.is-halfday .cal-date-num, .cal-table td.is-sat .cal-date-num { color: #2563EB !important; }
+    /* 🔴 토요일/일요일 기본 색상 처리 */
+    .cal-table td.is-sun .cal-date-num { color: #DC2626; }
+    .cal-table td.is-sat .cal-date-num { color: #2563EB; }
+    
+    /* 🔵 반일 근무 (요일 색상보다 우선 적용) */
+    .cal-table td.is-halfday .cal-date-num { color: #2563EB !important; }
+    
+    /* 🔴 휴무일 (토요일이라도 휴무일 설정 시 최우선 빨간색 적용) */
+    .cal-table td.is-holiday .cal-date-num { color: #DC2626 !important; }
     
     .cal-table td.is-today { background-color: #EFF6FF; border: 2px solid #3B82F6; }
     .cal-table td.is-today .cal-date-num { color: #1D4ED8; }
@@ -949,7 +954,7 @@
       loadRecentFiles();
     }
 
-    // 최근 업데이트 문서 최신화 로직 (실시간 수정 문서 즉시 반영 개선)
+    // 최근 업데이트 문서 불러오기 로직 (구글 API URL 호환성 보장)
     async function loadRecentFiles() {
       const contentEl = document.getElementById('resultsContent');
       const threeDaysAgoTime = Date.now() - 3 * 24 * 60 * 60 * 1000;
@@ -963,9 +968,8 @@
         const timestamp = Date.now();
         if (accessToken) {
           const requests = accessibleFolders.map(folderId => {
-            // 💡 modifiedTime 쿼리 조건을 지우고 최근 파일 10개를 직접 가져옵니다.
             const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`;
-            const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&supportsAllDrives=true&includeItemsFromAllDrives=true&fields=files(id,name,webViewLink,mimeType,modifiedTime)&_cb=${timestamp}`;
+            const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&fields=files(id,name,webViewLink,mimeType,modifiedTime)&_cb=${timestamp}`;
             return fetch(url, { 
               headers: { Authorization: `Bearer ${accessToken}` },
               cache: 'no-store'
@@ -981,7 +985,7 @@
         } else {
           const requests = accessibleFolders.map(folderId => {
             const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`;
-            const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&supportsAllDrives=true&includeItemsFromAllDrives=true&fields=files(id,name,webViewLink,mimeType,modifiedTime)&key=${CONFIG.API_KEY}&_cb=${timestamp}`;
+            const url = `https://www.googleapis.com/drive/v3/files?q=${encodeURIComponent(query)}&orderBy=modifiedTime desc&pageSize=10&fields=files(id,name,webViewLink,mimeType,modifiedTime)&key=${CONFIG.API_KEY}&_cb=${timestamp}`;
             return fetch(url, { cache: 'no-store' })
               .then(r => r.json())
               .catch(() => ({ files: [] }));
@@ -993,15 +997,14 @@
           });
         }
 
-        // 예외 제외 파일 필터링
         if (CONFIG.EXCLUDE_FILE_IDS && CONFIG.EXCLUDE_FILE_IDS.length > 0) {
           allFiles = allFiles.filter(file => !CONFIG.EXCLUDE_FILE_IDS.includes(file.id));
         }
 
-        // 최근 3일 이내에 수정된 파일만 스크립트에서 정확히 필터링
+        // 최근 3일 이내 파일 필터링
         allFiles = allFiles.filter(file => new Date(file.modifiedTime).getTime() >= threeDaysAgoTime);
 
-        // 수정 시간 기준 최신순 내림차순 정렬
+        // 최신순 정렬
         allFiles.sort((a, b) => new Date(b.modifiedTime) - new Date(a.modifiedTime));
         allFiles = allFiles.slice(0, 10);
 
