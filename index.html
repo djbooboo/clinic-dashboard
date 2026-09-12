@@ -85,9 +85,9 @@
     .cal-table td:hover { background-color: #F3F4F6; }
     .cal-table td.empty { background-color: #F9FAFB; cursor: default; border-color: transparent; }
     
-    /* 날짜와 오전/오후 배지를 한 줄(옆으로) 배치하기 위한 헤더 영역 */
-    .cal-cell-header { display: flex; align-items: center; gap: 3px; margin-bottom: 3px; flex-wrap: wrap; }
-    .cal-date-num { font-size: 12px; font-weight: bold; color: #374151; line-height: 1; }
+    /* 1번 요청: 우측 정렬 및 간격 조절 */
+    .cal-cell-header { display: flex; align-items: center; justify-content: flex-end; gap: 2px; margin-bottom: 2px; flex-wrap: wrap; }
+    .cal-date-num { font-size: 11px; font-weight: bold; color: #374151; line-height: 1; margin-right: auto; }
     
     .cal-table td.is-sun .cal-date-num { color: #DC2626; }
     .cal-table td.is-sat .cal-date-num { color: #2563EB; }
@@ -96,22 +96,22 @@
     .cal-table td.is-today { background-color: #EFF6FF; border: 2px solid #3B82F6; }
     .cal-table td.is-today .cal-date-num { color: #1D4ED8; }
     
-    /* 🏷️ 달력 내부 배지 스타일 (가로 배치용) */
-    .cal-slot-inline { display: inline-flex; align-items: center; gap: 1px; font-size: 9.5px; font-weight: bold; background: #F3F4F6; padding: 1px 3px; border-radius: 3px; border: 1px solid #E5E7EB; }
-    .cal-slot-label { color: #6B7280; font-size: 9px; margin-right: 1px; }
-    .cal-task-tag { font-size: 10px; color: #B45309; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 3px; padding: 1px 4px; white-space: normal; word-break: break-all; display: block; line-height: 1.2; font-weight: 400; margin-top: 2px; }
+    /* 1번 요청: 글자 크기를 더 작고 아담하게 수정 */
+    .cal-slot-inline { display: inline-flex; align-items: center; gap: 1px; font-size: 8.5px; font-weight: bold; background: #F3F4F6; padding: 0.5px 2px; border-radius: 2px; border: 1px solid #E5E7EB; }
+    .cal-slot-label { color: #6B7280; font-size: 8px; margin-right: 0.5px; }
+    .cal-task-tag { font-size: 9.5px; color: #B45309; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 3px; padding: 1px 3px; white-space: normal; word-break: break-all; display: block; line-height: 1.2; font-weight: 400; margin-top: 2px; text-align: right; }
 
-    /* 🟢 인원별 약자 배지 디자인 (채도 높은 밝은 컬러 적용) */
-    .badge-sun { background-color: #EC4899; color: #FFF; box-shadow: 0 1px 3px rgba(236,72,153,0.4); } /* 선 (핑크) */
-    .badge-ji  { background-color: #10B981; color: #FFF; box-shadow: 0 1px 3px rgba(16,185,129,0.4); } /* 지 (에메랄드) */
-    .badge-yun { background-color: #F59E0B; color: #FFF; box-shadow: 0 1px 3px rgba(245,158,11,0.4); } /* 윤 (앰버) */
-    .badge-hee { background-color: #8B5CF6; color: #FFF; box-shadow: 0 1px 3px rgba(139,92,246,0.4); } /* 희 (퍼플) */
-    .badge-soo { background-color: #3B82F6; color: #FFF; box-shadow: 0 1px 3px rgba(59,130,246,0.4); } /* 수 (블루) */
-    .badge-joo { background-color: #EF4444; color: #FFF; box-shadow: 0 1px 3px rgba(239,68,68,0.4); } /* 주 (레드) */
+    /* 🟢 인원별 약자 배지 디자인 */
+    .badge-sun { background-color: #EC4899; color: #FFF; box-shadow: 0 1px 2px rgba(236,72,153,0.4); } 
+    .badge-ji  { background-color: #10B981; color: #FFF; box-shadow: 0 1px 2px rgba(16,185,129,0.4); } 
+    .badge-yun { background-color: #F59E0B; color: #FFF; box-shadow: 0 1px 2px rgba(245,158,11,0.4); } 
+    .badge-hee { background-color: #8B5CF6; color: #FFF; box-shadow: 0 1px 2px rgba(139,92,246,0.4); } 
+    .badge-soo { background-color: #3B82F6; color: #FFF; box-shadow: 0 1px 2px rgba(59,130,246,0.4); } 
+    .badge-joo { background-color: #EF4444; color: #FFF; box-shadow: 0 1px 2px rgba(239,68,68,0.4); } 
 
-    .mini-badge { display: inline-flex; width: 15px; height: 15px; border-radius: 50%; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; flex-shrink: 0; }
+    /* 1번 요청: 미니 배지 크기 축소 */
+    .mini-badge { display: inline-flex; width: 13px; height: 13px; border-radius: 50%; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; flex-shrink: 0; }
 
-    /* 모달 내부 선택형 배지 (선택 안 하면 어둡게, 선택하면 밝고 선명하게) */
     .modal-badge-container { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
     .select-badge { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: bold; cursor: pointer; border: 2px solid #4B5563; opacity: 0.25; filter: grayscale(80%); transition: all 0.2s; user-select: none; }
     .select-badge:hover { opacity: 0.6; filter: grayscale(30%); }
@@ -562,15 +562,13 @@
             let isHol = (item.isHoliday === true || String(item.isHoliday).toUpperCase() === 'TRUE' || item.isHoliday === 1 || String(item.isHoliday) === '1');
             let isHalf = (item.isHalfDay === true || String(item.isHalfDay).toUpperCase() === 'TRUE' || item.isHalfDay === 1 || String(item.isHalfDay) === '1');
             
-            if (!calendarData[k] || item.morningWorker !== undefined || item.afternoonWorker !== undefined || item.worker !== '' || item.task !== '' || isHol || isHalf) {
-              calendarData[k] = {
-                morningWorker: item.morningWorker || item.worker || "",
-                afternoonWorker: item.afternoonWorker || "",
-                task: item.task || "",
-                isHoliday: isHol,
-                isHalfDay: isHalf
-              };
-            }
+            calendarData[k] = {
+              morningWorker: item.morningWorker !== undefined ? item.morningWorker : (item.worker || ""),
+              afternoonWorker: item.afternoonWorker !== undefined ? item.afternoonWorker : "",
+              task: item.task || "",
+              isHoliday: isHol,
+              isHalfDay: isHalf
+            };
           }
         }
       } catch (e) {
