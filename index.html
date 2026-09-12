@@ -7,11 +7,10 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-12 22:20:00
+    * 작성일시: 2026-09-12 22:25:00
     * 주요내용: 
-      1. 새로운 웹 앱 배포 ID 연동 완료
-      2. 모든 뱃지 통합(.date-badge)으로 폰트 및 폭 완벽 통일
-      3. 선윤수주희지 순서 반영
+      1. '오 늘' 사이에 공백 적용 및 글자 간격 조정으로 뱃지 폭 완전 고정
+      2. 최신 웹 앱 배포 ID 연동 유지
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -45,7 +44,7 @@
     .notice-item-row { display: flex; justify-content: space-between; align-items: center; background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
     .notice-content-wrap { display: flex; align-items: center; gap: 6px; overflow: hidden; }
     
-    /* 모든 뱃지 크기, 폰트, 폭 통일 */
+    /* 🛠️ [핵심 수정] 뱃지 폭과 글자 간격 고정 */
     .date-badge { 
       font-size: 10px !important; 
       font-weight: bold !important; 
@@ -56,6 +55,7 @@
       text-align: center !important; 
       width: 42px !important; 
       line-height: 1.2 !important;
+      letter-spacing: -0.5px;
     }
     .badge-today { background-color: #EF4444 !important; color: #FFFFFF !important; }
     .badge-1day  { background-color: #3B82F6 !important; color: #FFFFFF !important; }
@@ -381,12 +381,11 @@
   <script>
     /* 
      * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-12 22:20:00
+     * 작성일시: 2026-09-12 22:25:00
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
-      // 사용자가 방금 새로 배포한 웹 앱 주소 적용 완료
       ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbxYiNVC--lDIBSU-atJIzF3IASVrWmbKgNkjjAocHjObQhBEA3sVi8xL-zkPzC7k8AYCg/exec',
       
       MEMBERS: ['김선미', '이윤영', '이수정', '홍주란', '김희정', '박지희'],
@@ -890,7 +889,7 @@
         if (item.timestamp) {
           const itemDate = new Date(item.timestamp);
           if (itemDate >= todayStart) {
-            badgeHtml = '<span class="date-badge badge-today">오늘</span>';
+            badgeHtml = '<span class="date-badge badge-today">오&nbsp;늘</span>';
           } else if (itemDate >= yesterdayStart) {
             badgeHtml = '<span class="date-badge badge-1day">1일전</span>';
           } else {
@@ -898,7 +897,7 @@
             badgeHtml = `<span class="date-badge badge-old">${diffDays}일전</span>`;
           }
         } else if (item.isNew) {
-          badgeHtml = '<span class="date-badge badge-today">오늘</span>';
+          badgeHtml = '<span class="date-badge badge-today">오&nbsp;늘</span>';
         } else {
           badgeHtml = '<span class="date-badge badge-old">이전</span>';
         }
@@ -1188,7 +1187,7 @@
             
             let badgeHtml = '';
             if (dateObj >= todayStart) {
-              badgeHtml = '<span class="date-badge badge-today">오늘</span>';
+              badgeHtml = '<span class="date-badge badge-today">오&nbsp;늘</span>';
             } else if (dateObj >= yesterdayStart) {
               badgeHtml = '<span class="date-badge badge-1day">1일전</span>';
             } else {
