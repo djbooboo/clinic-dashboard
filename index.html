@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>다정부부한의원 업무 대시보드</title>
+  <!-- 
+    ====================================================
+    * 파일명: index.html (다정부부한의원 업무 대시보드)
+    * 작성일자: 2026-09-12
+    * 주요내용: 구글 드라이브 연동, 출퇴근 기록, 임시 공지, 근무 달력 동기화
+    ====================================================
+  -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -352,10 +359,14 @@
   </div>
 
   <script>
+    /* 
+     * 대시보드 환경 설정
+     * 작성일자: 2026-09-12
+     */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
-      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbzBk5E5kNh9eFsZNnjD387l_C5rILwz_Kdv_TQiqzJcHI7L1Es-pcMC7M0QnyTZsdFZ9A/exec',
+      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbw0R8eUpFYYDBZi6iRH8RD22RGx7fAEJTbyq7gVAbtEq8fX-grjrfwqoVWYuBzYAtGILA/exec',
       MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
       
       MEMBER_SHORT: {
