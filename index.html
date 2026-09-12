@@ -7,10 +7,11 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-12 22:35:00
+    * 작성일시: 2026-09-12 22:45:00
     * 주요내용: 
-      1. 새로운 웹 앱 배포 ID 연동 완료
-      2. TODAY 뱃지 적용으로 뱃지 폭 완벽 통일
+      1. 최신 성공 버전 유지 (TODAY 뱃지 및 최신 웹 앱 ID)
+      2. 출퇴근 기록 직원 이름 앞에 달력과 동일한 미니 뱃지 아이콘 적용
+      3. 가나다순 정렬 유지
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -84,7 +85,10 @@
     .attendance-pane { background-color: #1E1E1E; border: 1px solid #374151; border-radius: 8px; padding: 12px 14px; box-shadow: 0 1px 3px rgba(0,0,0,0.3); display: flex; flex-direction: column; flex: 1; }
     .attendance-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; flex-grow: 1; align-content: center; }
     .member-card { background-color: #121212; border: 1px solid #374151; border-radius: 6px; padding: 5px 6px; display: flex; align-items: center; justify-content: space-between; }
+    
+    .member-info-wrap { display: flex; align-items: center; gap: 6px; }
     .member-name { font-size: 11.5px; font-weight: bold; color: #FFFFFF; white-space: nowrap; }
+    
     .btn-toggle-att { padding: 3px 6px; font-size: 10.5px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; white-space: nowrap; }
     .state-in { background-color: #064E3B; color: #34D399; border: 1px solid #059669; }
     .state-out { background-color: #7F1D1D; color: #FCA5A5; border: 1px solid #DC2626; }
@@ -127,7 +131,8 @@
     .badge-hee { background-color: #8B5CF6; color: #FFF; box-shadow: 0 1px 2px rgba(139,92,246,0.4); } 
     .badge-ji  { background-color: #10B981; color: #FFF; box-shadow: 0 1px 2px rgba(16,185,129,0.4); } 
 
-    .mini-badge { display: inline-flex; width: 13px; height: 13px; border-radius: 50%; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; flex-shrink: 0; }
+    /* 출퇴근 카드 전용 미니 뱃지 크기 (달력과 동일) */
+    .mini-badge { display: inline-flex; width: 16px; height: 16px; border-radius: 50%; align-items: center; justify-content: center; font-size: 9px; font-weight: bold; flex-shrink: 0; }
 
     .modal-badge-container { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
     .select-badge { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: bold; cursor: pointer; border: 2px solid #4B5563; opacity: 0.25; filter: grayscale(80%); transition: all 0.2s; user-select: none; }
@@ -380,23 +385,22 @@
   <script>
     /* 
      * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-12 22:35:00
+     * 작성일시: 2026-09-12 22:45:00
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
-      // 새로 발급받은 웹 앱 주소 반영 완료
       ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbw3-bJ31tj9TEJ4ea9wzGLSdjDBeHun0RNS8QzQEhdT1tBL4OGnPBNuNrWynrkEO6J9Cw/exec',
       
-      MEMBERS: ['김선미', '이윤영', '이수정', '홍주란', '김희정', '박지희'],
+      MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
       
       MEMBER_SHORT: {
         '김선미': { char: '선', cls: 'badge-sun' },
-        '이윤영': { char: '윤', cls: 'badge-yun' },
-        '이수정': { char: '수', cls: 'badge-soo' },
-        '홍주란': { char: '주', cls: 'badge-joo' },
         '김희정': { char: '희', cls: 'badge-hee' },
-        '박지희': { char: '지', cls: 'badge-ji' }
+        '박지희': { char: '지', cls: 'badge-ji' },
+        '이수정': { char: '수', cls: 'badge-soo' },
+        '이윤영': { char: '윤', cls: 'badge-yun' },
+        '홍주란': { char: '주', cls: 'badge-joo' }
       },
       
       EXCLUDE_FILE_IDS: [
@@ -989,10 +993,16 @@
         const nextActionLabel = (currentState === 'OUT') ? '출근' : '퇴근';
         const btnClass = (currentState === 'OUT') ? 'state-in' : 'state-out';
 
+        const memberInfo = CONFIG.MEMBER_SHORT[name];
+        const badgeHtml = memberInfo ? `<span class="mini-badge ${memberInfo.cls}">${memberInfo.char}</span>` : '';
+
         const card = document.createElement('div');
         card.className = 'member-card';
         card.innerHTML = `
-          <span class="member-name">${name}</span>
+          <div class="member-info-wrap">
+            ${badgeHtml}
+            <span class="member-name">${name}</span>
+          </div>
           <button id="btn-${name}" class="btn-toggle-att ${btnClass}" onclick="toggleAttendance('${name}')">${nextActionLabel}</button>
         `;
         grid.appendChild(card);
