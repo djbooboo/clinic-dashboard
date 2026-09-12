@@ -7,10 +7,11 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-12 21:42:00
+    * 작성일시: 2026-09-12 21:50:00
     * 주요내용: 
-      1. 최근 업데이트 문서 5개로 축소 및 달력 크기 컴팩트 조율
-      2. 수정일 기준 '오늘', '1일 전', '2일 전' 색상별 뱃지 추가
+      1. 멤버 순서 '선윤수주희지'로 교체
+      2. 뱃지 텍스트 띄어쓰기 제거 (1일전 등) 및 뱃지 폭 통일
+      3. 임시공지에도 '오늘', '1일전' 형식 뱃지 적용
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -43,12 +44,12 @@
     .notice-list-container { display: flex; flex-direction: column; gap: 5px; margin-bottom: 8px; flex-grow: 1; max-height: 420px; overflow-y: auto; }
     .notice-item-row { display: flex; justify-content: space-between; align-items: center; background-color: #121212; border: 1px solid #374151; border-radius: 5px; padding: 5px 8px; font-size: 12px; }
     .notice-content-wrap { display: flex; align-items: center; gap: 6px; overflow: hidden; }
-    .new-badge { background-color: #EF4444; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; animation: pulse 1.5s infinite; }
     
-    /* 날짜별 수정 뱃지 스타일 */
-    .date-badge-today { background-color: #EF4444; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; }
-    .date-badge-1day { background-color: #3B82F6; color: #FFFFFF; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; }
-    .date-badge-old { background-color: #4B5563; color: #E5E7EB; font-size: 10px; font-weight: bold; padding: 1px 5px; border-radius: 4px; display: inline-block; flex-shrink: 0; }
+    /* 뱃지 통일 폭 스타일 */
+    .date-badge-today, .date-badge-1day, .date-badge-old { font-size: 10px; font-weight: bold; padding: 2px 0; border-radius: 4px; display: inline-block; flex-shrink: 0; text-align: center; width: 42px; }
+    .date-badge-today { background-color: #EF4444; color: #FFFFFF; }
+    .date-badge-1day  { background-color: #3B82F6; color: #FFFFFF; }
+    .date-badge-old   { background-color: #4B5563; color: #E5E7EB; }
 
     @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
     .notice-text { color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
@@ -79,7 +80,6 @@
     .state-in { background-color: #064E3B; color: #34D399; border: 1px solid #059669; }
     .state-out { background-color: #7F1D1D; color: #FCA5A5; border: 1px solid #DC2626; }
 
-    /* 달력 높이 컴팩트 조율 */
     .calendar-pane { background-color: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 8px; padding: 12px 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.15); display: flex; flex-direction: column; height: 100%; color: #111827; }
     .cal-header-nav { display: flex; align-items: center; gap: 6px; }
     .cal-nav-btn { background: #FFFFFF; border: 1px solid #D1D5DB; color: #374151; border-radius: 4px; padding: 3px 8px; font-size: 12px; cursor: pointer; font-weight: bold; }
@@ -112,11 +112,11 @@
     .cal-special-tag { font-size: 9px; color: #FFFFFF; background: #DC2626; border: 1px solid #B91C1C; border-radius: 3px; padding: 1px 3px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.15; font-weight: bold; position: absolute; bottom: 2px; left: 2px; right: 2px; text-align: center; }
 
     .badge-sun { background-color: #06B6D4; color: #FFF; box-shadow: 0 1px 2px rgba(6,182,212,0.4); } 
-    .badge-ji  { background-color: #10B981; color: #FFF; box-shadow: 0 1px 2px rgba(16,185,129,0.4); } 
     .badge-yun { background-color: #F59E0B; color: #FFF; box-shadow: 0 1px 2px rgba(245,158,11,0.4); } 
-    .badge-hee { background-color: #8B5CF6; color: #FFF; box-shadow: 0 1px 2px rgba(139,92,246,0.4); } 
     .badge-soo { background-color: #3B82F6; color: #FFF; box-shadow: 0 1px 2px rgba(59,130,246,0.4); } 
     .badge-joo { background-color: #EF4444; color: #FFF; box-shadow: 0 1px 2px rgba(239,68,68,0.4); } 
+    .badge-hee { background-color: #8B5CF6; color: #FFF; box-shadow: 0 1px 2px rgba(139,92,246,0.4); } 
+    .badge-ji  { background-color: #10B981; color: #FFF; box-shadow: 0 1px 2px rgba(16,185,129,0.4); } 
 
     .mini-badge { display: inline-flex; width: 13px; height: 13px; border-radius: 50%; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; flex-shrink: 0; }
 
@@ -371,21 +371,23 @@
   <script>
     /* 
      * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-12 21:42:00
+     * 작성일시: 2026-09-12 21:50:00
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
       ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbzt_qNVOnMkcrNHOJFE9sTiRAjzq9TCfG3Ea8K_fQxSCvbpOEDiNWzJUjMXiBmE-3WoXw/exec',
-      MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
+      
+      // 요청하신 순서: 선윤수주희지 (김선미, 이윤영, 이수정, 홍주란, 김희정, 박지희)
+      MEMBERS: ['김선미', '이윤영', '이수정', '홍주란', '김희정', '박지희'],
       
       MEMBER_SHORT: {
         '김선미': { char: '선', cls: 'badge-sun' },
-        '김희정': { char: '희', cls: 'badge-hee' },
-        '박지희': { char: '지', cls: 'badge-ji' },
-        '이수정': { char: '수', cls: 'badge-soo' },
         '이윤영': { char: '윤', cls: 'badge-yun' },
-        '홍주란': { char: '주', cls: 'badge-joo' }
+        '이수정': { char: '수', cls: 'badge-soo' },
+        '홍주란': { char: '주', cls: 'badge-joo' },
+        '김희정': { char: '희', cls: 'badge-hee' },
+        '박지희': { char: '지', cls: 'badge-ji' }
       },
       
       EXCLUDE_FILE_IDS: [
@@ -538,10 +540,6 @@
       }
     }
 
-    /* 
-     * 서버 데이터 동기화
-     * 작성일시: 2026-09-12 21:42:00
-     */
     async function syncServerData() {
       try {
         const res = await fetch(`${CONFIG.ATTENDANCE_WEBAPP_URL}?_cb=${Date.now()}`);
@@ -872,13 +870,33 @@
         return;
       }
 
+      const now = new Date();
+      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const yesterdayStart = new Date(todayStart.getTime() - 24 * 60 * 60 * 1000);
+
       let html = '';
       noticeList.forEach((item, index) => {
-        const newBadge = item.isNew ? '<span class="new-badge">NEW</span>' : '';
+        let badgeHtml = '';
+        if (item.timestamp) {
+          const itemDate = new Date(item.timestamp);
+          if (itemDate >= todayStart) {
+            badgeHtml = '<span class="date-badge-today">오늘</span>';
+          } else if (itemDate >= yesterdayStart) {
+            badgeHtml = '<span class="date-badge-1day">1일전</span>';
+          } else {
+            const diffDays = Math.floor((todayStart - new Date(itemDate.getFullYear(), itemDate.getMonth(), itemDate.getDate())) / (1000 * 60 * 60 * 24));
+            badgeHtml = `<span class="date-badge-old">${diffDays}일전</span>`;
+          }
+        } else if (item.isNew) {
+          badgeHtml = '<span class="date-badge-today">오늘</span>';
+        } else {
+          badgeHtml = '<span class="date-badge-old">이전</span>';
+        }
+
         html += `
           <div class="notice-item-row">
             <div class="notice-content-wrap">
-              ${newBadge}
+              ${badgeHtml}
               <span class="notice-text" title="${item.text}">${item.text}</span>
             </div>
             <button class="notice-btn btn-del-row" onclick="deleteNotice(${index})">삭제</button>
@@ -898,8 +916,7 @@
       }
 
       let currentNotices = [...noticeList];
-      currentNotices.forEach(item => item.isNew = false);
-      currentNotices.unshift({ text: text, isNew: true });
+      currentNotices.unshift({ text: text, isNew: true, timestamp: new Date().toISOString() });
 
       updateServerNotices(currentNotices);
       input.value = '';
@@ -1151,7 +1168,6 @@
           }
         }
         
-        // 최대 5개로 축소
         allFiles = uniqueFiles.slice(0, 5);
 
         if (allFiles.length > 0) {
@@ -1160,15 +1176,14 @@
             const dateObj = new Date(file.modifiedTime);
             const dateStr = `${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
             
-            // 뱃지 계산 로직 (오늘 / 1일전 / X일전)
             let badgeHtml = '';
             if (dateObj >= todayStart) {
               badgeHtml = '<span class="date-badge-today">오늘</span>';
             } else if (dateObj >= yesterdayStart) {
-              badgeHtml = '<span class="date-badge-1day">1일 전</span>';
+              badgeHtml = '<span class="date-badge-1day">1일전</span>';
             } else {
               const diffDays = Math.floor((todayStart - new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate())) / (1000 * 60 * 60 * 24));
-              badgeHtml = `<span class="date-badge-old">${diffDays}일 전</span>`;
+              badgeHtml = `<span class="date-badge-old">${diffDays}일전</span>`;
             }
 
             let openUrl = file.webViewLink;
