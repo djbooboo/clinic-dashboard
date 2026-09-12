@@ -81,38 +81,51 @@
     .cal-table th.sun { color: #DC2626; }
     .cal-table th.sat { color: #2563EB; }
     
-    .cal-table td { height: 82px; border: 1px solid #E5E7EB; background-color: #FFFFFF; vertical-align: top; padding: 4px; cursor: pointer; transition: background 0.15s; overflow: hidden; }
+    .cal-table td { height: 86px; border: 1px solid #E5E7EB; background-color: #FFFFFF; vertical-align: top; padding: 3px; cursor: pointer; transition: background 0.15s; overflow: hidden; }
     .cal-table td:hover { background-color: #F3F4F6; }
     .cal-table td.empty { background-color: #F9FAFB; cursor: default; border-color: transparent; }
-    .cal-date-num { font-size: 12px; font-weight: bold; color: #374151; line-height: 1; margin-bottom: 4px; }
+    .cal-date-num { font-size: 12px; font-weight: bold; color: #374151; line-height: 1; margin-bottom: 3px; }
     
-    /* 🔴 토요일/일요일 기본 색상 처리 */
     .cal-table td.is-sun .cal-date-num { color: #DC2626; }
     .cal-table td.is-sat .cal-date-num { color: #2563EB; }
-    
-    /* 🔵 반일 근무 (요일 색상보다 우선 적용) */
     .cal-table td.is-halfday .cal-date-num { color: #2563EB !important; }
-    
-    /* 🔴 휴무일 (토요일이라도 휴무일 설정 시 최우선 빨간색 적용) */
     .cal-table td.is-holiday .cal-date-num { color: #DC2626 !important; }
-    
     .cal-table td.is-today { background-color: #EFF6FF; border: 2px solid #3B82F6; }
     .cal-table td.is-today .cal-date-num { color: #1D4ED8; }
     
-    /* 🏷️ 달력 근무자, 업무 태그 */
-    .cal-worker-tag { font-size: 10.5px; color: #046C4E; background: #D1FAE5; border: 1px solid #A7F3D0; border-radius: 3px; padding: 1.5px 4px; margin-bottom: 3px; white-space: normal; word-break: break-all; display: block; line-height: 1.3; font-weight: 500; letter-spacing: -0.2px; }
-    .cal-task-tag { font-size: 10.5px; color: #B45309; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 3px; padding: 1.5px 4px; white-space: normal; word-break: break-all; display: block; line-height: 1.3; font-weight: 400; letter-spacing: -0.2px; }
-    
+    /* 🏷️ 달력 내부 배지 스타일 */
+    .cal-slot-row { font-size: 10px; font-weight: bold; margin-bottom: 1.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 2px; }
+    .cal-task-tag { font-size: 10px; color: #B45309; background: #FEF3C7; border: 1px solid #FDE68A; border-radius: 3px; padding: 1px 3px; white-space: normal; word-break: break-all; display: block; line-height: 1.2; font-weight: 400; margin-top: 2px; }
+
+    /* 🟢 인원별 약자 배지 디자인 (달력 및 모달용 공통) */
+    .badge-sun { background-color: #DB2777; color: #FFF; } /* 선 */
+    .badge-ji  { background-color: #059669; color: #FFF; } /* 지 */
+    .badge-yun { background-color: #D97706; color: #FFF; } /* 윤 */
+    .badge-hee { background-color: #7C3AED; color: #FFF; } /* 희 */
+    .badge-soo { background-color: #2563EB; color: #FFF; } /* 수 */
+    .badge-joo { background-color: #DC2626; color: #FFF; } /* 주 */
+
+    .mini-badge { display: inline-flex; width: 16px; height: 16px; border-radius: 50%; align-items: center; justify-content: center; font-size: 9.5px; font-weight: bold; flex-shrink: 0; }
+
+    /* 모달 내부 선택형 배지 그룹 */
+    .modal-badge-container { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .select-badge { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; cursor: pointer; border: 2px solid transparent; opacity: 0.4; transition: all 0.2s; user-select: none; }
+    .select-badge.selected { opacity: 1; border-color: #FFFFFF; transform: scale(1.1); box-shadow: 0 0 6px rgba(255,255,255,0.4); }
+
     .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; display: none; }
-    .modal-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 20px 24px; width: 340px; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    .modal-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 20px 24px; width: 360px; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
     .modal-msg { font-size: 14px; color: #FFFFFF; margin-bottom: 12px; line-height: 1.4; font-weight: bold; }
     .modal-input-group { margin-bottom: 10px; }
-    .modal-label { font-size: 11.5px; color: #D1D5DB; margin-bottom: 4px; display: block; }
+    .modal-label { font-size: 11.5px; color: #D1D5DB; margin-bottom: 4px; display: block; font-weight: bold; }
     .modal-field { width: 100%; border: 1px solid #4B5563; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; color: #FFFFFF; background-color: #121212; outline: none; }
     .modal-field:focus { border-color: #3B82F6; }
-    .modal-checkbox-group { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-    .modal-checkbox-group input { width: 16px; height: 16px; cursor: pointer; }
-    .modal-checkbox-group label { font-size: 12px; cursor: pointer; font-weight: bold; }
+    
+    /* 3번 요구사항: 휴무일과 반일근무 선택 한 줄 배치 */
+    .modal-inline-options { display: flex; gap: 16px; align-items: center; margin-bottom: 12px; background: #121212; padding: 8px 10px; border-radius: 6px; border: 1px solid #374151; }
+    .modal-checkbox-group { display: flex; align-items: center; gap: 6px; }
+    .modal-checkbox-group input { width: 15px; height: 15px; cursor: pointer; }
+    .modal-checkbox-group label { font-size: 11.5px; cursor: pointer; font-weight: bold; }
+
     .modal-btn-group { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
     .modal-btn { padding: 6px 14px; font-size: 12px; font-weight: bold; border-radius: 5px; border: none; cursor: pointer; }
     .modal-btn-confirm { background-color: #2563EB; color: #FFF; }
@@ -358,6 +371,16 @@
       ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyKr4JmS5ci8KUNmTR1LZIcY6rwOvvqE8D8Vgs8IDWvh8zy-vIzSfom2HW-guHZkxDzGw/exec',
       MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
       
+      // 인원별 약자 및 고유 클래스 매핑
+      MEMBER_SHORT: {
+        '김선미': { char: '선', cls: 'badge-sun' },
+        '김희정': { char: '희', cls: 'badge-hee' },
+        '박지희': { char: '지', cls: 'badge-ji' },
+        '이수정': { char: '수', cls: 'badge-soo' },
+        '이윤영': { char: '윤', cls: 'badge-yun' },
+        '홍주란': { char: '주', cls: 'badge-joo' }
+      },
+      
       EXCLUDE_FILE_IDS: [
         '1ZsSm2XH8quFJ8Q3lgs9hq1zjLd5xavGnvhWx3xUSNEo',
         '1GHiMHhcsJtPRw0euHWe3ILSjCViXl8SOeRmCKykBNFo',
@@ -536,9 +559,10 @@
             let isHol = (item.isHoliday === true || String(item.isHoliday).toUpperCase() === 'TRUE' || item.isHoliday === 1 || String(item.isHoliday) === '1');
             let isHalf = (item.isHalfDay === true || String(item.isHalfDay).toUpperCase() === 'TRUE' || item.isHalfDay === 1 || String(item.isHalfDay) === '1');
             
-            if (!calendarData[k] || item.worker !== '' || item.task !== '' || isHol || isHalf) {
+            if (!calendarData[k] || item.morningWorker !== undefined || item.afternoonWorker !== undefined || item.worker !== '' || item.task !== '' || isHol || isHalf) {
               calendarData[k] = {
-                worker: item.worker || "",
+                morningWorker: item.morningWorker || item.worker || "",
+                afternoonWorker: item.afternoonWorker || "",
                 task: item.task || "",
                 isHoliday: isHol,
                 isHalfDay: isHalf
@@ -549,6 +573,28 @@
       } catch (e) {
         console.error("서버 데이터 동기화 중 오류:", e);
       }
+    }
+
+    // 이름 문자열을 분석하여 약자 배지 HTML로 변환해주는 헬퍼 함수
+    function renderMemberBadgesHtml(workerStr) {
+      if (!workerStr) return '';
+      let names = workerStr.split(',').map(n => n.trim()).filter(n => n);
+      let html = '';
+      names.forEach(fullName => {
+        // 만약 기존에 전체 이름으로 저장되어 있거나 약자 그대로 입력된 경우 대응
+        let info = CONFIG.MEMBER_SHORT[fullName];
+        if (!info) {
+          // 이름 중에 포함되어 있는지 찾기
+          let foundKey = Object.keys(CONFIG.MEMBER_SHORT).find(k => k.includes(fullName) || CONFIG.MEMBER_SHORT[k].char === fullName);
+          if (foundKey) {
+            info = CONFIG.MEMBER_SHORT[foundKey];
+          } else {
+            info = { char: fullName.charAt(0), cls: 'badge-sun' };
+          }
+        }
+        html += `<span class="mini-badge ${info.cls}" title="${fullName}">${info.char}</span> `;
+      });
+      return html;
     }
 
     function renderCalendar() {
@@ -596,9 +642,17 @@
               if (item.isHalfDay) {
                 td.classList.add('is-halfday');
               }
-              if (item.worker) {
-                innerHtml += `<span class="cal-worker-tag" title="근무자: ${item.worker}">👤 ${item.worker}</span>`;
+
+              let mornStr = item.morningWorker || "";
+              let aftStr = item.afternoonWorker || "";
+
+              if (mornStr) {
+                innerHtml += `<div class="cal-slot-row" title="오전: ${mornStr}"><span style="color:#9CA3AF; font-size:9px;">전</span> ${renderMemberBadgesHtml(mornStr)}</div>`;
               }
+              if (aftStr) {
+                innerHtml += `<div class="cal-slot-row" title="오후: ${aftStr}"><span style="color:#9CA3AF; font-size:9px;">후</span> ${renderMemberBadgesHtml(aftStr)}</div>`;
+              }
+
               if (item.task) {
                 innerHtml += `<span class="cal-task-tag" title="업무: ${item.task}">📋 ${item.task}</span>`;
               }
@@ -630,22 +684,47 @@
     function openCalendarEditModal(dateKey, dayNum) {
       const year = calCurrentDate.getFullYear();
       const month = calCurrentDate.getMonth() + 1;
-      const currentVal = calendarData[dateKey] || { worker: '', task: '', isHoliday: false, isHalfDay: false };
+      const currentVal = calendarData[dateKey] || { morningWorker: '', afternoonWorker: '', task: '', isHoliday: false, isHalfDay: false };
 
+      let currentMornList = currentVal.morningWorker ? currentVal.morningWorker.split(',').map(s => s.trim()) : [];
+      let currentAftList = currentVal.afternoonWorker ? currentVal.afternoonWorker.split(',').map(s => s.trim()) : [];
+
+      let badgeOptionsHtml = '';
+      CONFIG.MEMBERS.forEach(fullName => {
+        let info = CONFIG.MEMBER_SHORT[fullName];
+        badgeOptionsHtml += `<div class="select-badge ${info.cls}" data-name="${fullName}" onclick="toggleModalBadge(this)">${info.char}</div>`;
+      });
+
+      let badgeOptionsAftHtml = '';
+      CONFIG.MEMBERS.forEach(fullName => {
+        let info = CONFIG.MEMBER_SHORT[fullName];
+        badgeOptionsAftHtml += `<div class="select-badge ${info.cls}" data-name="${fullName}" onclick="toggleModalBadge(this)">${info.char}</div>`;
+      });
+
+      // 요구사항 3: 휴무일과 반일 근무 선택은 한 줄에 배치
       const bodyHtml = `
-        <div class="modal-checkbox-group">
-          <input type="checkbox" id="calInputHoliday" ${currentVal.isHoliday ? 'checked' : ''} onchange="if(this.checked) document.getElementById('calInputHalfDay').checked = false;">
-          <label for="calInputHoliday" style="color:#FCA5A5;">🔴 휴무일로 지정 (빨간색)</label>
+        <div class="modal-inline-options">
+          <div class="modal-checkbox-group">
+            <input type="checkbox" id="calInputHoliday" ${currentVal.isHoliday ? 'checked' : ''} onchange="if(this.checked) document.getElementById('calInputHalfDay').checked = false;">
+            <label for="calInputHoliday" style="color:#FCA5A5;">🔴 휴무일</label>
+          </div>
+          <div class="modal-checkbox-group">
+            <input type="checkbox" id="calInputHalfDay" ${currentVal.isHalfDay ? 'checked' : ''} onchange="if(this.checked) document.getElementById('calInputHoliday').checked = false;">
+            <label for="calInputHalfDay" style="color:#60A5FA;">🔵 반일 근무</label>
+          </div>
         </div>
-        <div class="modal-checkbox-group">
-          <input type="checkbox" id="calInputHalfDay" ${currentVal.isHalfDay ? 'checked' : ''} onchange="if(this.checked) document.getElementById('calInputHoliday').checked = false;">
-          <label for="calInputHalfDay" style="color:#60A5FA;">🔵 반일 근무로 지정 (파란색)</label>
-        </div>
-        <div class="modal-input-group" style="margin-top: 10px;">
-          <label class="modal-label">👤 근무자 이름</label>
-          <input type="text" id="calInputWorker" class="modal-field" placeholder="예: 김선미, 박지희" value="${currentVal.worker || ''}">
-        </div>
+
         <div class="modal-input-group">
+          <label class="modal-label">☀️ 오전 근무자 선택</label>
+          <div id="mornBadgeGroup" class="modal-badge-container">${badgeOptionsHtml}</div>
+        </div>
+
+        <div class="modal-input-group" style="margin-top: 10px;">
+          <label class="modal-label">🌙 오후 근무자 선택</label>
+          <div id="aftBadgeGroup" class="modal-badge-container">${badgeOptionsAftHtml}</div>
+        </div>
+
+        <div class="modal-input-group" style="margin-top: 12px;">
           <label class="modal-label">📋 일일 업무 내용</label>
           <input type="text" id="calInputTask" class="modal-field" placeholder="예: 한약재 재고 조사, 소독" value="${currentVal.task || ''}">
         </div>
@@ -656,10 +735,22 @@
 
         const isHoliday = document.getElementById('calInputHoliday').checked;
         const isHalfDay = document.getElementById('calInputHalfDay').checked;
-        const worker = document.getElementById('calInputWorker').value.trim();
+        
+        let mornSelected = [];
+        document.querySelectorAll('#mornBadgeGroup .select-badge.selected').forEach(el => {
+          mornSelected.push(el.getAttribute('data-name'));
+        });
+
+        let aftSelected = [];
+        document.querySelectorAll('#aftBadgeGroup .select-badge.selected').forEach(el => {
+          aftSelected.push(el.getAttribute('data-name'));
+        });
+
+        const morningWorker = mornSelected.join(', ');
+        const afternoonWorker = aftSelected.join(', ');
         const task = document.getElementById('calInputTask').value.trim();
 
-        calendarData[dateKey] = { worker: worker, task: task, isHoliday: isHoliday, isHalfDay: isHalfDay };
+        calendarData[dateKey] = { morningWorker: morningWorker, afternoonWorker: afternoonWorker, task: task, isHoliday: isHoliday, isHalfDay: isHalfDay };
         renderCalendar();
 
         showToast('💾 달력 일정을 저장 중입니다...');
@@ -668,7 +759,9 @@
           const payloadData = {
             type: 'UPDATE_CALENDAR',
             dateKey: dateKey,
-            worker: worker,
+            morningWorker: morningWorker,
+            afternoonWorker: afternoonWorker,
+            worker: morningWorker, // 호환성 유지
             task: task,
             isHoliday: isHoliday,
             isHalfDay: isHalfDay
@@ -685,7 +778,7 @@
             let savedLocalVal = Object.assign({}, calendarData[dateKey]);
             await syncServerData();
             
-            if (savedLocalVal && (savedLocalVal.worker || savedLocalVal.task || savedLocalVal.isHoliday || savedLocalVal.isHalfDay)) {
+            if (savedLocalVal && (savedLocalVal.morningWorker || savedLocalVal.afternoonWorker || savedLocalVal.task || savedLocalVal.isHoliday || savedLocalVal.isHalfDay)) {
               calendarData[dateKey] = savedLocalVal;
             }
             
@@ -698,6 +791,28 @@
           showToast('일정 저장 중 오류가 발생했습니다.');
         }
       });
+
+      // 모달이 열린 직후 기존 저장된 근무자 배지 활성화 상태 반영
+      setTimeout(() => {
+        if (currentMornList.length > 0) {
+          document.querySelectorAll('#mornBadgeGroup .select-badge').forEach(badge => {
+            if (currentMornList.includes(badge.getAttribute('data-name'))) {
+              badge.classList.add('selected');
+            }
+          });
+        }
+        if (currentAftList.length > 0) {
+          document.querySelectorAll('#aftBadgeGroup .select-badge').forEach(badge => {
+            if (currentAftList.includes(badge.getAttribute('data-name'))) {
+              badge.classList.add('selected');
+            }
+          });
+        }
+      }, 50);
+    }
+
+    function toggleModalBadge(el) {
+      el.classList.toggle('selected');
     }
 
     async function updateServerNotices(newList) {
@@ -955,7 +1070,6 @@
       loadRecentFiles();
     }
 
-    // CORS 에러 완벽 해결 버전 (커스텀 헤더 제거)
     async function loadRecentFiles() {
       const contentEl = document.getElementById('resultsContent');
       contentEl.innerHTML = '<p style="color:#9CA3AF; padding:4px 0; font-size:12px;">최신 데이터를 불러오는 중...</p>';
@@ -975,10 +1089,8 @@
           
           let fetchOptions = {};
           if (accessToken) {
-            // 로그인 상태에서는 인증 헤더만 간단하게 전달 (CORS 프리플라이트 유발 최소화)
             fetchOptions.headers = { 'Authorization': `Bearer ${accessToken}` };
           } else {
-            // 비로그인 상태에서는 API 키를 파라미터로 첨부
             url += `&key=${CONFIG.API_KEY}`;
           }
 
