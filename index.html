@@ -7,11 +7,12 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-12 21:55:00
+    * 작성일시: 2026-09-12 22:02:00
     * 주요내용: 
-      1. 선윤수주희지 순서 반영
-      2. 날짜/공지 뱃지 띄어쓰기 제거 및 폭 통일 (오늘, 1일전)
-      3. 임시공지 뱃지 시스템 적용 완료
+      1. 새로운 웹 앱 배포 ID 연동 완료
+      2. 선윤수주희지 순서 반영
+      3. 날짜/공지 뱃지 띄어쓰기 제거 및 폭 통일 (오늘, 1일전)
+      4. 임시공지 뱃지 시스템 적용 완료
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -370,12 +371,13 @@
   <script>
     /* 
      * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-12 21:55:00
+     * 작성일시: 2026-09-12 22:02:00
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
-      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbzt_qNVOnMkcrNHOJFE9sTiRAjzq9TCfG3Ea8K_fQxSCvbpOEDiNWzJUjMXiBmE-3WoXw/exec',
+      // 사용자가 직접 생성한 새로운 웹 앱 배포 ID 반영 완료
+      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbxV8bQsO2kmjw_AI8ozcB9G_NrtITfcYYdLPlcPeU434PRitYU6jdlo5kA3NIr8X7W_pw/exec',
       
       MEMBERS: ['김선미', '이윤영', '이수정', '홍주란', '김희정', '박지희'],
       
