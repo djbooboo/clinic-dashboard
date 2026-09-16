@@ -7,11 +7,10 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-12 22:50:00
+    * 작성일시: 2026-09-16 13:42:00
     * 주요내용: 
-      1. 최신 성공 버전 유지 (TODAY 뱃지, 최신 웹 앱 ID, 가나다순 정렬)
-      2. 출퇴근 기록 미니 뱃지 아이콘 적용 유지
-      3. 상단 레이아웃 공백 제거 및 문서/출퇴근/달력/임시공지 높이 최적화
+      1. 최신 성공 버전 유지 (토/일 및 반일근무 시인성 강화 적용 완료)
+      2. 오늘 날짜 표시를 헷갈리지 않도록 녹색 계열(#059669 / #10B981)으로 변경
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -101,8 +100,10 @@
     
     .cal-table { width: 100%; border-collapse: collapse; margin-top: 4px; font-size: 12px; table-layout: fixed; flex-grow: 1; }
     .cal-table th { color: #4B5563; padding: 3px 2px; text-align: center; font-weight: bold; font-size: 11.5px; border-bottom: 2px solid #E5E7EB; background-color: #F3F4F6; }
-    .cal-table th.sun { color: #DC2626; }
-    .cal-table th.sat { color: #2563EB; }
+    /* 일요일 및 공휴일 헤더 */
+    .cal-table th.sun { color: #DC2626; font-weight: 900; }
+    /* 토요일 헤더 */
+    .cal-table th.sat { color: #1D4ED8; font-weight: 900; }
     
     .cal-table td { height: 58px; border: 1px solid #E5E7EB; background-color: #FFFFFF; vertical-align: top; padding: 2px; cursor: pointer; transition: background 0.15s; overflow: hidden; position: relative; }
     .cal-table td:hover { background-color: #F3F4F6; }
@@ -111,12 +112,19 @@
     .cal-cell-header { display: flex; align-items: center; justify-content: flex-end; gap: 2px; margin-bottom: 1px; flex-wrap: wrap; }
     .cal-date-num { font-size: 11px; font-weight: bold; color: #374151; line-height: 1; margin-right: auto; }
     
-    .cal-table td.is-sun .cal-date-num { color: #DC2626; }
-    .cal-table td.is-sat .cal-date-num { color: #2563EB; }
-    .cal-table td.is-halfday .cal-date-num { color: #2563EB !important; }
-    .cal-table td.is-holiday .cal-date-num { color: #DC2626 !important; }
-    .cal-table td.is-today { background-color: #EFF6FF; border: 2px solid #3B82F6; }
-    .cal-table td.is-today .cal-date-num { color: #1D4ED8; }
+    /* 일요일 날짜 숫자 */
+    .cal-table td.is-sun .cal-date-num { color: #DC2626 !important; font-weight: 800; }
+    /* 토요일 날짜 숫자 */
+    .cal-table td.is-sat .cal-date-num { color: #1D4ED8 !important; font-weight: 800; }
+    /* 반일 근무 날짜 숫자 및 배경 */
+    .cal-table td.is-halfday { background-color: #EFF6FF !important; }
+    .cal-table td.is-halfday .cal-date-num { color: #1D4ED8 !important; font-weight: 900 !important; }
+    
+    .cal-table td.is-holiday .cal-date-num { color: #DC2626 !important; font-weight: 900 !important; }
+    
+    /* 오늘 날짜 표시 (녹색 계열로 변경) */
+    .cal-table td.is-today { background-color: #ECFDF5 !important; border: 2px solid #10B981 !important; }
+    .cal-table td.is-today .cal-date-num { color: #047857 !important; font-weight: 900 !important; }
     
     .cal-slot-inline { display: inline-flex; align-items: center; gap: 1px; font-size: 8px; font-weight: bold; background: #F3F4F6; padding: 0.5px 2px; border-radius: 2px; border: 1px solid #E5E7EB; }
     .cal-slot-label { font-size: 8px; margin-right: 0.5px; line-height: 1; }
@@ -324,6 +332,8 @@
         <li class="link-item"><a href="https://docs.google.com/document/d/1SclAzFjX73qOkNt8gfIDSgYx4JVD5iHM7XyP9jIoqRM/edit?usp=sharing" target="_blank">💳 카드단말기 관련</a></li>
         <li class="link-item"><a href="https://docs.google.com/document/d/1QVb4FkcNvcdGV2dBUhLG49xNH8gwBDd7DQ9fB4nW5y8/edit?usp=sharing" target="_blank">📦 안전하게 택배 발송하기</a></li>
         <li class="link-item"><a href="https://docs.google.com/document/d/1psZ-QnxTu5s5ujJNeAR3Z_HL4P88GJAj-bify8szb2U/edit?usp=sharing" target="_blank">💊 공진단 매뉴얼</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1MD_7XjpLbnZBPB1YqZznNsUbkiGCwizSnjKHjRcqgso/edit?usp=sharing" target="_blank">🧹 ICT 청소 매뉴얼</a></li>
+        <li class="link-item"><a href="https://docs.google.com/document/d/1ArijjS76BRt7KHOpmb7VweXek20ZFssSte5OlDRH9cE/edit?usp=sharing" target="_blank">🛠️ 기기구 관리 및 수리법</a></li>
         <li class="link-item"><a href="https://docs.google.com/document/d/14l4L_4TjshMMJHta0OKBWfzZAbwJzOPHiZAL5VDSZHM/edit?usp=sharing" target="_blank">🔥 난방 설명서</a></li>
         <li class="link-item"><a href="https://docs.google.com/document/d/1sO977hK2ir0aClN5x6xEwRI26mphKtdG9CMlByihNL0/edit?usp=sharing" target="_blank">❄️ 에어컨 관련</a></li>
         <li class="link-item"><a href="https://docs.google.com/document/d/19PDNhI9ljimpZfriqSrskKmnL-KqBaCFMzBQ65blIqA/edit?usp=sharing" target="_blank">⚡ 정전시 매뉴얼</a></li>
@@ -381,7 +391,7 @@
   <script>
     /* 
      * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-12 22:50:00
+     * 작성일시: 2026-09-16 13:42:00
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
