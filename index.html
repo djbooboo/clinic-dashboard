@@ -7,9 +7,9 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-17 09:20:00
+    * 작성일시: 2026-09-17 09:25:00
     * 주요내용: 
-      1. 좌측 상단 타이틀 옆에 '스마트홈 IOT' 버튼 추가 (http://192.168.0.12:8123/ 연동)
+      1. '스마트홈 IOT' 버튼 색상을 노란색 계열로 변경 (http://192.168.0.12:8123/ 연동)
       2. 진료원장 로그인 시 '진료' 폴더(CONFIG.FOLDERS.DOCTOR) 정상 조회 유지
     ====================================================
   -->
@@ -25,9 +25,9 @@
     .title-wrapper { display: flex; align-items: center; gap: 12px; margin-bottom: 2px; }
     .title { font-size: 32px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.5px; line-height: 1; }
     
-    /* 스마트홈 IOT 버튼 스타일 */
-    .btn-smarthome { padding: 6px 12px; background: #065F46; color: #6EE7B7; border: 1px solid #059669; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; transition: background 0.2s; }
-    .btn-smarthome:hover { background: #047857; color: #FFFFFF; }
+    /* 스마트홈 IOT 버튼 스타일 (노란색 계열) */
+    .btn-smarthome { padding: 6px 12px; background: #78350F; color: #FDE047; border: 1px solid #D97706; border-radius: 5px; text-decoration: none; font-weight: bold; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; transition: background 0.2s; }
+    .btn-smarthome:hover { background: #92400E; color: #FFFFFF; }
     
     .auth-btn-group { display: flex; gap: 10px; align-items: center; }
     .role-badge { padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; background: #2A2A2A; border: 1px solid #4B5563; color: #E5E7EB; }
@@ -393,7 +393,7 @@
   <script>
     /* 
      * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-17 09:20:00
+     * 작성일시: 2026-09-17 09:25:00
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
