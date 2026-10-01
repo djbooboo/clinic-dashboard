@@ -7,10 +7,11 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-10-01 15:15:00
+    * 작성일시: 2026-10-01 17:58:00
     * 주요 수정: 
-      1. 진료진 공지 파일(1HATTWrOuyAAYbZhnhOsPbDaunzaIcouQm6Y3PXOhlJc) 수정 사항이 
-         [최근 업데이트 문서]에 즉시 반영되도록 API 조회 로직 보완
+      1. [경영] 섹션에 '시급제 급여계산' 파일 링크 추가
+      2. 웹앱 URL 및 진료진 공지 핀포인트 추적 로직 유지
+      3. [진료] 섹션 3개 링크(복용 설명서, 제중학회, 통증의 원리와 통찰) 유지
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -388,6 +389,7 @@
       <ul class="link-list">
         <li class="link-item"><a href="https://docs.google.com/document/d/14KpBGM7Ow-CYR-CsTDBMJoyTFkjoXyhPlHUWqTp0u6c/edit?usp=sharing" target="_blank">💵 급여 계산 및 명세서 작성</a></li>
         <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/14JXATBgZ4A6SDRQW9HdVLsgUhzUDkPMaxH3P1wmj-KE/edit?usp=sharing" target="_blank">⏰ 근태기록</a></li>
+        <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1NmA1hjMRmCzuv0h7iinaMmJhkFwVZD2bu0fuoLYUZM0/edit?usp=sharing" target="_blank">🧮 시급제 급여계산</a></li>
       </ul>
     </div>
   </div>
@@ -396,7 +398,7 @@
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
       CLIENT_ID: '757943296763-pk2ffb4r879dn44v55qhvmpsi1891hhj.apps.googleusercontent.com',
-      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbw3-bJ31tj9TEJ4ea9wzGLSdjDBeHun0RNS8QzQEhdT1tBL4OGnPBNuNrWynrkEO6J9Cw/exec',
+      ATTENDANCE_WEBAPP_URL: 'https://script.google.com/macros/s/AKfycbyYAJdaZbkhjo0X73s6fhB2bXt9RABywNKmmhehzFkKu2jGVBj6Jxj52pHpkwTmyRKj0w/exec',
       
       MEMBERS: ['김선미', '김희정', '박지희', '이수정', '이윤영', '홍주란'],
       
@@ -415,7 +417,6 @@
         '1DszbN7mLi7BCin_2k_B4fxuMQ3emfLfYhcuNe6cR0uw'
       ],
 
-      // 항상 우선 추적할 핵심 문서 목록 (진료진 공지 등)
       PINPOINT_FILE_IDS: [
         '1HATTWrOuyAAYbZhnhOsPbDaunzaIcouQm6Y3PXOhlJc' // 진료진 공지
       ],
@@ -1157,7 +1158,6 @@
       try {
         const timestamp = new Date().getTime();
 
-        // 1. 폴더 기준 최근 파일 검색
         const folderRequests = accessibleFolders.map(folderId => {
           const query = `'${folderId}' in parents and mimeType != 'application/vnd.google-apps.folder' and trashed = false`;
           
@@ -1179,7 +1179,6 @@
             });
         });
 
-        // 2. 핀포인트 핵심 문서(진료진 공지 등) 메타데이터 직접 조회
         const isDoctorOrAdmin = accessibleFolders.includes(CONFIG.FOLDERS.DOCTOR);
         const pinpointRequests = (isDoctorOrAdmin && CONFIG.PINPOINT_FILE_IDS) ? CONFIG.PINPOINT_FILE_IDS.map(fileId => {
           let url = `https://www.googleapis.com/drive/v3/files/${fileId}?fields=id,name,webViewLink,mimeType,modifiedTime&supportsAllDrives=true&_t=${timestamp}`;
