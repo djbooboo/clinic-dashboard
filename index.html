@@ -7,10 +7,11 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-09-17 09:25:00
+    * 작성일시: 2026-10-01 11:30:00
     * 주요내용: 
       1. '스마트홈 IOT' 버튼 색상을 노란색 계열로 변경 (http://192.168.0.12:8123/ 연동)
       2. 진료원장 로그인 시 '진료' 폴더(CONFIG.FOLDERS.DOCTOR) 정상 조회 유지
+      3. 진료 섹션에 '복용 설명서', '제중학회', '통증의 원리와 통찰' 링크 추가
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -370,8 +371,11 @@
       <ul class="link-list">
         <li class="link-item"><a href="https://docs.google.com/document/d/1HATTWrOuyAAYbZhnhOsPbDaunzaIcouQm6Y3PXOhlJc/edit?usp=sharing" target="_blank">📢 진료진 공지</a></li>
         <li class="link-item"><a href="https://docs.google.com/spreadsheets/d/1w2e4esHCPgNZATqvx8FmT_pcz4LYOpUVwbqLguKKH0o/edit?usp=sharing" target="_blank">💊 복약 설명 문구</a></li>
+        <li class="link-item"><a href="https://notebook.google.com/notebook/719cb71c-0311-4d1e-a642-6959a52d150a" target="_blank">📜 복용 설명서</a></li>
         <li class="link-item"><a href="https://docs.google.com/document/d/1zO9iIyPdefBfatrRV8VMSEI5LSoHtOWVrV3OcapRJs0/edit?usp=sharing" target="_blank">🩺 주요 질환 설명</a></li>
         <li class="link-item"><a href="https://docs.google.com/document/d/1EX9KY80ugtWsvf1YPXd8xjURbGwN_0U3HFzcG7DkC3Y/edit?usp=sharing" target="_blank">🌿 탕전 방법과 약재-한의사</a></li>
+        <li class="link-item"><a href="https://notebook.google.com/notebook/16a785b2-6a83-498d-befe-ef23c4356d1e" target="_blank">📚 제중학회</a></li>
+        <li class="link-item"><a href="https://notebook.google.com/notebook/38b45621-a143-4948-bdb1-3e73f6d55e1e" target="_blank">💡 통증의 원리와 통찰</a></li>
       </ul>
     </div>
 
@@ -393,7 +397,7 @@
   <script>
     /* 
      * 대시보드 스크립트 설정
-     * 작성일시: 2026-09-17 09:25:00
+     * 작성일시: 2026-10-01 11:30:00
      */
     const CONFIG = {
       API_KEY: 'AIzaSyBHQm2I2lKyfaAOXuVHA-aEfh3Cd9butmw',
@@ -670,7 +674,7 @@
               let aftStr = item.afternoonWorker || "";
 
               if (mornStr) {
-                innerHtml += `<span class="cal-slot-inline" title="DESK 근무: ${mornStr}"><span class="cal-slot-label">🖥️</span>${renderMemberBadgesHtml(mornStr)}</span>`;
+                innerHtml += `<span class="cal-slot-inline" title="DESK 근무: ${mornStr}"><span class="cal-slot-label">🖥️️</span>${renderMemberBadgesHtml(mornStr)}</span>`;
               }
               if (aftStr) {
                 innerHtml += `<span class="cal-slot-inline" title="근무 OFF: ${aftStr}"><span class="cal-slot-label">🌴</span>${renderMemberBadgesHtml(aftStr)}</span>`;
