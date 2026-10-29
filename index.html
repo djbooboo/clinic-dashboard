@@ -7,7 +7,7 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 업데이트: SMART CHART 2.0 진료 탭 및 핀포인트 추가 (원본 JS 로직 보존)
+    * 업데이트: 권한별 PINPOINT_FILES 분리 (탕전실 업무일지, 탕전 매뉴얼 추적 추가)
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -364,7 +364,6 @@
         <span class="column-subtext">제목을 누르면 해당 구글드라이브 폴더로 이동</span>
       </div>
       <ul class="link-list">
-        <li class="link-item"><a href="https://docs.google.com/document/d/135ElHLXc9fZiY-udpJ0JGSbChn11wggLafalWxjlQMI/edit?usp=sharing" target="_blank">🤖 SMART CHART 2.0</a></li>
         <li class="link-item"><a href="https://docs.google.com/document/d/1HATTWrOuyAAYbZhnhOsPbDaunzaIcouQm6Y3PXOhlJc/edit?usp=sharing" target="_blank">📢 진료진 공지</a></li>
         <li class="link-item"><a href="https://docs.google.com/document/d/1zO9iIyPdefBfatrRV8VMSEI5LSoHtOWVrV3OcapRJs0/edit?usp=sharing" target="_blank">🩺 주요 질환 설명</a></li>
         <li class="link-item"><a href="https://docs.google.com/document/d/1EX9KY80ugtWsvf1YPXd8xjURbGwN_0U3HFzcG7DkC3Y/edit?usp=sharing" target="_blank">🌿 탕전 방법과 약재-한의사</a></li>
@@ -409,15 +408,22 @@
       },
       
       EXCLUDE_FILE_IDS: [
-        '1ZsSm2XH8quFJ8Q3lgs9hq1zjLd5xavGnvhWx3xUSNEo',
-        '1GHiMHhcsJtPRw0euHWe3ILSjCViXl8SOeRmCKykBNFo',
-        '1DszbN7mLi7BCin_2k_B4fxuMQ3emfLfYhcuNe6cR0uw'
+        '1ZsSm2XH8quFJ8Q3lgs9hq1zjLd5xavGnvhWx3xUSNEo', // 한약재 재고 관리
+        '1GHiMHhcsJtPRw0euHWe3ILSjCViXl8SOeRmCKykBNFo', // 탕전 스케줄
+        '1DszbN7mLi7BCin_2k_B4fxuMQ3emfLfYhcuNe6cR0uw'  // 처방 조제 일지
       ],
 
-      PINPOINT_FILE_IDS: [
-        '135ElHLXc9fZiY-udpJ0JGSbChn11wggLafalWxjlQMI', // SMART CHART 2.0
-        '1HATTWrOuyAAYbZhnhOsPbDaunzaIcouQm6Y3PXOhlJc'  // 진료진 공지
-      ],
+      // 권한별로 명시적으로 추적할 특정 파일 ID 목록 분리
+      PINPOINT_FILES: {
+        DOCTOR: [
+          '135ElHLXc9fZiY-udpJ0JGSbChn11wggLafalWxjlQMI', // SMART CHART 2.0
+          '1HATTWrOuyAAYbZhnhOsPbDaunzaIcouQm6Y3PXOhlJc'  // 진료진 공지
+        ],
+        DECOCTION: [
+          '1PWbsh2Y_XuyPYpz2dvb7fnBSKjgmHSzk44dwMFjPIq8', // 탕전실 업무일지
+          '1mUL9vFPo7Yezb0wrXOgAa1R_6k-uwYim2tA7D7VAlw4'  // 탕전 매뉴얼
+        ]
+      },
 
       ACCOUNTS: {
         DECOCTION: ['samepsl89@gmail.com'],
@@ -1176,8 +1182,16 @@
             });
         });
 
-        const isDoctorOrAdmin = accessibleFolders.includes(CONFIG.FOLDERS.DOCTOR);
-        const pinpointRequests = (isDoctorOrAdmin && CONFIG.PINPOINT_FILE_IDS) ? CONFIG.PINPOINT_FILE_IDS.map(fileId => {
+        // 사용자의 권한(accessibleFolders)에 맞는 추적(Pinpoint) 파일 배열만 선별
+        let pinpointIds = [];
+        if (accessibleFolders.includes(CONFIG.FOLDERS.DOCTOR) && CONFIG.PINPOINT_FILES.DOCTOR) {
+          pinpointIds = pinpointIds.concat(CONFIG.PINPOINT_FILES.DOCTOR);
+        }
+        if (accessibleFolders.includes(CONFIG.FOLDERS.DECOCTION) && CONFIG.PINPOINT_FILES.DECOCTION) {
+          pinpointIds = pinpointIds.concat(CONFIG.PINPOINT_FILES.DECOCTION);
+        }
+
+        const pinpointRequests = pinpointIds.map(fileId => {
           let url = `https://www.googleapis.com/drive/v3/files/${fileId}?fields=id,name,webViewLink,mimeType,modifiedTime&supportsAllDrives=true&_t=${timestamp}`;
           let fetchOptions = {};
           if (accessToken) {
@@ -1193,7 +1207,7 @@
               console.error(`Pinpoint file ${fileId} fetch error:`, err);
               return [];
             });
-        }) : [];
+        });
 
         const results = await Promise.all([...folderRequests, ...pinpointRequests]);
         results.forEach(files => {
