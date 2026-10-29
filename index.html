@@ -7,11 +7,11 @@
   <!-- 
     ====================================================
     * 파일명: index.html (다정부부한의원 업무 대시보드)
-    * 작성일시: 2026-10-29 17:15:00
-    * 수정사항: 
-      1. [진료] 섹션 최상단에 'SMART CHART 2.0' 매뉴얼 링크 추가
-      2. 'SMART CHART 2.0' 문서를 PINPOINT 추적 파일 배열에 추가
-      3. 모달 자바스크립트 구문 오류 수정 (스크립트 중단 현상 해결)
+    * 작성일시: 2026-10-29 17:22:00
+    * 주요 수정: 
+      1. [진료] 섹션 최상단 'SMART CHART 2.0' 링크 추가
+      2. 'SMART CHART 2.0' 문서를 PINPOINT 추적 파일 배열에 반영
+      3. openCalendarEditModal 구문 오류 완벽 수정 (화면 멈춤 원인 해결)
     ====================================================
   -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -126,4 +126,57 @@
     .cal-table td.is-today .cal-date-num { color: #047857 !important; font-weight: 900 !important; }
     
     .cal-slot-inline { display: inline-flex; align-items: center; gap: 1px; font-size: 8px; font-weight: bold; background: #F3F4F6; padding: 0.5px 2px; border-radius: 2px; border: 1px solid #E5E7EB; }
-    .cal-slot-label { font-size: 8px; margin
+    .cal-slot-label { font-size: 8px; margin-right: 0.5px; line-height: 1; }
+    
+    .cal-task-tag { font-size: 8.5px; color: #FFFFFF; background: #1E3A8A; border: 1px solid #3B82F6; border-radius: 2px; padding: 0.5px 2px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.1; font-weight: 500; margin: 1px auto; text-align: center; width: 100%; }
+    .cal-special-tag { font-size: 8.5px; color: #FFFFFF; background: #DC2626; border: 1px solid #B91C1C; border-radius: 2px; padding: 0.5px 2px; white-space: pre-wrap; word-break: break-all; display: block; line-height: 1.1; font-weight: bold; position: absolute; bottom: 2px; left: 2px; right: 2px; text-align: center; }
+
+    .badge-sun { background-color: #06B6D4; color: #FFF; box-shadow: 0 1px 2px rgba(6,182,212,0.4); } 
+    .badge-yun { background-color: #F59E0B; color: #FFF; box-shadow: 0 1px 2px rgba(245,158,11,0.4); } 
+    .badge-soo { background-color: #3B82F6; color: #FFF; box-shadow: 0 1px 2px rgba(59,130,246,0.4); } 
+    .badge-joo { background-color: #EF4444; color: #FFF; box-shadow: 0 1px 2px rgba(239,68,68,0.4); } 
+    .badge-hee { background-color: #8B5CF6; color: #FFF; box-shadow: 0 1px 2px rgba(139,92,246,0.4); } 
+    .badge-ji  { background-color: #10B981; color: #FFF; box-shadow: 0 1px 2px rgba(16,185,129,0.4); } 
+
+    .mini-badge { display: inline-flex; width: 14px; height: 14px; border-radius: 50%; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; flex-shrink: 0; }
+
+    .modal-badge-container { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+    .select-badge { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12.5px; font-weight: bold; cursor: pointer; border: 2px solid #4B5563; opacity: 0.25; filter: grayscale(80%); transition: all 0.2s; user-select: none; }
+    .select-badge:hover { opacity: 0.6; filter: grayscale(30%); }
+    .select-badge.selected { opacity: 1 !important; filter: none !important; border-color: #FFFFFF !important; transform: scale(1.12); box-shadow: 0 0 10px rgba(255,255,255,0.6); }
+
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; display: none; }
+    .modal-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 20px 24px; width: 380px; text-align: left; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    .modal-msg { font-size: 14px; color: #FFFFFF; margin-bottom: 12px; line-height: 1.4; font-weight: bold; }
+    .modal-input-group { margin-bottom: 10px; }
+    .modal-label { font-size: 11.5px; color: #D1D5DB; margin-bottom: 4px; display: block; font-weight: bold; }
+    .modal-field { width: 100%; border: 1px solid #4B5563; border-radius: 4px; padding: 6px 8px; font-size: 12.5px; color: #FFFFFF; background-color: #121212; outline: none; resize: vertical; min-height: 50px; }
+    .modal-field:focus { border-color: #3B82F6; }
+    
+    .modal-inline-options { display: flex; gap: 16px; align-items: center; margin-bottom: 12px; background: #121212; padding: 8px 10px; border-radius: 6px; border: 1px solid #374151; }
+    .modal-checkbox-group { display: flex; align-items: center; gap: 6px; }
+    .modal-checkbox-group input { width: 15px; height: 15px; cursor: pointer; }
+    .modal-checkbox-group label { font-size: 11.5px; cursor: pointer; font-weight: bold; }
+
+    .modal-btn-group { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
+    .modal-btn { padding: 6px 14px; font-size: 12px; font-weight: bold; border-radius: 5px; border: none; cursor: pointer; }
+    .modal-btn-confirm { background-color: #2563EB; color: #FFF; }
+    .modal-btn-cancel { background-color: #374151; color: #E5E7EB; }
+    
+    .toast-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 1100; display: none; }
+    .toast-box { background-color: #1E1E1E; border: 1px solid #4B5563; border-radius: 8px; padding: 16px 24px; text-align: center; font-size: 14px; color: #FFFFFF; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+    
+    .dashboard-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 12px; }
+    .column { background-color: #1E1E1E; border-radius: 8px; padding: 10px 12px; border: 1px solid #374151; box-shadow: 0 1px 3px rgba(0,0,0,0.3); }
+    .column-header { padding: 5px 8px; border-radius: 4px; font-size: 13.5px; font-weight: 700; margin-bottom: 8px; display: inline-block; width: 100%; }
+    .column-header a { color: inherit; text-decoration: none; display: flex; justify-content: space-between; align-items: center; }
+    .column-subtext { font-size: 10px; font-weight: normal; color: #D1D5DB; margin-top: 2px; display: block; }
+    
+    .bg-blue { background-color: #1E3A8A; color: #93C5FD; }
+    .bg-green { background-color: #064E3B; color: #6EE7B7; }
+    .bg-teal { background-color: #134E4A; color: #5EEAD4; }
+    .bg-purple { background-color: #581C87; color: #D8B4FE; }
+    .bg-yellow { background-color: #78350F; color: #FDE047; }
+    
+    .link-list { list-style: none; display: flex; flex-direction: column; gap: 2px; }
+    .link-item a { display: flex; align-items: center; gap: 6px; padding: 4px 6px; color: #E5E7EB; text-decoration: none; font-size: 11.5px; border-radius:
