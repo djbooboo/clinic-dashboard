@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -449,6 +449,7 @@
     let attendanceStates = {};
     let noticeList = [];
     let calendarData = {};
+    let recentFilesRequestId = 0;
 
     let calCurrentDate = new Date();
 
@@ -887,6 +888,7 @@
         setTimeout(async () => {
           await syncServerData();
           loadNotices();
+          await loadRecentFiles();
         }, 1000);
 
       } catch (e) {
@@ -1153,6 +1155,7 @@
     }
 
     async function loadRecentFiles() {
+      const requestId = ++recentFilesRequestId;
       const contentEl = document.getElementById('resultsContent');
       contentEl.innerHTML = '<p style="color:#9CA3AF; padding:2px 0; font-size:11.5px;">최신 데이터를 불러오는 중...</p>';
       
@@ -1214,6 +1217,7 @@
         });
 
         const results = await Promise.all([...folderRequests, ...pinpointRequests]);
+        if (requestId !== recentFilesRequestId) return;
         results.forEach(files => {
           allFiles = allFiles.concat(files);
         });
