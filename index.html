@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
@@ -13,7 +13,7 @@
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    var recentFilesRequestId = 0;var recentFilesRequestId = 0;var requestId = ++recentFilesRequestId;
+    
     body { background-color: #121212; color: #F3F4F6; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; padding: 16px 20px; font-size: 13px; }
     
     .header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; }
@@ -448,8 +448,8 @@
     let accessibleFolders = [CONFIG.FOLDERS.STAFF, CONFIG.FOLDERS.MANUAL];
     let attendanceStates = {};
     let noticeList = [];
-    let calendarData = {}; var recentFilesRequestId = 0;     var recentFilesRequestId = 0;
-    var recentFilesRequestId = 0;
+    let calendarData = {};
+    let recentFilesRequestId = 0;
 
     let calCurrentDate = new Date();
 
@@ -1154,8 +1154,8 @@
       loadRecentFiles();
     }
 
-    async function loadRecentFiles() { var requestId = ++recentFilesRequestId;       var requestId = ++recentFilesRequestId;
-      var requestId = ++recentFilesRequestId;
+    async function loadRecentFiles() {
+      const requestId = ++recentFilesRequestId;
       const contentEl = document.getElementById('resultsContent');
       contentEl.innerHTML = '<p style="color:#9CA3AF; padding:2px 0; font-size:11.5px;">최신 데이터를 불러오는 중...</p>';
       
@@ -1216,7 +1216,7 @@
             });
         });
 
-        const results = await Promise.all([...folderRequests, ...pinpointRequests]); if (requestId !== recentFilesRequestId) return;
+        const results = await Promise.all([...folderRequests, ...pinpointRequests]);
         if (requestId !== recentFilesRequestId) return;
         results.forEach(files => {
           allFiles = allFiles.concat(files);
